@@ -18,10 +18,10 @@ return new class extends Migration
             $table->string('device_name')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
-            $table->enum('status', ['active', 'blocked', 'reset_requested'])->default('active');
+            $table->enum('status', ['active', 'blocked', 'pending_reset'])->default('active');
             $table->timestamp('last_used_at')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['user_id', 'device_fingerprint']);
         });
     }

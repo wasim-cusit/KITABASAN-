@@ -4,10 +4,24 @@
 @section('page-title', 'Device Management')
 
 @section('content')
+@if($pendingResetCount > 0)
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-semibold text-yellow-800">Pending Reset Requests</h3>
+                <p class="text-sm text-yellow-700">You have {{ $pendingResetCount }} pending device reset request(s) awaiting approval.</p>
+            </div>
+            <a href="#pending-resets" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">
+                View Requests
+            </a>
+        </div>
+    </div>
+@endif
+
 <div class="bg-white rounded-lg shadow p-6">
     <!-- Filters -->
     <form method="GET" action="{{ route('admin.devices.index') }}" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <input type="text" name="search" placeholder="Search users..." value="{{ request('search') }}" 
+        <input type="text" name="search" placeholder="Search users..." value="{{ request('search') }}"
                class="px-4 py-2 border rounded-lg">
         <select name="status" class="px-4 py-2 border rounded-lg">
             <option value="">All Status</option>
@@ -28,6 +42,52 @@
         </button>
     </form>
 
+    <!-- Pending Reset Requests -->
+    @php
+        $pendingResets = $devices->where('status', 'pending_reset');
+    @endphp
+
+    @if($pendingResets->count() > 0)
+        <div id="pending-resets" class="mb-6">
+            <h3 class="text-lg font-bold mb-4 text-yellow-800">Pending Reset Requests ({{ $pendingResets->count() }})</h3>
+            <div class="space-y-4">
+                @foreach($pendingResets as $device)
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h4 class="font-semibold text-gray-900">{{ $device->user->name }}</h4>
+                                    <span class="text-sm text-gray-600">{{ $device->user->email }}</span>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-1"><strong>Device:</strong> {{ $device->device_name ?? 'Unknown Device' }}</p>
+                                <p class="text-sm text-gray-700 mb-1"><strong>IP Address:</strong> {{ $device->ip_address ?? 'N/A' }}</p>
+                                <p class="text-sm text-gray-700 mb-2"><strong>Requested On:</strong> {{ $device->reset_requested_at->format('M d, Y H:i') }}</p>
+                                <div class="bg-white rounded p-3 mt-2">
+                                    <p class="text-sm font-medium text-gray-700 mb-1">Reason:</p>
+                                    <p class="text-sm text-gray-600">{{ $device->reset_request_reason }}</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2 ml-4">
+                                <form action="{{ route('admin.devices.approve-reset', $device->id) }}" method="POST" onsubmit="return confirm('Approve device reset? This will allow the user to login from a new device.')">
+                                    @csrf
+                                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm whitespace-nowrap">
+                                        Approve Reset
+                                    </button>
+                                </form>
+                                <form action="{{ route('admin.devices.reject-reset', $device->id) }}" method="POST" onsubmit="return confirm('Reject reset request? Device will remain active.')">
+                                    @csrf
+                                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm whitespace-nowrap">
+                                        Reject Request
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     <!-- Devices Table -->
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
@@ -43,7 +103,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($devices as $device)
-                    <tr>
+                    <tr class="{{ $device->status == 'pending_reset' ? 'bg-yellow-50' : '' }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">{{ $device->user->name }}</div>
                             <div class="text-sm text-gray-500">{{ $device->user->email }}</div>
@@ -53,9 +113,10 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $device->ip_address ?? 'N/A' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                {{ $device->status == 'active' ? 'bg-green-100 text-green-800' : 
-                                   ($device->status == 'blocked' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                {{ $device->status == 'active' ? 'bg-green-100 text-green-800' :
+                                   ($device->status == 'blocked' ? 'bg-red-100 text-red-800' :
+                                   ($device->status == 'pending_reset' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800')) }}">
                                 {{ ucfirst(str_replace('_', ' ', $device->status)) }}
                             </span>
                         </td>
@@ -73,10 +134,19 @@
                                     @csrf
                                     <button type="submit" class="text-green-600 hover:text-green-900 mr-3">Unblock</button>
                                 </form>
+                            @elseif($device->status == 'pending_reset')
+                                <form action="{{ route('admin.devices.approve-reset', $device->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-green-600 hover:text-green-900 mr-3">Approve</button>
+                                </form>
+                                <form action="{{ route('admin.devices.reject-reset', $device->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-red-600 hover:text-red-900">Reject</button>
+                                </form>
                             @endif
                             <form action="{{ route('admin.devices.reset', $device->id) }}" method="POST" class="inline" onsubmit="return confirm('Reset device binding? User will need to login again.')">
                                 @csrf
-                                <button type="submit" class="text-blue-600 hover:text-blue-900">Reset</button>
+                                <button type="submit" class="text-blue-600 hover:text-blue-900 ml-3">Reset</button>
                             </form>
                         </td>
                     </tr>

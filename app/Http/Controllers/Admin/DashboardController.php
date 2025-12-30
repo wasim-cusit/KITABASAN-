@@ -30,11 +30,17 @@ class DashboardController extends Controller
             ->get();
 
         $pendingCourses = Book::with(['teacher', 'subject'])
-            ->where('status', 'pending')
+            ->where('status', 'draft')
             ->latest()
             ->limit(10)
             ->get();
 
-        return view('admin.dashboard.index', compact('stats', 'recentPayments', 'pendingCourses'));
+        $pendingDeviceResets = \App\Models\DeviceBinding::with('user')
+            ->where('status', 'pending_reset')
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('admin.dashboard.index', compact('stats', 'recentPayments', 'pendingCourses', 'pendingDeviceResets'));
     }
 }

@@ -76,6 +76,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
     Route::put('payments/{id}/status', [\App\Http\Controllers\Admin\PaymentController::class, 'updateStatus'])->name('payments.update-status');
     Route::get('devices', [\App\Http\Controllers\Admin\DeviceController::class, 'index'])->name('devices.index');
     Route::post('devices/{id}/reset', [\App\Http\Controllers\Admin\DeviceController::class, 'resetDevice'])->name('devices.reset');
+    Route::post('devices/{id}/approve-reset', [\App\Http\Controllers\Admin\DeviceController::class, 'approveReset'])->name('devices.approve-reset');
+    Route::post('devices/{id}/reject-reset', [\App\Http\Controllers\Admin\DeviceController::class, 'rejectReset'])->name('devices.reject-reset');
     Route::post('devices/{id}/block', [\App\Http\Controllers\Admin\DeviceController::class, 'blockDevice'])->name('devices.block');
     Route::post('devices/{id}/unblock', [\App\Http\Controllers\Admin\DeviceController::class, 'unblockDevice'])->name('devices.unblock');
     Route::post('devices/user/{userId}/reset', [\App\Http\Controllers\Admin\DeviceController::class, 'resetUserDevices'])->name('devices.reset-user');
@@ -160,4 +162,8 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'role:student', 
     // Chatbot routes
     Route::get('/chatbot', [\App\Http\Controllers\Student\ChatbotController::class, 'index'])->name('chatbot.index');
     Route::post('/chatbot', [\App\Http\Controllers\Student\ChatbotController::class, 'send'])->name('chatbot.send');
+
+    // Device routes
+    Route::get('/devices', [\App\Http\Controllers\Student\DeviceController::class, 'index'])->name('devices.index');
+    Route::post('/devices/request-reset', [\App\Http\Controllers\Student\DeviceController::class, 'requestReset'])->name('devices.request-reset');
 });

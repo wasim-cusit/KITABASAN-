@@ -41,14 +41,26 @@ class DeviceBinding
                     // Block access - user needs device reset
                     Auth::logout();
                     return redirect()->route('login')
-                        ->with('error', 'You can only access from one device. Please contact admin for device reset.');
+                        ->with('error', 'You can only access from one device at a time. Please request a device reset from your account settings or contact admin.');
                 }
             } else {
+                // Check if there's a pending reset request
+                $pendingReset = DeviceBindingModel::where('user_id', $user->id)
+                    ->where('status', 'pending_reset')
+                    ->first();
+
+                if ($pendingReset) {
+                    // Block access until admin approves reset
+                    Auth::logout();
+                    return redirect()->route('login')
+                        ->with('info', 'Your device reset request is pending admin approval. Please wait for approval before logging in from a new device.');
+                }
+
                 // First device - auto bind
                 DeviceBindingModel::create([
                     'user_id' => $user->id,
                     'device_fingerprint' => $deviceFingerprint,
-                    'device_name' => $request->userAgent(),
+                    'device_name' => $this->getDeviceName($request),
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent(),
                     'status' => 'active',
@@ -62,7 +74,14 @@ class DeviceBinding
                     'last_used_at' => now(),
                     'ip_address' => $request->ip(),
                 ]);
+            } elseif ($deviceBinding->status === 'pending_reset') {
+                // Allow access but show message
+                $deviceBinding->update([
+                    'last_used_at' => now(),
+                ]);
+                // Don't block, but user should know reset is pending
             } else {
+                // Blocked device
                 Auth::logout();
                 return redirect()->route('login')
                     ->with('error', 'Your device has been blocked. Please contact admin.');
@@ -85,5 +104,28 @@ class DeviceBinding
         ];
 
         return hash('sha256', implode('|', $data));
+    }
+
+    /**
+     * Get device name from user agent
+     */
+    private function getDeviceName(Request $request): string
+    {
+        $userAgent = $request->userAgent();
+
+        // Simple device name extraction
+        if (strpos($userAgent, 'Windows') !== false) {
+            return 'Windows Device';
+        } elseif (strpos($userAgent, 'Mac') !== false) {
+            return 'Mac Device';
+        } elseif (strpos($userAgent, 'Linux') !== false) {
+            return 'Linux Device';
+        } elseif (strpos($userAgent, 'Android') !== false) {
+            return 'Android Device';
+        } elseif (strpos($userAgent, 'iPhone') !== false || strpos($userAgent, 'iPad') !== false) {
+            return 'iOS Device';
+        }
+
+        return 'Unknown Device';
     }
 }

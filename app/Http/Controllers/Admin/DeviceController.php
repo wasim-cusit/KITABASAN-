@@ -31,21 +31,59 @@ class DeviceController extends Controller
             $query->where('user_id', $request->user_id);
         }
 
-        $devices = $query->latest()->paginate(20);
-        $users = User::role('student')->get();
+        // Show pending reset requests first
+        if (!$request->has('status')) {
+            $query->orderByRaw("CASE WHEN status = 'pending_reset' THEN 0 ELSE 1 END");
+        }
 
-        return view('admin.devices.index', compact('devices', 'users'));
+        $devices = $query->latest()->paginate(20);
+        $users = User::role('student')->orWhereHas('roles', function($q) {
+            $q->where('name', 'teacher');
+        })->get();
+
+        // Count pending reset requests
+        $pendingResetCount = DeviceBinding::where('status', 'pending_reset')->count();
+
+        return view('admin.devices.index', compact('devices', 'users', 'pendingResetCount'));
     }
 
     public function resetDevice($id)
     {
         $device = DeviceBinding::findOrFail($id);
+        $user = $device->user;
 
-        // Delete the device binding to allow user to login from new device
-        $device->delete();
+        // Delete all device bindings for this user to allow fresh login
+        DeviceBinding::where('user_id', $user->id)->delete();
 
         return redirect()->back()
-            ->with('success', 'Device binding reset successfully. User can now login from a new device.');
+            ->with('success', 'All device bindings for this user have been reset. User can now login from a new device.');
+    }
+
+    public function approveReset($id)
+    {
+        $device = DeviceBinding::findOrFail($id);
+        $user = $device->user;
+
+        // Delete all device bindings for this user
+        DeviceBinding::where('user_id', $user->id)->delete();
+
+        return redirect()->back()
+            ->with('success', 'Device reset approved. User can now login from a new device.');
+    }
+
+    public function rejectReset($id)
+    {
+        $device = DeviceBinding::findOrFail($id);
+
+        // Reject the reset request and set device back to active
+        $device->update([
+            'status' => 'active',
+            'reset_requested_at' => null,
+            'reset_request_reason' => null,
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Device reset request rejected. Device remains active.');
     }
 
     public function blockDevice($id)

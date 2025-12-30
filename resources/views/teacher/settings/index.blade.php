@@ -41,6 +41,19 @@
                 </div>
             </div>
 
+                <div>
+                    <h2 class="text-xl font-semibold mb-4">Device Management</h2>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-sm text-gray-700 mb-3">
+                            You can only access your account from one device at a time. If you need to use a different device, you can request a device reset.
+                        </p>
+                        <a href="{{ route('teacher.devices.index') }}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            Manage My Devices
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div class="mt-6">
                 <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
                     Save Settings
@@ -50,4 +63,5 @@
     </div>
 </div>
 @endsection
+
 

@@ -15,10 +15,13 @@ class DeviceBinding extends Model
         'user_agent',
         'status',
         'last_used_at',
+        'reset_requested_at',
+        'reset_request_reason',
     ];
 
     protected $casts = [
         'last_used_at' => 'datetime',
+        'reset_requested_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
