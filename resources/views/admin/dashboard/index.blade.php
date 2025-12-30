@@ -25,15 +25,15 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="bg-white rounded-lg shadow p-6">
             <h2 class="text-xl font-bold mb-4">Recent Payments</h2>
             <div class="space-y-4">
                 @forelse($recentPayments as $payment)
                 <div class="border-b pb-2">
-                    <p class="font-medium">{{ $payment->user->name }}</p>
-                    <p class="text-sm text-gray-600">{{ $payment->book->title }}</p>
-                    <p class="text-sm font-semibold">Rs. {{ number_format($payment->amount, 2) }}</p>
+                    <p class="font-medium">{{ $payment->user->name ?? 'N/A' }}</p>
+                    <p class="text-sm text-gray-600">{{ $payment->book->title ?? 'N/A' }}</p>
+                    <p class="text-sm font-semibold">Rs. {{ number_format($payment->amount ?? 0, 2) }}</p>
                 </div>
                 @empty
                 <p class="text-gray-500">No recent payments</p>
@@ -55,6 +55,27 @@
                 <p class="text-gray-500">No pending courses</p>
                 @endforelse
             </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-bold mb-4">Pending Device Resets</h2>
+            <div class="space-y-4">
+                @forelse($pendingDeviceResets as $device)
+                <div class="border-b pb-2">
+                    <p class="font-medium">{{ $device->user->name }}</p>
+                    <p class="text-sm text-gray-600">{{ $device->device_name ?? 'Unknown Device' }}</p>
+                    <p class="text-xs text-gray-500">{{ Str::limit($device->reset_request_reason, 50) }}</p>
+                    <a href="{{ route('admin.devices.index') }}?status=pending_reset" class="text-blue-600 text-sm hover:underline">View Request</a>
+                </div>
+                @empty
+                <p class="text-gray-500">No pending reset requests</p>
+                @endforelse
+            </div>
+            @if(isset($pendingDeviceResets) && $pendingDeviceResets->count() > 0)
+                <a href="{{ route('admin.devices.index') }}?status=pending_reset" class="mt-4 inline-block text-blue-600 text-sm hover:underline font-semibold">
+                    View All Requests →
+                </a>
+            @endif
         </div>
     </div>
 </div>
