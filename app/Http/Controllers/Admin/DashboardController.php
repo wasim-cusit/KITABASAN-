@@ -30,7 +30,7 @@ class DashboardController extends Controller
             ->get();
 
         $pendingCourses = Book::with(['teacher', 'subject'])
-            ->where('status', 'draft')
+                ->where('status', 'draft')
             ->latest()
             ->limit(10)
             ->get();

@@ -1,11 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.teacher')
 
 @section('title', 'Settings')
+@section('page-title', 'Settings')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow p-6">
-        <h1 class="text-2xl font-bold mb-6">Teacher Settings</h1>
+<div class="container mx-auto px-0 lg:px-4">
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+        <h1 class="text-xl lg:text-2xl font-bold mb-6">Teacher Settings</h1>
 
         <form action="{{ route('teacher.settings.update') }}" method="POST">
             @csrf
@@ -55,7 +56,7 @@
             </div>
 
             <div class="mt-6">
-                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+                <button type="submit" class="bg-blue-600 text-white px-4 lg:px-6 py-2 rounded hover:bg-blue-700 text-sm lg:text-base">
                     Save Settings
                 </button>
             </div>

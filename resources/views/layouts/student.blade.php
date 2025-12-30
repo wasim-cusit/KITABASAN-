@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin - Kitabasan Learning Platform')</title>
+    <title>@yield('title', 'Student - Kitabasan Learning Platform')</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -45,9 +45,9 @@
                class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gray-800 text-white min-h-screen transform transition-transform duration-300 ease-in-out lg:translate-x-0">
             <div class="p-4">
                 <div class="flex items-center justify-between mb-8">
-                    <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-2">
+                    <a href="{{ route('student.dashboard') }}" class="flex items-center space-x-2">
                         <img src="{{ asset('logo.jpeg') }}" alt="Logo" class="h-10">
-                        <span class="text-xl font-bold">Admin Panel</span>
+                        <span class="text-xl font-bold">Student Panel</span>
                     </a>
                     <!-- Close button for mobile -->
                     <button @click="sidebarOpen = false" class="lg:hidden text-white hover:text-gray-300 focus:outline-none">
@@ -58,42 +58,37 @@
                 </div>
 
                 <nav class="space-y-2">
-                    <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('admin.dashboard') ? 'bg-gray-700' : '' }}">
+                    <a href="{{ route('student.dashboard') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('student.dashboard') ? 'bg-gray-700' : '' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                         <span>Dashboard</span>
                     </a>
 
-                    <a href="{{ route('admin.users.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('admin.users.*') ? 'bg-gray-700' : '' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        <span>Users</span>
-                    </a>
-
-                    <a href="{{ route('admin.courses.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('admin.courses.*') ? 'bg-gray-700' : '' }}">
+                    <a href="{{ route('student.courses.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('student.courses.*') ? 'bg-gray-700' : '' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                        <span>Courses</span>
+                        <span>Browse Courses</span>
                     </a>
 
-                    <a href="{{ route('admin.payments.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('admin.payments.*') ? 'bg-gray-700' : '' }}">
+                    <a href="{{ route('student.payments.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('student.payments.*') ? 'bg-gray-700' : '' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         <span>Payments</span>
                     </a>
 
-                    <a href="{{ route('admin.devices.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('admin.devices.*') ? 'bg-gray-700' : '' }}">
+                    <a href="{{ route('student.chatbot.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('student.chatbot.*') ? 'bg-gray-700' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                        <span>Chatbot</span>
+                    </a>
+
+                    <a href="{{ route('student.devices.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('student.devices.*') ? 'bg-gray-700' : '' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
                         <span>Devices</span>
                     </a>
 
-                    <a href="{{ route('admin.reports.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('admin.reports.*') ? 'bg-gray-700' : '' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        <span>Reports</span>
-                    </a>
-
-                    <a href="{{ route('admin.profile.show') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('admin.profile.*') ? 'bg-gray-700' : '' }}">
+                    <a href="{{ route('student.profile.show') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('student.profile.*') ? 'bg-gray-700' : '' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         <span>Profile</span>
                     </a>
 
-                    <a href="{{ route('admin.settings.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('admin.settings.*') ? 'bg-gray-700' : '' }}">
+                    <a href="{{ route('student.settings.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('student.settings.*') ? 'bg-gray-700' : '' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span>Settings</span>
                     </a>

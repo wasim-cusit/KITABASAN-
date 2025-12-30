@@ -4,9 +4,9 @@
 @section('page-title', 'Payments Management')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-4 lg:space-y-6">
     <!-- Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <div class="bg-white rounded-lg shadow p-4">
             <h3 class="text-sm text-gray-500">Total Payments</h3>
             <p class="text-2xl font-bold">{{ $stats['total'] }}</p>
@@ -26,8 +26,8 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <form method="GET" action="{{ route('admin.payments.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+        <form method="GET" action="{{ route('admin.payments.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}" 
                    class="px-4 py-2 border rounded-lg">
             <select name="status" class="px-4 py-2 border rounded-lg">
@@ -44,54 +44,61 @@
             </select>
             <input type="date" name="date_from" value="{{ request('date_from') }}" class="px-4 py-2 border rounded-lg">
             <input type="date" name="date_to" value="{{ request('date_to') }}" class="px-4 py-2 border rounded-lg">
-            <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 col-span-5 md:col-span-1">
+            <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 col-span-1 sm:col-span-2 lg:col-span-1">
                 Filter
             </button>
         </form>
 
         <!-- Payments Table -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gateway</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($payments as $payment)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono">{{ $payment->transaction_id }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $payment->user->name }}</td>
-                            <td class="px-6 py-4 text-sm">{{ $payment->book->title }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">Rs. {{ number_format($payment->amount, 2) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ ucfirst($payment->gateway ?? 'N/A') }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                    {{ $payment->status == 'completed' ? 'bg-green-100 text-green-800' : 
-                                       ($payment->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                       ($payment->status == 'failed' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')) }}">
-                                    {{ ucfirst($payment->status) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $payment->created_at->format('M d, Y') }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="{{ route('admin.payments.show', $payment->id) }}" class="text-blue-600 hover:text-blue-900">View</a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">No payments found</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        <div class="overflow-x-auto -mx-4 lg:mx-0">
+            <div class="inline-block min-w-full align-middle">
+                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction ID</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">User</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Course</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Gateway</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Date</th>
+                                <th class="px-3 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($payments as $payment)
+                                <tr>
+                                    <td class="px-3 lg:px-6 py-4">
+                                        <div class="text-xs lg:text-sm font-mono">{{ Str::limit($payment->transaction_id, 12) }}</div>
+                                        <div class="text-xs text-gray-500 md:hidden mt-1">{{ $payment->user->name }}</div>
+                                    </td>
+                                    <td class="px-3 lg:px-6 py-4 whitespace-nowrap text-sm hidden md:table-cell">{{ $payment->user->name }}</td>
+                                    <td class="px-3 lg:px-6 py-4 text-sm hidden lg:table-cell">{{ Str::limit($payment->book->title, 30) }}</td>
+                                    <td class="px-3 lg:px-6 py-4 whitespace-nowrap text-sm font-semibold">Rs. {{ number_format($payment->amount, 2) }}</td>
+                                    <td class="px-3 lg:px-6 py-4 whitespace-nowrap text-sm hidden lg:table-cell">{{ ucfirst($payment->gateway ?? 'N/A') }}</td>
+                                    <td class="px-3 lg:px-6 py-4">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                            {{ $payment->status == 'completed' ? 'bg-green-100 text-green-800' : 
+                                               ($payment->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                               ($payment->status == 'failed' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')) }}">
+                                            {{ ucfirst($payment->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-3 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">{{ $payment->created_at->format('M d, Y') }}</td>
+                                    <td class="px-3 lg:px-6 py-4 text-sm font-medium">
+                                        <a href="{{ route('admin.payments.show', $payment->id) }}" class="text-blue-600 hover:text-blue-900">View</a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">No payments found</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div class="mt-4">

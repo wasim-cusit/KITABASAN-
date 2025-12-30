@@ -1,13 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.teacher')
 
 @section('title', 'Edit Course')
+@section('page-title', 'Edit Course')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-0 lg:px-4">
     <div class="max-w-3xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6">Edit Course</h1>
-
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-lg shadow p-4 lg:p-6">
             <form action="{{ route('teacher.courses.update', $course->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')

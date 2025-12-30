@@ -1,19 +1,20 @@
-@extends('layouts.app')
+@extends('layouts.teacher')
 
 @section('title', 'Course: ' . $course->title)
+@section('page-title', $course->title)
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-6 flex items-center justify-between">
+<div class="container mx-auto px-0 lg:px-4">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold">{{ $course->title }}</h1>
-            <p class="text-gray-600 mt-1">{{ $course->subject->grade->name }} → {{ $course->subject->name }}</p>
+            <h1 class="text-xl lg:text-3xl font-bold">{{ $course->title }}</h1>
+            <p class="text-sm lg:text-base text-gray-600 mt-1">{{ $course->subject->grade->name }} → {{ $course->subject->name }}</p>
         </div>
-        <div class="flex gap-2">
-            <a href="{{ route('teacher.courses.edit', $course->id) }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+        <div class="flex flex-col sm:flex-row gap-2">
+            <a href="{{ route('teacher.courses.edit', $course->id) }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm lg:text-base text-center">
                 Edit Course
             </a>
-            <a href="{{ route('teacher.courses.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+            <a href="{{ route('teacher.courses.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm lg:text-base text-center">
                 Back to Courses
             </a>
         </div>
@@ -26,8 +27,8 @@
     @endif
 
     <!-- Course Info -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
                 <span class="text-sm text-gray-500">Status</span>
                 <p class="font-semibold">
@@ -54,21 +55,21 @@
     </div>
 
     <!-- Chapters -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold">Chapters & Lessons</h2>
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+            <h2 class="text-xl lg:text-2xl font-bold">Chapters & Lessons</h2>
             <button onclick="document.getElementById('addChapterModal').classList.remove('hidden')"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm lg:text-base">
                 Add Chapter
             </button>
         </div>
 
         <div class="space-y-6">
             @forelse($course->chapters as $chapter)
-                <div class="border rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-3">
-                            <h3 class="text-lg font-semibold">{{ $chapter->title }}</h3>
+                <div class="border rounded-lg p-3 lg:p-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 class="text-base lg:text-lg font-semibold">{{ $chapter->title }}</h3>
                             @if($chapter->is_free)
                                 <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">FREE</span>
                             @else
@@ -77,12 +78,12 @@
                         </div>
                         <div class="flex gap-2">
                             <button onclick="editChapter({{ $chapter->id }}, '{{ $chapter->title }}', '{{ $chapter->description }}', {{ $chapter->is_free ? 'true' : 'false' }}, {{ $chapter->order }})"
-                                    class="text-blue-600 hover:text-blue-700 text-sm">Edit</button>
+                                    class="text-blue-600 hover:text-blue-700 text-xs lg:text-sm">Edit</button>
                             <form action="{{ route('teacher.courses.chapters.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id]) }}"
                                   method="POST" onsubmit="return confirm('Are you sure? This will delete all lessons in this chapter.')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-700 text-sm">Delete</button>
+                                <button type="submit" class="text-red-600 hover:text-red-700 text-xs lg:text-sm">Delete</button>
                             </form>
                         </div>
                     </div>
@@ -91,12 +92,12 @@
                     @endif
 
                     <!-- Lessons in Chapter -->
-                    <div class="ml-4 space-y-2">
+                    <div class="ml-2 lg:ml-4 space-y-2">
                         @forelse($chapter->lessons as $lesson)
-                            <div class="border-l-2 border-gray-200 pl-4 py-2">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm font-medium">{{ $lesson->title }}</span>
+                            <div class="border-l-2 border-gray-200 pl-2 lg:pl-4 py-2">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-xs lg:text-sm font-medium">{{ $lesson->title }}</span>
                                         @if($lesson->is_free)
                                             <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">FREE</span>
                                         @else
@@ -105,12 +106,12 @@
                                         <span class="text-xs text-gray-500">{{ ucfirst($lesson->status) }}</span>
                                     </div>
                                     <div class="flex gap-2">
-                                        <a href="{{ route('teacher.lessons.edit', $lesson->id) }}" class="text-blue-600 hover:text-blue-700 text-sm">Edit</a>
+                                        <a href="{{ route('teacher.lessons.edit', $lesson->id) }}" class="text-blue-600 hover:text-blue-700 text-xs lg:text-sm">Edit</a>
                                         <form action="{{ route('teacher.courses.chapters.lessons.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id, 'lessonId' => $lesson->id]) }}"
                                               method="POST" onsubmit="return confirm('Are you sure?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-700 text-sm">Delete</button>
+                                            <button type="submit" class="text-red-600 hover:text-red-700 text-xs lg:text-sm">Delete</button>
                                         </form>
                                     </div>
                                 </div>

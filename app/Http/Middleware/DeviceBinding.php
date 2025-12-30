@@ -21,7 +21,15 @@ class DeviceBinding
             return $next($request);
         }
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
+
+        // Skip device binding check for admin and teacher roles
+        // Only apply device limitation to students
+        if ($user->hasRole('admin') || $user->hasRole('teacher')) {
+            return $next($request);
+        }
+
         $deviceFingerprint = $this->generateDeviceFingerprint($request);
 
         // Check if device is already bound

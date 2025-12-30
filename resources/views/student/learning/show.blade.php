@@ -1,24 +1,25 @@
-@extends('layouts.app')
+@extends('layouts.student')
 
 @section('title', 'Watch Lesson')
+@section('page-title', $lesson->title)
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-0 lg:px-4">
     @if(!$enrollment && !$book->is_free && !$lesson->is_free && !$lesson->chapter->is_free)
-        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <p class="text-yellow-800">
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 lg:p-4 mb-6">
+            <p class="text-yellow-800 text-xs lg:text-sm">
                 <strong>Premium Content:</strong> This lesson requires course purchase.
                 <a href="{{ route('student.courses.show', $book->id) }}" class="underline font-semibold">Purchase now</a> to access.
             </p>
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
         <!-- Video Player -->
         <div class="lg:col-span-3">
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h1 class="text-2xl font-bold">{{ $lesson->title }}</h1>
+            <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+                    <h1 class="text-lg lg:text-2xl font-bold">{{ $lesson->title }}</h1>
                     <div class="flex gap-2">
                         @if($lesson->is_free || $lesson->chapter->is_free)
                             <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">FREE</span>
@@ -117,9 +118,9 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-lg shadow p-4">
-                <h3 class="font-bold mb-4">Course Content</h3>
+        <div class="lg:col-span-1 order-first lg:order-last">
+            <div class="bg-white rounded-lg shadow p-3 lg:p-4">
+                <h3 class="font-bold mb-4 text-sm lg:text-base">Course Content</h3>
                 <div class="space-y-2">
                     @foreach($chapters as $chapter)
                         <div class="mb-4">

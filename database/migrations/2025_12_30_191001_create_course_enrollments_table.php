@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('payment_id')->nullable()->constrained()->onDelete('set null');
             $table->enum('status', ['active', 'expired', 'cancelled'])->default('active');
             $table->timestamp('enrolled_at');
-            $table->timestamp('expires_at');
+            $table->timestamp('expires_at')->nullable();
             $table->integer('progress_percentage')->default(0);
             $table->timestamp('last_accessed_at')->nullable();
             $table->timestamps();

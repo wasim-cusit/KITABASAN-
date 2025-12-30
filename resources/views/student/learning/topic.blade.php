@@ -1,29 +1,30 @@
-@extends('layouts.app')
+@extends('layouts.student')
 
 @section('title', $topic->title)
+@section('page-title', $topic->title)
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-0 lg:px-4">
     @if(!$enrollment && !$book->is_free && !$topic->is_free && !$lesson->is_free && !$lesson->chapter->is_free)
-        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <p class="text-yellow-800">
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 lg:p-4 mb-6">
+            <p class="text-yellow-800 text-xs lg:text-sm">
                 <strong>Premium Content:</strong> This topic requires course purchase.
                 <a href="{{ route('student.courses.show', $book->id) }}" class="underline font-semibold">Purchase now</a> to access.
             </p>
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
         <!-- Video Player -->
         <div class="lg:col-span-3">
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-white rounded-lg shadow p-4 lg:p-6">
                 <div class="mb-4">
                     <a href="{{ route('student.learning.lesson', ['bookId' => $book->id, 'lessonId' => $lesson->id]) }}"
-                       class="text-blue-600 hover:text-blue-700 text-sm mb-2 inline-block">
+                       class="text-blue-600 hover:text-blue-700 text-xs lg:text-sm mb-2 inline-block">
                         ← Back to Lesson: {{ $lesson->title }}
                     </a>
-                    <div class="flex items-center justify-between">
-                        <h1 class="text-2xl font-bold">{{ $topic->title }}</h1>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <h1 class="text-lg lg:text-2xl font-bold">{{ $topic->title }}</h1>
                         <div class="flex gap-2">
                             @if($topic->is_free || $lesson->is_free || $lesson->chapter->is_free)
                                 <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">FREE</span>
@@ -67,9 +68,9 @@
                                 <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                 </svg>
-                                <p class="text-xl font-semibold mb-2">Premium Content</p>
-                                <p class="text-gray-400 mb-4">Purchase this course to access this topic</p>
-                                <a href="{{ route('student.courses.show', $book->id) }}" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                <p class="text-lg lg:text-xl font-semibold mb-2">Premium Content</p>
+                                <p class="text-gray-400 mb-4 text-sm lg:text-base">Purchase this course to access this topic</p>
+                                <a href="{{ route('student.courses.show', $book->id) }}" class="inline-block bg-blue-600 text-white px-4 lg:px-6 py-2 rounded-lg hover:bg-blue-700 text-sm lg:text-base">
                                     Purchase Course
                                 </a>
                             </div>
@@ -78,16 +79,16 @@
                 </div>
 
                 <div class="mb-4">
-                    <h2 class="text-lg font-semibold mb-2">Description</h2>
-                    <p class="text-gray-700">{{ $topic->description }}</p>
+                    <h2 class="text-base lg:text-lg font-semibold mb-2">Description</h2>
+                    <p class="text-gray-700 text-sm lg:text-base">{{ $topic->description }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Sidebar -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-lg shadow p-4">
-                <h3 class="font-bold mb-4">Course Content</h3>
+        <div class="lg:col-span-1 order-first lg:order-last">
+            <div class="bg-white rounded-lg shadow p-3 lg:p-4">
+                <h3 class="font-bold mb-4 text-sm lg:text-base">Course Content</h3>
                 <div class="space-y-2">
                     @foreach($chapters as $chapter)
                         <div class="mb-4">

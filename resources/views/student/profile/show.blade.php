@@ -1,13 +1,14 @@
-@extends('layouts.app')
+@extends('layouts.student')
 
 @section('title', 'My Profile')
+@section('page-title', 'My Profile')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">My Profile</h1>
-            <a href="{{ route('student.profile.edit') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+<div class="container mx-auto px-0 lg:px-4">
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+            <h1 class="text-xl lg:text-2xl font-bold">My Profile</h1>
+            <a href="{{ route('student.profile.edit') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm lg:text-base text-center">
                 Edit Profile
             </a>
         </div>

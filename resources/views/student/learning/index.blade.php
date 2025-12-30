@@ -1,16 +1,17 @@
-@extends('layouts.app')
+@extends('layouts.student')
 
 @section('title', 'Learning Dashboard')
+@section('page-title', $book->title)
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-0 lg:px-4">
     <div class="mb-6">
-        <h1 class="text-3xl font-bold">{{ $book->title }}</h1>
-        <p class="text-gray-600 mt-2">{{ $book->description }}</p>
+        <h1 class="text-xl lg:text-3xl font-bold">{{ $book->title }}</h1>
+        <p class="text-sm lg:text-base text-gray-600 mt-2">{{ $book->description }}</p>
 
         @if(!$enrollment && !$book->is_free)
-            <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p class="text-yellow-800 text-sm">
+            <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 lg:p-4">
+                <p class="text-yellow-800 text-xs lg:text-sm">
                     <strong>Note:</strong> You are viewing free content.
                     <a href="{{ route('student.courses.show', $book->id) }}" class="underline font-semibold">Purchase the course</a>
                     to access all lessons and topics.
@@ -19,21 +20,21 @@
         @endif
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
         <!-- Course Content -->
         <div class="lg:col-span-3">
-            <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-bold mb-4">Course Content</h2>
+            <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+                <h2 class="text-lg lg:text-xl font-bold mb-4">Course Content</h2>
 
                 <div class="space-y-6">
                     @foreach($chapters as $chapter)
                         <div class="border-b pb-4 last:border-b-0">
-                            <div class="flex items-center justify-between mb-3">
-                                <h3 class="text-lg font-semibold">{{ $chapter->title }}</h3>
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+                                <h3 class="text-base lg:text-lg font-semibold">{{ $chapter->title }}</h3>
                                 @if($chapter->is_free)
-                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">FREE</span>
+                                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded w-fit">FREE</span>
                                 @elseif(!$enrollment && !$book->is_free)
-                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">PAID</span>
+                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded w-fit">PAID</span>
                                 @endif
                             </div>
                             @if($chapter->description)
@@ -99,9 +100,9 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="lg:col-span-1">
+        <div class="lg:col-span-1 order-first lg:order-last">
             <div class="bg-white rounded-lg shadow p-4 mb-4">
-                <h3 class="font-bold mb-4">Progress</h3>
+                <h3 class="font-bold mb-4 text-sm lg:text-base">Progress</h3>
                 @if($enrollment)
                     <div class="mb-2">
                         <div class="w-full bg-gray-200 rounded-full h-2">

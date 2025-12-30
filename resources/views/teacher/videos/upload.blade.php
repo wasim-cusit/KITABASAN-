@@ -1,11 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.teacher')
 
 @section('title', 'Upload Video')
+@section('page-title', 'Upload Video')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow p-6">
-        <h1 class="text-2xl font-bold mb-6">Upload Video</h1>
+<div class="container mx-auto px-0 lg:px-4">
+    <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+        <h1 class="text-xl lg:text-2xl font-bold mb-6">Upload Video</h1>
 
         <div class="mb-6">
             <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center" id="dropZone">

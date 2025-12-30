@@ -4,30 +4,30 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
-<div class="container mx-auto">
+<div class="container mx-auto px-0 lg:px-4">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-gray-500 text-sm font-medium">Total Users</h3>
-            <p class="text-3xl font-bold text-gray-900">{{ $stats['total_users'] }}</p>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-6 lg:mb-8">
+        <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+            <h3 class="text-gray-500 text-xs lg:text-sm font-medium">Total Users</h3>
+            <p class="text-xl lg:text-3xl font-bold text-gray-900">{{ $stats['total_users'] }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-gray-500 text-sm font-medium">Total Courses</h3>
-            <p class="text-3xl font-bold text-gray-900">{{ $stats['total_courses'] }}</p>
+        <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+            <h3 class="text-gray-500 text-xs lg:text-sm font-medium">Total Courses</h3>
+            <p class="text-xl lg:text-3xl font-bold text-gray-900">{{ $stats['total_courses'] }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-gray-500 text-sm font-medium">Total Revenue</h3>
-            <p class="text-3xl font-bold text-gray-900">Rs. {{ number_format($stats['total_revenue'], 2) }}</p>
+        <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+            <h3 class="text-gray-500 text-xs lg:text-sm font-medium">Total Revenue</h3>
+            <p class="text-xl lg:text-3xl font-bold text-gray-900">Rs. {{ number_format($stats['total_revenue'], 2) }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-gray-500 text-sm font-medium">Pending Courses</h3>
-            <p class="text-3xl font-bold text-yellow-600">{{ $stats['pending_courses'] }}</p>
+        <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+            <h3 class="text-gray-500 text-xs lg:text-sm font-medium">Pending Courses</h3>
+            <p class="text-xl lg:text-3xl font-bold text-yellow-600">{{ $stats['pending_courses'] }}</p>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-bold mb-4">Recent Payments</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+        <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+            <h2 class="text-lg lg:text-xl font-bold mb-4">Recent Payments</h2>
             <div class="space-y-4">
                 @forelse($recentPayments as $payment)
                 <div class="border-b pb-2">
@@ -41,8 +41,8 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-bold mb-4">Pending Course Approvals</h2>
+        <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+            <h2 class="text-lg lg:text-xl font-bold mb-4">Pending Course Approvals</h2>
             <div class="space-y-4">
                 @forelse($pendingCourses as $course)
                 <div class="border-b pb-2">
@@ -57,8 +57,8 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-bold mb-4">Pending Device Resets</h2>
+        <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+            <h2 class="text-lg lg:text-xl font-bold mb-4">Pending Device Resets</h2>
             <div class="space-y-4">
                 @forelse($pendingDeviceResets as $device)
                 <div class="border-b pb-2">
