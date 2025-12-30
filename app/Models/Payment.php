@@ -13,7 +13,9 @@ class Payment extends Model
         'book_id',
         'transaction_id',
         'gateway',
+        'payment_gateway', // For compatibility
         'amount',
+        'currency',
         'status',
         'receipt_url',
         'gateway_response',

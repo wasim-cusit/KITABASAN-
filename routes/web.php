@@ -70,8 +70,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
     // Resource routes
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
+    Route::post('courses/{id}/approve', [\App\Http\Controllers\Admin\CourseController::class, 'approve'])->name('courses.approve');
+    Route::post('courses/{id}/reject', [\App\Http\Controllers\Admin\CourseController::class, 'reject'])->name('courses.reject');
     Route::resource('payments', \App\Http\Controllers\Admin\PaymentController::class);
-    Route::resource('devices', \App\Http\Controllers\Admin\DeviceController::class);
+    Route::put('payments/{id}/status', [\App\Http\Controllers\Admin\PaymentController::class, 'updateStatus'])->name('payments.update-status');
+    Route::get('devices', [\App\Http\Controllers\Admin\DeviceController::class, 'index'])->name('devices.index');
+    Route::post('devices/{id}/reset', [\App\Http\Controllers\Admin\DeviceController::class, 'resetDevice'])->name('devices.reset');
+    Route::post('devices/{id}/block', [\App\Http\Controllers\Admin\DeviceController::class, 'blockDevice'])->name('devices.block');
+    Route::post('devices/{id}/unblock', [\App\Http\Controllers\Admin\DeviceController::class, 'unblockDevice'])->name('devices.unblock');
+    Route::post('devices/user/{userId}/reset', [\App\Http\Controllers\Admin\DeviceController::class, 'resetUserDevices'])->name('devices.reset-user');
     Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
 });
 

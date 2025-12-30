@@ -18,9 +18,9 @@ class DashboardController extends Controller
             'total_teachers' => User::role('teacher')->count(),
             'total_students' => User::role('student')->count(),
             'total_courses' => Book::count(),
-            'pending_courses' => Book::where('status', 'pending')->count(),
+            'pending_courses' => Book::where('status', 'draft')->count(),
             'total_enrollments' => CourseEnrollment::count(),
-            'total_revenue' => Payment::where('status', 'completed')->sum('amount'),
+            'total_revenue' => Payment::where('status', 'completed')->sum('amount') ?? 0,
             'pending_payments' => Payment::where('status', 'pending')->count(),
         ];
 

@@ -1,10 +1,10 @@
-@extends('layouts.app')
+    @extends('layouts.admin')
 
 @section('title', 'Admin Dashboard')
+@section('page-title', 'Dashboard')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+<div class="container mx-auto">
     
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow p-6">
@@ -47,8 +47,9 @@
                 @forelse($pendingCourses as $course)
                 <div class="border-b pb-2">
                     <p class="font-medium">{{ $course->title }}</p>
-                    <p class="text-sm text-gray-600">By: {{ $course->teacher->name }}</p>
-                    <p class="text-sm text-gray-600">Subject: {{ $course->subject->name }}</p>
+                    <p class="text-sm text-gray-600">By: {{ $course->teacher->name ?? 'N/A' }}</p>
+                    <p class="text-sm text-gray-600">Subject: {{ $course->subject->name ?? 'N/A' }}</p>
+                    <a href="{{ route('admin.courses.show', $course->id) }}" class="text-blue-600 text-sm hover:underline">View Course</a>
                 </div>
                 @empty
                 <p class="text-gray-500">No pending courses</p>
