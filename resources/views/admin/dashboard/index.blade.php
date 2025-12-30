@@ -1,0 +1,61 @@
+@extends('layouts.app')
+
+@section('title', 'Admin Dashboard')
+
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Total Users</h3>
+            <p class="text-3xl font-bold text-gray-900">{{ $stats['total_users'] }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Total Courses</h3>
+            <p class="text-3xl font-bold text-gray-900">{{ $stats['total_courses'] }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Total Revenue</h3>
+            <p class="text-3xl font-bold text-gray-900">Rs. {{ number_format($stats['total_revenue'], 2) }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Pending Courses</h3>
+            <p class="text-3xl font-bold text-yellow-600">{{ $stats['pending_courses'] }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-bold mb-4">Recent Payments</h2>
+            <div class="space-y-4">
+                @forelse($recentPayments as $payment)
+                <div class="border-b pb-2">
+                    <p class="font-medium">{{ $payment->user->name }}</p>
+                    <p class="text-sm text-gray-600">{{ $payment->book->title }}</p>
+                    <p class="text-sm font-semibold">Rs. {{ number_format($payment->amount, 2) }}</p>
+                </div>
+                @empty
+                <p class="text-gray-500">No recent payments</p>
+                @endforelse
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-bold mb-4">Pending Course Approvals</h2>
+            <div class="space-y-4">
+                @forelse($pendingCourses as $course)
+                <div class="border-b pb-2">
+                    <p class="font-medium">{{ $course->title }}</p>
+                    <p class="text-sm text-gray-600">By: {{ $course->teacher->name }}</p>
+                    <p class="text-sm text-gray-600">Subject: {{ $course->subject->name }}</p>
+                </div>
+                @empty
+                <p class="text-gray-500">No pending courses</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
