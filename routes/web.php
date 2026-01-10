@@ -16,6 +16,7 @@ Route::get('/courses/{id}', [PublicCourseController::class, 'show'])->name('cour
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+Route::get('/sitemap.xml', [\App\Http\Controllers\Public\SitemapController::class, 'index'])->name('sitemap');
 
 // Authentication Routes
 Route::get('/login', [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])
@@ -66,7 +67,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
     // Settings routes
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::match(['put', 'post'], '/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
-    
+
     // Payment Methods routes
     Route::prefix('settings/payment-methods')->name('settings.payment-methods.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'index'])->name('index');
@@ -77,7 +78,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
         Route::delete('/{id}', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'destroy'])->name('destroy');
         Route::post('/{id}/toggle-status', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'toggleStatus'])->name('toggle-status');
     });
-    
+
     // Languages routes
     Route::prefix('settings/languages')->name('settings.languages.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\LanguageController::class, 'index'])->name('index');

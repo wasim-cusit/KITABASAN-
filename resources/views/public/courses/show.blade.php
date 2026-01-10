@@ -1,6 +1,42 @@
 @extends('layouts.app')
 
-@section('title', $course->title . ' - Kitabasan Learning Platform')
+@php
+    use Illuminate\Support\Str;
+    $metaTitle = $course->meta_title ?? $course->title . ' - Kitabasan Learning Platform';
+    $metaDescription = $course->meta_description ?? Str::limit($course->description ?? $course->short_description ?? 'Learn ' . $course->title . ' online with expert instructors.', 160);
+    $metaKeywords = $course->meta_keywords ? implode(', ', $course->meta_keywords) : ($course->tags ? implode(', ', $course->tags) : 'online course, ' . $course->title . ', ' . ($course->subject->name ?? '') . ', ' . ($course->subject->grade->name ?? ''));
+    $ogImage = $course->cover_image ? Storage::url($course->cover_image) : asset('logo.jpeg');
+
+    $seo = \App\Services\SEOService::generateMetaTags([
+        'title' => $metaTitle,
+        'description' => $metaDescription,
+        'keywords' => $metaKeywords,
+        'image' => $ogImage,
+        'url' => route('courses.show', $course->id),
+        'type' => 'article',
+    ]);
+
+    $courseSchema = \App\Services\SEOService::generateCourseSchema($course);
+    $breadcrumbSchema = \App\Services\SEOService::generateBreadcrumbSchema([
+        ['name' => 'Home', 'url' => route('home')],
+        ['name' => 'Courses', 'url' => route('courses.index')],
+        ['name' => $course->title, 'url' => route('courses.show', $course->id)],
+    ]);
+@endphp
+
+@section('title', $metaTitle)
+@section('description', $metaDescription)
+@section('keywords', $metaKeywords)
+@section('og_image', $ogImage)
+
+@push('structured_data')
+<script type="application/ld+json">
+{!! json_encode($courseSchema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+</script>
+<script type="application/ld+json">
+{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+</script>
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
@@ -43,7 +79,11 @@
                 <div class="lg:w-1/3">
                     <div class="bg-white border-2 border-gray-200 rounded-xl p-6 sticky top-24">
                         @if($course->cover_image)
-                            <img src="{{ Storage::url($course->cover_image) }}" alt="{{ $course->title }}" class="w-full h-48 object-cover rounded-lg mb-6">
+                            <img src="{{ Storage::url($course->cover_image) }}"
+                                 alt="{{ $course->title }} - Course Cover Image"
+                                 class="w-full h-48 object-cover rounded-lg mb-6"
+                                 loading="lazy"
+                                 onload="this.classList.add('loaded')">
                         @endif
                         <div class="text-center mb-6">
                             @if($course->is_free)
@@ -119,7 +159,11 @@
                 <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
                     <div class="h-40 bg-gradient-to-br from-blue-400 to-indigo-600">
                             @if($relatedCourse->cover_image)
-                                <img src="{{ \Storage::url($relatedCourse->cover_image) }}" alt="{{ $relatedCourse->title }}" class="w-full h-full object-cover">
+                                <img src="{{ \Storage::url($relatedCourse->cover_image) }}"
+                                     alt="{{ $relatedCourse->title }} - Related Course Image"
+                                     class="w-full h-full object-cover"
+                                     loading="lazy"
+                                     onload="this.classList.add('loaded')">
                             @endif
                     </div>
                     <div class="p-4">
@@ -140,46 +184,7 @@
     </section>
     @endif
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="mb-4">
-                        <img src="{{ asset('logo.jpeg') }}" alt="Kitabasan Logo" class="h-8">
-                    </div>
-                    <p class="text-gray-400">Your trusted learning platform for quality education.</p>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="{{ route('home') }}" class="hover:text-white">Home</a></li>
-                        <li><a href="{{ route('courses.index') }}" class="hover:text-white">Courses</a></li>
-                        <li><a href="{{ route('about') }}" class="hover:text-white">About Us</a></li>
-                        <li><a href="{{ route('contact') }}" class="hover:text-white">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Support</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Help Center</a></li>
-                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-white">Terms of Service</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Contact</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>Email: info@kitabasan.com</li>
-                        <li>Phone: +92 300 1234567</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; {{ date('Y') }} Kitabasan Learning Platform. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    @include('partials.footer')
 </div>
 @endsection
 

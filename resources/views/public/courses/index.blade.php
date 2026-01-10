@@ -1,6 +1,28 @@
 @extends('layouts.app')
 
-@section('title', 'Courses - Kitabasan Learning Platform')
+@php
+    $seo = \App\Services\SEOService::generateMetaTags([
+        'title' => 'All Courses - Kitabasan Learning Platform | Browse Online Courses',
+        'description' => 'Browse our comprehensive collection of online courses. Find courses by grade, subject, or search by keywords. Free and paid courses available from expert instructors.',
+        'keywords' => 'online courses, browse courses, all courses, course catalog, online learning courses, free courses, paid courses, course search, find courses',
+        'url' => route('courses.index'),
+    ]);
+
+    $breadcrumbSchema = \App\Services\SEOService::generateBreadcrumbSchema([
+        ['name' => 'Home', 'url' => route('home')],
+        ['name' => 'Courses', 'url' => route('courses.index')],
+    ]);
+@endphp
+
+@section('title', $seo['title'])
+@section('description', $seo['description'])
+@section('keywords', $seo['keywords'])
+
+@push('structured_data')
+<script type="application/ld+json">
+{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+</script>
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
@@ -58,7 +80,11 @@
                     <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
                         <div class="h-48 bg-gradient-to-br from-blue-400 to-indigo-600 relative">
                             @if($course->cover_image)
-                                <img src="{{ \Storage::url($course->cover_image) }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
+                                <img src="{{ \Storage::url($course->cover_image) }}"
+                                     alt="{{ $course->title }} - Course Image"
+                                     class="w-full h-full object-cover"
+                                     loading="lazy"
+                                     onload="this.classList.add('loaded')">
                             @endif
                             @if($course->is_free)
                                 <span class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">FREE</span>
@@ -118,46 +144,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="mb-4">
-                        <img src="{{ asset('logo.jpeg') }}" alt="Kitabasan Logo" class="h-8">
-                    </div>
-                    <p class="text-gray-400">Your trusted learning platform for quality education.</p>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="{{ route('home') }}" class="hover:text-white">Home</a></li>
-                        <li><a href="{{ route('courses.index') }}" class="hover:text-white">Courses</a></li>
-                        <li><a href="{{ route('about') }}" class="hover:text-white">About Us</a></li>
-                        <li><a href="{{ route('contact') }}" class="hover:text-white">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Support</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Help Center</a></li>
-                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-white">Terms of Service</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Contact</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>Email: info@kitabasan.com</li>
-                        <li>Phone: +92 300 1234567</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; {{ date('Y') }} Kitabasan Learning Platform. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    @include('partials.footer')
 </div>
 @endsection
 

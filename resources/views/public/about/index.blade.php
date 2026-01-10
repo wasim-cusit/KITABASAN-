@@ -1,6 +1,28 @@
 @extends('layouts.app')
 
-@section('title', 'About Us - Kitabasan Learning Platform')
+@php
+    $seo = \App\Services\SEOService::generateMetaTags([
+        'title' => 'About Us - Kitabasan Learning Platform | Our Mission & Vision',
+        'description' => 'Learn about Kitabasan Learning Platform - our mission to provide quality online education, expert instructors, and comprehensive courses to help you achieve your learning goals.',
+        'keywords' => 'about kitabasan, online education platform, e-learning mission, quality education, learn about us, educational platform, online learning about',
+        'url' => route('about'),
+    ]);
+
+    $breadcrumbSchema = \App\Services\SEOService::generateBreadcrumbSchema([
+        ['name' => 'Home', 'url' => route('home')],
+        ['name' => 'About Us', 'url' => route('about')],
+    ]);
+@endphp
+
+@section('title', $seo['title'])
+@section('description', $seo['description'])
+@section('keywords', $seo['keywords'])
+
+@push('structured_data')
+<script type="application/ld+json">
+{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+</script>
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
@@ -124,46 +146,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="mb-4">
-                        <img src="{{ asset('logo.jpeg') }}" alt="Kitabasan Logo" class="h-8">
-                    </div>
-                    <p class="text-gray-400">Your trusted learning platform for quality education.</p>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="{{ route('home') }}" class="hover:text-white">Home</a></li>
-                        <li><a href="{{ route('courses.index') }}" class="hover:text-white">Courses</a></li>
-                        <li><a href="{{ route('about') }}" class="hover:text-white">About Us</a></li>
-                        <li><a href="{{ route('contact') }}" class="hover:text-white">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Support</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">Help Center</a></li>
-                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-white">Terms of Service</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Contact</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>Email: info@kitabasan.com</li>
-                        <li>Phone: +92 300 1234567</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; {{ date('Y') }} Kitabasan Learning Platform. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    @include('partials.footer')
 </div>
 @endsection
 
