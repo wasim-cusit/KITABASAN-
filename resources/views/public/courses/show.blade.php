@@ -4,31 +4,6 @@
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-2">
-                    <a href="{{ route('home') }}">
-                        <img src="{{ asset('logo.jpeg') }}" alt="Kitabasan Logo" class="h-10">
-                    </a>
-                </div>
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-                    <a href="{{ route('courses.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Courses</a>
-                    <a href="{{ route('about') }}" class="text-gray-700 hover:text-blue-600 font-medium">About Us</a>
-                    <a href="{{ route('contact') }}" class="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
-                    @auth
-                        <a href="{{ route('student.dashboard') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Dashboard</a>
-                    @else
-                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-blue-600 font-medium">Login</a>
-                        <a href="{{ route('register') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Sign Up</a>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
-
     <!-- Course Header -->
     <section class="bg-white py-8">
         <div class="container mx-auto px-4">

@@ -1,0 +1,93 @@
+@extends('layouts.admin')
+
+@section('title', 'Edit Student')
+@section('page-title', 'Edit Student')
+
+@section('content')
+<div class="bg-white rounded-lg shadow p-6 max-w-2xl">
+    <form action="{{ route('admin.students.update', $student->id) }}" method="POST">
+        @csrf
+        @method('PUT')
+
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                    <input type="text" name="first_name" value="{{ old('first_name', $student->first_name) }}" required
+                           class="w-full px-4 py-2 border rounded-lg @error('first_name') border-red-500 @enderror"
+                           placeholder="Enter first name">
+                    @error('first_name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                    <input type="text" name="last_name" value="{{ old('last_name', $student->last_name) }}" required
+                           class="w-full px-4 py-2 border rounded-lg @error('last_name') border-red-500 @enderror"
+                           placeholder="Enter last name">
+                    @error('last_name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                <input type="email" name="email" value="{{ old('email', $student->email) }}" required
+                       class="w-full px-4 py-2 border rounded-lg @error('email') border-red-500 @enderror"
+                       placeholder="Enter student email">
+                @error('email')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mobile</label>
+                <input type="text" name="mobile" value="{{ old('mobile', $student->mobile) }}"
+                       class="w-full px-4 py-2 border rounded-lg @error('mobile') border-red-500 @enderror"
+                       placeholder="Enter mobile number">
+                @error('mobile')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Password (leave blank to keep current)</label>
+                <input type="password" name="password"
+                       class="w-full px-4 py-2 border rounded-lg @error('password') border-red-500 @enderror"
+                       placeholder="Enter new password (min 8 characters)">
+                @error('password')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+                <p class="text-xs text-gray-500 mt-1">Only fill this if you want to change the password</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                <input type="password" name="password_confirmation"
+                       class="w-full px-4 py-2 border rounded-lg"
+                       placeholder="Confirm new password">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+                <select name="status" required class="w-full px-4 py-2 border rounded-lg">
+                    <option value="active" {{ old('status', $student->status) == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ old('status', $student->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="suspended" {{ old('status', $student->status) == 'suspended' ? 'selected' : '' }}>Suspended</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Active students can login and access courses</p>
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium">
+                    Update Student
+                </button>
+                <a href="{{ route('admin.students.index') }}" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 text-center font-medium">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+@endsection

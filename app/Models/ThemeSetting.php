@@ -34,8 +34,11 @@ class ThemeSetting extends Model
     {
         $setting = self::where('key', $key)->first();
         if ($setting) {
+            // Store the value as-is (null, empty string, or string value)
+            // The database column is nullable, so we can store null
             $setting->update(['value' => $value]);
             Cache::forget("theme_setting_{$key}");
+
             return true;
         }
         return false;
@@ -47,7 +50,27 @@ class ThemeSetting extends Model
     public static function getGrouped(): array
     {
         return Cache::remember('theme_settings_grouped', 3600, function () {
-            return self::orderBy('group')->orderBy('key')->get()->groupBy('group')->toArray();
+            $settings = self::orderBy('group')->orderBy('key')->get();
+            $grouped = [];
+
+            foreach ($settings as $setting) {
+                $group = $setting->group ?? 'general';
+                if (!isset($grouped[$group])) {
+                    $grouped[$group] = [];
+                }
+
+                $grouped[$group][] = [
+                    'id' => $setting->id,
+                    'key' => $setting->key,
+                    'name' => $setting->name,
+                    'value' => $setting->value,
+                    'type' => $setting->type,
+                    'group' => $setting->group,
+                    'description' => $setting->description,
+                ];
+            }
+
+            return $grouped;
         });
     }
 

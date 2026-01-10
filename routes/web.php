@@ -65,7 +65,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
 
     // Settings routes
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
-    Route::put('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+    Route::match(['put', 'post'], '/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
     
     // Payment Methods routes
     Route::prefix('settings/payment-methods')->name('settings.payment-methods.')->group(function () {
@@ -92,6 +92,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
 
     // Resource routes
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    Route::resource('students', \App\Http\Controllers\Admin\StudentController::class);
     Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
     Route::get('courses/subjects-by-grade', [\App\Http\Controllers\Admin\CourseController::class, 'getSubjectsByGrade'])->name('courses.subjects-by-grade');
     Route::post('courses/{id}/approve', [\App\Http\Controllers\Admin\CourseController::class, 'approve'])->name('courses.approve');

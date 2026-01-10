@@ -8,7 +8,7 @@
     <!-- User Info -->
     <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
         <div class="flex items-center space-x-4 mb-6">
-            <img src="{{ $user->profile_image ? Storage::url($user->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) }}" 
+            <img src="{{ $user->profile_image ? \Storage::url($user->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) }}" 
                  alt="{{ $user->name }}" class="h-20 w-20 rounded-full">
             <div>
                 <h2 class="text-2xl font-bold">{{ $user->name }}</h2>
@@ -45,8 +45,11 @@
         </div>
 
         <div class="flex gap-2">
-            <a href="{{ route('admin.users.edit', $user->id) }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            <a href="{{ route('admin.users.edit', ['user' => $user->id, 'tab' => $activeTab ?? 'all']) }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 Edit User
+            </a>
+            <a href="{{ route('admin.users.index', ['tab' => $activeTab ?? 'all']) }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                Back to Users
             </a>
         </div>
     </div>

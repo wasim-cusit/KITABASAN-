@@ -8,15 +8,28 @@
     <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
         @csrf
         @method('PUT')
-        
+        <input type="hidden" name="tab" value="{{ $activeTab ?? 'all' }}">
+
         <div class="space-y-6">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                <input type="text" name="name" value="{{ old('name', $user->name) }}" required
-                       class="w-full px-4 py-2 border rounded-lg @error('name') border-red-500 @enderror">
-                @error('name')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                    <input type="text" name="first_name" value="{{ old('first_name', $user->first_name) }}" required
+                           class="w-full px-4 py-2 border rounded-lg @error('first_name') border-red-500 @enderror"
+                           placeholder="Enter first name">
+                    @error('first_name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                    <input type="text" name="last_name" value="{{ old('last_name', $user->last_name) }}" required
+                           class="w-full px-4 py-2 border rounded-lg @error('last_name') border-red-500 @enderror"
+                           placeholder="Enter last name">
+                    @error('last_name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <div>
@@ -79,7 +92,7 @@
                 <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
                     Update User
                 </button>
-                <a href="{{ route('admin.users.index') }}" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 text-center">
+                <a href="{{ route('admin.users.index', ['tab' => $activeTab ?? 'all']) }}" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 text-center">
                     Cancel
                 </a>
             </div>

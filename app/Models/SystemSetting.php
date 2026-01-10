@@ -41,8 +41,11 @@ class SystemSetting extends Model
     {
         $setting = self::where('key', $key)->first();
         if ($setting) {
+            // Store the value as-is (null, empty string, or string value)
+            // The database column is nullable, so we can store null
             $setting->update(['value' => $value]);
             Cache::forget("system_setting_{$key}");
+
             return true;
         }
         return false;
@@ -54,12 +57,33 @@ class SystemSetting extends Model
     public static function getGrouped(): array
     {
         return Cache::remember('system_settings_grouped', 3600, function () {
-            return self::where('is_active', true)
+            $settings = self::where('is_active', true)
                 ->orderBy('group')
                 ->orderBy('order')
-                ->get()
-                ->groupBy('group')
-                ->toArray();
+                ->get();
+
+            $grouped = [];
+
+            foreach ($settings as $setting) {
+                $group = $setting->group ?? 'general';
+                if (!isset($grouped[$group])) {
+                    $grouped[$group] = [];
+                }
+
+                $grouped[$group][] = [
+                    'id' => $setting->id,
+                    'key' => $setting->key,
+                    'name' => $setting->name,
+                    'value' => $setting->value,
+                    'type' => $setting->type,
+                    'group' => $setting->group,
+                    'description' => $setting->description,
+                    'order' => $setting->order,
+                    'is_active' => $setting->is_active,
+                ];
+            }
+
+            return $grouped;
         });
     }
 

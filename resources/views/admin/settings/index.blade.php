@@ -8,27 +8,27 @@
     <!-- Tabs Navigation -->
     <div class="border-b border-gray-200">
         <nav class="flex -mb-px" id="settingsTabs" role="tablist">
-            <button class="px-6 py-4 text-sm font-medium border-b-2 border-blue-500 text-blue-600 tab-button active" 
+            <button class="px-6 py-4 text-sm font-medium border-b-2 border-blue-500 text-blue-600 tab-button active"
                     data-tab="general" type="button">
                 General Settings
             </button>
-            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button" 
+            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button"
                     data-tab="theme" type="button">
                 Theme Settings
             </button>
-            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button" 
+            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button"
                     data-tab="payment" type="button">
                 Payment Methods
             </button>
-            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button" 
+            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button"
                     data-tab="languages" type="button">
                 Languages
             </button>
-            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button" 
+            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button"
                     data-tab="email" type="button">
                 Email Settings
             </button>
-            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button" 
+            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button"
                     data-tab="video" type="button">
                 Video Settings
             </button>
@@ -42,18 +42,18 @@
         <!-- General Settings Tab -->
         <div id="tab-general" class="tab-content p-6">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">General Settings</h2>
-            
+
             <div class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Site Name</label>
-                        <input type="text" name="system_settings[site_name]" 
+                        <input type="text" name="system_settings[site_name]"
                                value="{{ \App\Models\SystemSetting::getValue('site_name', config('app.name')) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Site Email</label>
-                        <input type="email" name="system_settings[site_email]" 
+                        <input type="email" name="system_settings[site_email]"
                                value="{{ \App\Models\SystemSetting::getValue('site_email', config('mail.from.address')) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
@@ -62,13 +62,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Site URL</label>
-                        <input type="url" name="system_settings[site_url]" 
+                        <input type="url" name="system_settings[site_url]"
                                value="{{ \App\Models\SystemSetting::getValue('site_url', config('app.url')) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Default Currency</label>
-                        <input type="text" name="system_settings[default_currency]" 
+                        <input type="text" name="system_settings[default_currency]"
                                value="{{ \App\Models\SystemSetting::getValue('default_currency', 'PKR') }}"
                                placeholder="PKR, USD, EUR"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -78,7 +78,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
-                        <select name="system_settings[timezone]" 
+                        <select name="system_settings[timezone]"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="Asia/Karachi" {{ \App\Models\SystemSetting::getValue('timezone', 'Asia/Karachi') == 'Asia/Karachi' ? 'selected' : '' }}>Asia/Karachi (PKT)</option>
                             <option value="UTC" {{ \App\Models\SystemSetting::getValue('timezone') == 'UTC' ? 'selected' : '' }}>UTC</option>
@@ -87,7 +87,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Date Format</label>
-                        <select name="system_settings[date_format]" 
+                        <select name="system_settings[date_format]"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="Y-m-d" {{ \App\Models\SystemSetting::getValue('date_format', 'Y-m-d') == 'Y-m-d' ? 'selected' : '' }}>YYYY-MM-DD</option>
                             <option value="d/m/Y" {{ \App\Models\SystemSetting::getValue('date_format') == 'd/m/Y' ? 'selected' : '' }}>DD/MM/YYYY</option>
@@ -107,7 +107,7 @@
         <!-- Theme Settings Tab -->
         <div id="tab-theme" class="tab-content p-6 hidden">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Theme Settings</h2>
-            
+
             <div class="space-y-6">
                 @if(isset($themeSettings['branding']))
                     <div>
@@ -122,18 +122,18 @@
                                         @endif
                                     </label>
                                     @if($setting['type'] === 'color')
-                                        <input type="color" name="theme_settings[{{ $setting['key'] }}]" 
+                                        <input type="color" name="theme_settings[{{ $setting['key'] }}]"
                                                value="{{ $setting['value'] ?? '#3B82F6' }}"
                                                class="w-full h-10 border border-gray-300 rounded-lg">
                                     @elseif($setting['type'] === 'image')
-                                        <input type="file" name="theme_settings[{{ $setting['key'] }}]" 
+                                        <input type="file" name="theme_settings[{{ $setting['key'] }}]"
                                                accept="image/*"
                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                                         @if($setting['value'])
                                             <img src="{{ \Storage::url($setting['value']) }}" alt="{{ $setting['name'] }}" class="mt-2 h-16">
                                         @endif
                                     @else
-                                        <input type="text" name="theme_settings[{{ $setting['key'] }}]" 
+                                        <input type="text" name="theme_settings[{{ $setting['key'] }}]"
                                                value="{{ $setting['value'] ?? '' }}"
                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                                     @endif
@@ -150,8 +150,8 @@
                             @foreach($themeSettings['layout'] ?? [] as $setting)
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ $setting['name'] }}</label>
-                                    <input type="{{ $setting['type'] === 'number' ? 'number' : 'text' }}" 
-                                           name="theme_settings[{{ $setting['key'] }}]" 
+                                    <input type="{{ $setting['type'] === 'number' ? 'number' : 'text' }}"
+                                           name="theme_settings[{{ $setting['key'] }}]"
                                            value="{{ $setting['value'] ?? '' }}"
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                                 </div>
@@ -166,7 +166,7 @@
         <div id="tab-payment" class="tab-content p-6 hidden">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-gray-800">Payment Methods</h2>
-                <a href="{{ route('admin.settings.payment-methods.create') }}" 
+                <a href="{{ route('admin.settings.payment-methods.create') }}"
                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     Add New Payment Method
                 </a>
@@ -208,19 +208,19 @@
                                     {{ $method->transaction_fee_percentage }}% + {{ number_format($method->transaction_fee_fixed, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="{{ route('admin.settings.payment-methods.edit', $method->id) }}" 
+                                    <a href="{{ route('admin.settings.payment-methods.edit', $method->id) }}"
                                        class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
-                                    <form action="{{ route('admin.settings.payment-methods.toggle-status', $method->id) }}" 
+                                    <form action="{{ route('admin.settings.payment-methods.toggle-status', $method->id) }}"
                                           method="POST" class="inline">
                                         @csrf
                                         @method('POST')
-                                        <button type="submit" 
+                                        <button type="submit"
                                                 class="text-{{ $method->is_active ? 'yellow' : 'green' }}-600 hover:text-{{ $method->is_active ? 'yellow' : 'green' }}-900">
                                             {{ $method->is_active ? 'Deactivate' : 'Activate' }}
                                         </button>
                                     </form>
-                                    <form action="{{ route('admin.settings.payment-methods.destroy', $method->id) }}" 
-                                          method="POST" class="inline" 
+                                    <form action="{{ route('admin.settings.payment-methods.destroy', $method->id) }}"
+                                          method="POST" class="inline"
                                           onsubmit="return confirm('Are you sure you want to delete this payment method?');">
                                         @csrf
                                         @method('DELETE')
@@ -242,7 +242,7 @@
         <div id="tab-languages" class="tab-content p-6 hidden">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-gray-800">Languages</h2>
-                <a href="{{ route('admin.settings.languages.create') }}" 
+                <a href="{{ route('admin.settings.languages.create') }}"
                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     Add New Language
                 </a>
@@ -282,7 +282,7 @@
                                     @if($language->is_default)
                                         <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Default</span>
                                     @else
-                                        <form action="{{ route('admin.settings.languages.set-default', $language->id) }}" 
+                                        <form action="{{ route('admin.settings.languages.set-default', $language->id) }}"
                                               method="POST" class="inline">
                                             @csrf
                                             @method('POST')
@@ -291,20 +291,20 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="{{ route('admin.settings.languages.edit', $language->id) }}" 
+                                    <a href="{{ route('admin.settings.languages.edit', $language->id) }}"
                                        class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
-                                    <form action="{{ route('admin.settings.languages.toggle-status', $language->id) }}" 
+                                    <form action="{{ route('admin.settings.languages.toggle-status', $language->id) }}"
                                           method="POST" class="inline">
                                         @csrf
                                         @method('POST')
-                                        <button type="submit" 
+                                        <button type="submit"
                                                 class="text-{{ $language->is_active ? 'yellow' : 'green' }}-600 hover:text-{{ $language->is_active ? 'yellow' : 'green' }}-900">
                                             {{ $language->is_active ? 'Deactivate' : 'Activate' }}
                                         </button>
                                     </form>
                                     @if(!$language->is_default)
-                                        <form action="{{ route('admin.settings.languages.destroy', $language->id) }}" 
-                                              method="POST" class="inline" 
+                                        <form action="{{ route('admin.settings.languages.destroy', $language->id) }}"
+                                              method="POST" class="inline"
                                               onsubmit="return confirm('Are you sure you want to delete this language?');">
                                             @csrf
                                             @method('DELETE')
@@ -326,12 +326,12 @@
         <!-- Email Settings Tab -->
         <div id="tab-email" class="tab-content p-6 hidden">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Email Settings</h2>
-            
+
             <div class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mail Driver</label>
-                        <select name="system_settings[mail_driver]" 
+                        <select name="system_settings[mail_driver]"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="smtp" {{ \App\Models\SystemSetting::getValue('mail_driver', 'smtp') == 'smtp' ? 'selected' : '' }}>SMTP</option>
                             <option value="mailgun" {{ \App\Models\SystemSetting::getValue('mail_driver') == 'mailgun' ? 'selected' : '' }}>Mailgun</option>
@@ -340,7 +340,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mail Host</label>
-                        <input type="text" name="system_settings[mail_host]" 
+                        <input type="text" name="system_settings[mail_host]"
                                value="{{ \App\Models\SystemSetting::getValue('mail_host', config('mail.mailers.smtp.host')) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
@@ -349,13 +349,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mail Port</label>
-                        <input type="number" name="system_settings[mail_port]" 
+                        <input type="number" name="system_settings[mail_port]"
                                value="{{ \App\Models\SystemSetting::getValue('mail_port', config('mail.mailers.smtp.port')) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mail Username</label>
-                        <input type="text" name="system_settings[mail_username]" 
+                        <input type="text" name="system_settings[mail_username]"
                                value="{{ \App\Models\SystemSetting::getValue('mail_username', config('mail.mailers.smtp.username')) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
@@ -364,13 +364,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mail Password</label>
-                        <input type="password" name="system_settings[mail_password]" 
-                               value="{{ \App\Models\SystemSetting::getValue('mail_password', config('mail.mailers.smtp.password')) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="password" name="system_settings[mail_password]"
+                               placeholder="{{ \App\Models\SystemSetting::getValue('mail_password') ? 'Password is set (leave blank to keep current)' : 'Enter mail password' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               autocomplete="new-password">
+                        <p class="text-xs text-gray-500 mt-1">Leave blank to keep current password</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mail Encryption</label>
-                        <select name="system_settings[mail_encryption]" 
+                        <select name="system_settings[mail_encryption]"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="tls" {{ \App\Models\SystemSetting::getValue('mail_encryption', 'tls') == 'tls' ? 'selected' : '' }}>TLS</option>
                             <option value="ssl" {{ \App\Models\SystemSetting::getValue('mail_encryption') == 'ssl' ? 'selected' : '' }}>SSL</option>
@@ -381,14 +383,14 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">From Email Address</label>
-                    <input type="email" name="system_settings[mail_from_address]" 
+                    <input type="email" name="system_settings[mail_from_address]"
                            value="{{ \App\Models\SystemSetting::getValue('mail_from_address', config('mail.from.address')) }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">From Name</label>
-                    <input type="text" name="system_settings[mail_from_name]" 
+                    <input type="text" name="system_settings[mail_from_name]"
                            value="{{ \App\Models\SystemSetting::getValue('mail_from_name', config('mail.from.name')) }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
@@ -398,34 +400,37 @@
         <!-- Video Settings Tab -->
         <div id="tab-video" class="tab-content p-6 hidden">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Video Settings</h2>
-            
+
             <div class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">YouTube API Key</label>
-                        <input type="text" name="system_settings[youtube_api_key]" 
-                               value="{{ \App\Models\SystemSetting::getValue('youtube_api_key', config('services.youtube.api_key')) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">Get your API key from Google Cloud Console</p>
+                        <input type="password" name="system_settings[youtube_api_key]"
+                               placeholder="{{ \App\Models\SystemSetting::getValue('youtube_api_key') ? 'API key is set (leave blank to keep current)' : 'Enter YouTube API key' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               autocomplete="off">
+                        <p class="text-xs text-gray-500 mt-1">Get your API key from Google Cloud Console. Leave blank to keep current key.</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Bunny Stream API Key</label>
-                        <input type="text" name="system_settings[bunny_api_key]" 
-                               value="{{ \App\Models\SystemSetting::getValue('bunny_api_key', config('services.bunny.api_key')) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="password" name="system_settings[bunny_api_key]"
+                               placeholder="{{ \App\Models\SystemSetting::getValue('bunny_api_key') ? 'API key is set (leave blank to keep current)' : 'Enter Bunny Stream API key' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               autocomplete="off">
+                        <p class="text-xs text-gray-500 mt-1">Leave blank to keep current API key</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Bunny Stream Library ID</label>
-                        <input type="text" name="system_settings[bunny_library_id]" 
+                        <input type="text" name="system_settings[bunny_library_id]"
                                value="{{ \App\Models\SystemSetting::getValue('bunny_library_id', config('services.bunny.library_id')) }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Bunny CDN Hostname</label>
-                        <input type="text" name="system_settings[bunny_cdn_hostname]" 
+                        <input type="text" name="system_settings[bunny_cdn_hostname]"
                                value="{{ \App\Models\SystemSetting::getValue('bunny_cdn_hostname', config('services.bunny.cdn_hostname')) }}"
                                placeholder="your-cdn.b-cdn.net"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -434,7 +439,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Max Video Upload Size (MB)</label>
-                    <input type="number" name="system_settings[max_video_upload_size]" 
+                    <input type="number" name="system_settings[max_video_upload_size]"
                            value="{{ \App\Models\SystemSetting::getValue('max_video_upload_size', 100) }}"
                            min="1" max="1024"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -442,7 +447,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Allowed Video Formats</label>
-                    <input type="text" name="system_settings[allowed_video_formats]" 
+                    <input type="text" name="system_settings[allowed_video_formats]"
                            value="{{ \App\Models\SystemSetting::getValue('allowed_video_formats', 'mp4,avi,mov,wmv,flv') }}"
                            placeholder="mp4,avi,mov"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">

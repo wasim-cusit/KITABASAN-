@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -20,12 +21,20 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
         'mobile',
         'password',
         'profile_image',
         'bio',
         'status',
+        'address',
+        'city',
+        'state',
+        'country',
+        'postal_code',
+        'date_of_birth',
     ];
 
     /**
@@ -48,7 +57,46 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'date',
         ];
+    }
+
+    /**
+     * Get user initials (first letter of first name and last name)
+     */
+    public function getInitials(): string
+    {
+        $firstInitial = $this->first_name
+            ? strtoupper(substr($this->first_name, 0, 1))
+            : strtoupper(substr($this->name, 0, 1));
+
+        // Try to get last name initial, or second part of name if name is split
+        $lastInitial = '';
+        if ($this->last_name) {
+            $lastInitial = strtoupper(substr($this->last_name, 0, 1));
+        } else {
+            // Try to split name and get last part initial
+            $nameParts = explode(' ', trim($this->name));
+            if (count($nameParts) > 1) {
+                $lastInitial = strtoupper(substr(end($nameParts), 0, 1));
+            }
+        }
+
+        return $firstInitial . ($lastInitial ? $lastInitial : '');
+    }
+
+    /**
+     * Get profile image URL or initials
+     */
+    public function getProfileImageUrl(): string
+    {
+        if ($this->profile_image) {
+            return Storage::url($this->profile_image);
+        }
+
+        // Return initials as a data URI or use a placeholder service
+        $initials = $this->getInitials();
+        return "https://ui-avatars.com/api/?name=" . urlencode($this->name) . "&background=random&color=fff&size=200&bold=true&format=png";
     }
 
     // Relationships
