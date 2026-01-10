@@ -69,6 +69,9 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Alpine.js for interactive components -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <!-- Custom Styles -->
     <style>
         [x-cloak] { display: none !important; }
@@ -88,6 +91,9 @@
         @include('partials.navigation')
 
         @yield('content')
+
+        <!-- Public Chatbot -->
+        @include('components.public-chatbot')
     </div>
 
     <!-- Scripts -->

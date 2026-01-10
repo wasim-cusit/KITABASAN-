@@ -5,6 +5,7 @@ use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\CourseController as PublicCourseController;
 use App\Http\Controllers\Public\AboutController;
 use App\Http\Controllers\Public\ContactController;
+use App\Http\Controllers\Public\PublicChatbotController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
@@ -17,6 +18,9 @@ Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 Route::get('/sitemap.xml', [\App\Http\Controllers\Public\SitemapController::class, 'index'])->name('sitemap');
+
+// Public Chatbot Routes
+Route::post('/chatbot/send', [PublicChatbotController::class, 'sendMessage'])->name('public.chatbot.send');
 
 // Authentication Routes
 Route::get('/login', [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])
