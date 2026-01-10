@@ -15,9 +15,9 @@ class VideoService
     }
 
     /**
-     * Get YouTube video details
+     * Get YouTube video details using YouTube Data API v3
      */
-    public function getYouTubeVideoDetails(string $videoId): array
+    public function getYouTubeVideoDetails(string $videoId, bool $checkPrivacy = false): array
     {
         $apiKey = config('services.youtube.api_key');
 
@@ -26,20 +26,157 @@ class VideoService
         }
 
         try {
+            $parts = ['snippet', 'contentDetails', 'statistics'];
+            if ($checkPrivacy) {
+                $parts[] = 'status'; // Includes privacyStatus
+            }
+
             $response = Http::get('https://www.googleapis.com/youtube/v3/videos', [
                 'id' => $videoId,
                 'key' => $apiKey,
-                'part' => 'snippet,contentDetails,statistics',
+                'part' => implode(',', $parts),
             ]);
 
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+                if (isset($data['items']) && count($data['items']) > 0) {
+                    return $data['items'][0];
+                }
             }
         } catch (\Exception $e) {
             \Log::error('YouTube API Error: ' . $e->getMessage());
         }
 
         return [];
+    }
+
+    /**
+     * Check if YouTube video is accessible (public or unlisted)
+     * Note: Private videos require OAuth2 authentication to verify access
+     */
+    public function isYouTubeVideoAccessible(string $videoId): bool
+    {
+        $details = $this->getYouTubeVideoDetails($videoId, true);
+        
+        if (empty($details)) {
+            return false;
+        }
+
+        $privacyStatus = $details['status']['privacyStatus'] ?? 'private';
+        
+        // Public and unlisted videos are accessible
+        return in_array($privacyStatus, ['public', 'unlisted']);
+    }
+
+    /**
+     * Get YouTube embed URL with privacy controls for unlisted/private videos
+     */
+    public function getYouTubeEmbedUrl(string $videoId, string $privacy = 'public', array $options = []): string
+    {
+        $embedUrl = "https://www.youtube.com/embed/{$videoId}";
+        
+        $params = array_merge([
+            'enablejsapi' => 1,
+            'origin' => request()->getHost(),
+            'rel' => 0, // Don't show related videos
+            'modestbranding' => 1, // Minimal YouTube branding
+        ], $options);
+
+        // For unlisted/private videos, add additional parameters
+        if ($privacy === 'unlisted' || $privacy === 'private') {
+            $params['autoplay'] = 0;
+            $params['controls'] = 1;
+        }
+
+        return $embedUrl . '?' . http_build_query($params);
+    }
+
+    /**
+     * Validate YouTube video ID and privacy status
+     */
+    public function validateYouTubeVideo(string $videoId, string $expectedPrivacy = null): array
+    {
+        $details = $this->getYouTubeVideoDetails($videoId, true);
+        
+        if (empty($details)) {
+            return [
+                'valid' => false,
+                'error' => 'Video not found or API key invalid',
+            ];
+        }
+
+        $privacyStatus = $details['status']['privacyStatus'] ?? 'unknown';
+        $snippet = $details['snippet'] ?? [];
+        $contentDetails = $details['contentDetails'] ?? [];
+
+        $result = [
+            'valid' => true,
+            'video_id' => $videoId,
+            'title' => $snippet['title'] ?? '',
+            'description' => $snippet['description'] ?? '',
+            'thumbnail' => $snippet['thumbnails']['high']['url'] ?? '',
+            'privacy_status' => $privacyStatus,
+            'duration' => $this->parseYouTubeDuration($contentDetails['duration'] ?? 'PT0S'),
+            'published_at' => $snippet['publishedAt'] ?? null,
+        ];
+
+        // Check if privacy matches expected
+        if ($expectedPrivacy && $privacyStatus !== $expectedPrivacy) {
+            $result['warning'] = "Video privacy is '{$privacyStatus}', expected '{$expectedPrivacy}'";
+        }
+
+        // Check accessibility
+        $result['accessible'] = $this->isYouTubeVideoAccessible($videoId);
+
+        return $result;
+    }
+
+    /**
+     * Parse YouTube duration format (PT1H2M10S) to seconds
+     */
+    protected function parseYouTubeDuration(string $duration): int
+    {
+        preg_match('/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/', $duration, $matches);
+        
+        $hours = isset($matches[1]) ? (int) $matches[1] : 0;
+        $minutes = isset($matches[2]) ? (int) $matches[2] : 0;
+        $seconds = isset($matches[3]) ? (int) $matches[3] : 0;
+
+        return ($hours * 3600) + ($minutes * 60) + $seconds;
+    }
+
+    /**
+     * Upload video to cloud storage (S3, Cloudinary, etc.)
+     */
+    public function uploadVideoToCloud($file, string $disk = 's3'): array
+    {
+        try {
+            $path = 'videos/' . date('Y/m') . '/' . uniqid() . '_' . $file->getClientOriginalName();
+            
+            $uploadedPath = \Storage::disk($disk)->putFileAs(
+                dirname($path),
+                $file,
+                basename($path),
+                'public'
+            );
+
+            $url = \Storage::disk($disk)->url($uploadedPath);
+
+            return [
+                'success' => true,
+                'path' => $uploadedPath,
+                'url' => $url,
+                'size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+            ];
+        } catch (\Exception $e) {
+            \Log::error('Video upload error: ' . $e->getMessage());
+            
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
     }
 
     /**

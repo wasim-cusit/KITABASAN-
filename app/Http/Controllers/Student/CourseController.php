@@ -39,13 +39,15 @@ class CourseController extends Controller
             })
             ->first();
 
-        // Count free and paid content
-        $freeChapters = $course->chapters->where('is_free', true)->count();
-        $paidChapters = $course->chapters->where('is_free', false)->count();
+        // Count preview and paid content (using is_preview flag)
+        $previewChapters = $course->chapters->where('is_preview', true)->count();
+        $paidChapters = $course->chapters->where('is_preview', false)->where('is_free', false)->count();
         $totalLessons = $course->chapters->sum(fn($ch) => $ch->lessons->count());
+        $previewLessons = $course->chapters->sum(fn($ch) => $ch->lessons->where('is_preview', true)->count());
+        $freeChapters = $course->chapters->where('is_free', true)->count(); // Keep for backward compatibility
         $freeLessons = $course->chapters->sum(fn($ch) => $ch->lessons->where('is_free', true)->count());
 
-        return view('student.courses.show', compact('course', 'enrollment', 'freeChapters', 'paidChapters', 'totalLessons', 'freeLessons'));
+        return view('student.courses.show', compact('course', 'enrollment', 'freeChapters', 'paidChapters', 'totalLessons', 'freeLessons', 'previewChapters', 'previewLessons'));
     }
 
     public function enroll($id)
@@ -62,8 +64,9 @@ class CourseController extends Controller
                 ],
                 [
                     'status' => 'active',
+                    'payment_status' => 'free', // Set payment status to 'free' for free courses
                     'enrolled_at' => now(),
-                    'expires_at' => now()->addMonths($course->duration_months),
+                    'expires_at' => $course->duration_months ? now()->addMonths($course->duration_months) : null,
                 ]
             );
 

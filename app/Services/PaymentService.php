@@ -78,6 +78,7 @@ class PaymentService
             [
                 'payment_id' => $payment->id,
                 'status' => 'active',
+                'payment_status' => 'paid', // Set payment status to 'paid'
                 'enrolled_at' => now(),
                 'expires_at' => now()->addMonths($accessDuration),
             ]

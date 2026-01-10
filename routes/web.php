@@ -70,6 +70,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
     // Resource routes
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
+    Route::get('courses/subjects-by-grade', [\App\Http\Controllers\Admin\CourseController::class, 'getSubjectsByGrade'])->name('courses.subjects-by-grade');
     Route::post('courses/{id}/approve', [\App\Http\Controllers\Admin\CourseController::class, 'approve'])->name('courses.approve');
     Route::post('courses/{id}/reject', [\App\Http\Controllers\Admin\CourseController::class, 'reject'])->name('courses.reject');
     Route::resource('payments', \App\Http\Controllers\Admin\PaymentController::class);
@@ -121,6 +122,10 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher', 
     Route::get('/students/{id}', [\App\Http\Controllers\Teacher\StudentController::class, 'show'])->name('students.show');
     Route::get('/chatbot', [\App\Http\Controllers\Teacher\ChatbotController::class, 'index'])->name('chatbot.index');
     Route::post('/chatbot', [\App\Http\Controllers\Teacher\ChatbotController::class, 'send'])->name('chatbot.send');
+
+    // Device routes
+    Route::get('/devices', [\App\Http\Controllers\Teacher\DeviceController::class, 'index'])->name('devices.index');
+    Route::post('/devices/request-reset', [\App\Http\Controllers\Teacher\DeviceController::class, 'requestReset'])->name('devices.request-reset');
 
     // Video upload routes
     Route::get('/lessons/{lessonId}/upload-video', [\App\Http\Controllers\Teacher\VideoUploadController::class, 'showUploadForm'])->name('lessons.upload-video');

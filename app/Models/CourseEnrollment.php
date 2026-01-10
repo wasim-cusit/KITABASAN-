@@ -12,6 +12,7 @@ class CourseEnrollment extends Model
         'book_id',
         'payment_id',
         'status',
+        'payment_status',
         'enrolled_at',
         'expires_at',
         'progress_percentage',

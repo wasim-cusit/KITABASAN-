@@ -32,16 +32,20 @@ class CheckEnrollment
                 return $next($request);
             }
 
-            // Check if user is enrolled and enrollment is active
+            // Check if user is enrolled and enrollment is active with paid status
             $enrollment = CourseEnrollment::where('user_id', $user->id)
                 ->where('book_id', $book->id)
                 ->where('status', 'active')
-                ->where('expires_at', '>', now())
+                ->where('payment_status', 'paid') // Must be paid, not just enrolled
+                ->where(function ($query) {
+                    $query->where('expires_at', '>', now())
+                        ->orWhereNull('expires_at');
+                })
                 ->first();
 
             if (!$enrollment) {
                 return redirect()->route('student.courses.show', $book->id)
-                    ->with('error', 'You need to enroll in this course to access the content.');
+                    ->with('error', 'You need to enroll and pay for this course to access the content.');
             }
         }
 
