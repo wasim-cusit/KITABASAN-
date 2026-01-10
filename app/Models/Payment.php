@@ -14,6 +14,7 @@ class Payment extends Model
         'transaction_id',
         'gateway',
         'payment_gateway', // For compatibility
+        'payment_method_id', // New: Reference to payment_methods table
         'amount',
         'currency',
         'status',
@@ -36,6 +37,11 @@ class Payment extends Model
     public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);
+    }
+
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class);
     }
 
     public function transactions(): HasMany

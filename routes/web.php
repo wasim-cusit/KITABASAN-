@@ -66,6 +66,29 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
     // Settings routes
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+    
+    // Payment Methods routes
+    Route::prefix('settings/payment-methods')->name('settings.payment-methods.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/toggle-status', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'toggleStatus'])->name('toggle-status');
+    });
+    
+    // Languages routes
+    Route::prefix('settings/languages')->name('settings.languages.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\LanguageController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\LanguageController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\LanguageController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Admin\LanguageController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\LanguageController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\LanguageController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/set-default', [\App\Http\Controllers\Admin\LanguageController::class, 'setDefault'])->name('set-default');
+        Route::post('/{id}/toggle-status', [\App\Http\Controllers\Admin\LanguageController::class, 'toggleStatus'])->name('toggle-status');
+    });
 
     // Resource routes
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);

@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
             $table->string('transaction_id')->unique();
-            $table->enum('gateway', ['jazzcash', 'easypaisa'])->nullable();
+            $table->string('gateway')->nullable(); // Changed to string to support dynamic payment methods
+            $table->foreignId('payment_method_id')->nullable()->constrained('payment_methods')->onDelete('set null');
             $table->decimal('amount', 10, 2);
             $table->enum('status', ['pending', 'completed', 'failed', 'cancelled'])->default('pending');
             $table->string('receipt_url')->nullable();
