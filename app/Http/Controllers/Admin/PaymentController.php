@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -69,13 +70,38 @@ class PaymentController extends Controller
         $payment = Payment::findOrFail($id);
 
         $request->validate([
-            'status' => 'required|in:pending,completed,failed,refunded',
+            'status' => 'required|in:pending,completed,failed,cancelled',
         ]);
 
+        $oldStatus = $payment->status;
+        $newStatus = $request->status;
+
         $payment->update([
-            'status' => $request->status,
-            'paid_at' => $request->status === 'completed' ? now() : null,
+            'status' => $newStatus,
+            'paid_at' => $newStatus === 'completed' ? now() : null,
         ]);
+
+        // Automatically activate enrollment when payment is marked as completed
+        if ($newStatus === 'completed' && $oldStatus !== 'completed') {
+            $paymentService = app(\App\Services\PaymentService::class);
+            try {
+                $paymentService->activateEnrollment($payment);
+            } catch (\Exception $e) {
+                \Log::error('Failed to activate enrollment when updating payment status: ' . $e->getMessage());
+                return redirect()->back()
+                    ->with('warning', 'Payment status updated, but enrollment activation failed. Please check logs.');
+            }
+        }
+
+        // If payment is cancelled (refunded), revoke enrollment
+        if ($newStatus === 'cancelled' && $oldStatus === 'completed') {
+            $enrollment = \App\Models\CourseEnrollment::where('payment_id', $payment->id)->first();
+            if ($enrollment) {
+                $enrollment->update([
+                    'status' => 'cancelled',
+                ]);
+            }
+        }
 
         return redirect()->back()
             ->with('success', 'Payment status updated successfully.');

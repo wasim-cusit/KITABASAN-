@@ -41,6 +41,10 @@ Route::post('/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logo
     ->name('logout')
     ->middleware('auth');
 
+// Payment webhook (no auth required, but should be secured with signature verification)
+Route::post('/payments/webhook', [\App\Http\Controllers\Student\PaymentController::class, 'webhook'])
+    ->name('payments.webhook');
+
 // Password Reset Routes
 Route::get('/forgot-password', [\App\Http\Controllers\Auth\PasswordController::class, 'showForgotPasswordForm'])
     ->name('password.request')

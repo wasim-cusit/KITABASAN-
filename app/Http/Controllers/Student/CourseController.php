@@ -73,8 +73,8 @@ class CourseController extends Controller
             return redirect()->route('student.learning.index', $course->id)
                 ->with('success', 'Successfully enrolled in the course!');
         } else {
-            // Paid course - redirect to payment
-            return redirect()->route('student.payments.store', ['course_id' => $course->id]);
+            // Paid course - redirect to payment page
+            return redirect()->route('student.payments.index', ['course_id' => $course->id]);
         }
     }
 }
