@@ -96,7 +96,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
     });
 
     // Resource routes
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class); // Admins only
+    Route::resource('teachers', \App\Http\Controllers\Admin\TeacherController::class);
     Route::resource('students', \App\Http\Controllers\Admin\StudentController::class);
     Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
     Route::get('courses/subjects-by-grade', [\App\Http\Controllers\Admin\CourseController::class, 'getSubjectsByGrade'])->name('courses.subjects-by-grade');

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\PublicChatbotService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class PublicChatbotController extends Controller
 {
@@ -38,7 +39,7 @@ class PublicChatbotController extends Controller
                 'type' => $result['type'] ?? 'general',
             ]);
         } catch (\Exception $e) {
-            \Log::error('Public Chatbot Error: ' . $e->getMessage());
+            Log::error('Public Chatbot Error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,

@@ -5,7 +5,7 @@
             <!-- Logo -->
             <div class="flex items-center space-x-2">
                 <a href="{{ route('home') }}" class="flex items-center">
-                    <img src="{{ asset('logo.jpeg') }}" alt="Kitabasan Logo" class="h-10 w-auto">
+                    <img src="{{ asset('logo.jpeg') }}" alt="KITAB ASAN Logo" class="h-10 w-auto">
                 </a>
             </div>
 

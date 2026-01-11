@@ -13,14 +13,14 @@ return new class extends Migration
         // Insert default system settings
         $defaultSettings = [
             // General Settings
-            ['key' => 'site_name', 'name' => 'Site Name', 'value' => config('app.name'), 'type' => 'text', 'group' => 'general', 'order' => 1],
+            ['key' => 'site_name', 'name' => 'Site Name', 'value' => 'KITAB ASAN', 'type' => 'text', 'group' => 'general', 'order' => 1],
             ['key' => 'site_email', 'name' => 'Site Email', 'value' => config('mail.from.address'), 'type' => 'email', 'group' => 'general', 'order' => 2],
-            ['key' => 'site_url', 'name' => 'Site URL', 'value' => config('app.url'), 'type' => 'url', 'group' => 'general', 'order' => 3],
+            ['key' => 'site_url', 'name' => 'Site URL', 'value' => 'https://www.kitabasan.com', 'type' => 'url', 'group' => 'general', 'order' => 3],
             ['key' => 'default_currency', 'name' => 'Default Currency', 'value' => 'PKR', 'type' => 'text', 'group' => 'general', 'order' => 4],
             ['key' => 'timezone', 'name' => 'Timezone', 'value' => 'Asia/Karachi', 'type' => 'text', 'group' => 'general', 'order' => 5],
             ['key' => 'date_format', 'name' => 'Date Format', 'value' => 'Y-m-d', 'type' => 'text', 'group' => 'general', 'order' => 6],
             ['key' => 'site_description', 'name' => 'Site Description', 'value' => '', 'type' => 'textarea', 'group' => 'general', 'order' => 7],
-            
+
             // Email Settings
             ['key' => 'mail_driver', 'name' => 'Mail Driver', 'value' => 'smtp', 'type' => 'text', 'group' => 'email', 'order' => 1],
             ['key' => 'mail_host', 'name' => 'Mail Host', 'value' => config('mail.mailers.smtp.host'), 'type' => 'text', 'group' => 'email', 'order' => 2],
@@ -30,7 +30,7 @@ return new class extends Migration
             ['key' => 'mail_encryption', 'name' => 'Mail Encryption', 'value' => config('mail.mailers.smtp.encryption'), 'type' => 'text', 'group' => 'email', 'order' => 6],
             ['key' => 'mail_from_address', 'name' => 'From Email Address', 'value' => config('mail.from.address'), 'type' => 'email', 'group' => 'email', 'order' => 7],
             ['key' => 'mail_from_name', 'name' => 'From Name', 'value' => config('mail.from.name'), 'type' => 'text', 'group' => 'email', 'order' => 8],
-            
+
             // Video Settings
             ['key' => 'youtube_api_key', 'name' => 'YouTube API Key', 'value' => config('services.youtube.api_key'), 'type' => 'password', 'group' => 'video', 'order' => 1],
             ['key' => 'bunny_api_key', 'name' => 'Bunny Stream API Key', 'value' => config('services.bunny.api_key'), 'type' => 'password', 'group' => 'video', 'order' => 2],

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -26,7 +27,13 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
+            /** @var User $user */
             $user = Auth::user();
+
+            // Update last login time
+            if ($user) {
+                $user->update(['last_login_at' => now()]);
+            }
 
             // Redirect based on role with proper intended URL handling
             if ($user->isAdmin()) {

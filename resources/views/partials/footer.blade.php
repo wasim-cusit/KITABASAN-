@@ -4,12 +4,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <!-- About Section -->
             <div>
-                <div class="mb-4">
-                    <img src="{{ asset('logo.jpeg') }}" alt="Kitabasan Logo" class="h-8">
+                <div class="mb-4 flex justify-center md:justify-start">
+                    <img src="{{ asset('logo.jpeg') }}" alt="KITAB ASAN Logo" class="h-12 md:h-10">
                 </div>
                 <p class="text-gray-400 mb-4">Your trusted learning platform for quality education.</p>
                 <!-- WhatsApp Button -->
-                <a href="https://wa.me/923342372772?text=Hello%20Kitabasan%20Team"
+                <a href="https://wa.me/923342372772?text=Hello%20KITAB%20ASAN%20Team"
                    target="_blank"
                    rel="noopener noreferrer"
                    class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition mb-4">
@@ -46,6 +46,7 @@
                 <h4 class="font-semibold mb-4">Contact</h4>
                 <ul class="space-y-2 text-gray-400">
                     <li>Email: info@kitabasan.com</li>
+                    <li>Website: <a href="https://www.kitabasan.com" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">www.kitabasan.com</a></li>
                     <li>Phone: +92 300 1234567</li>
                 </ul>
 
@@ -72,7 +73,7 @@
         </div>
 
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; {{ date('Y') }} Kitabasan Learning Platform. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} <a href="https://www.kitabasan.com" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">KITAB ASAN</a>. All rights reserved.</p>
             <p class="mt-2 text-xs">Developed by <a href="tel:+923342372772" class="hover:text-white transition">MUHAMMAD WASIM</a> | <a href="https://wa.me/923342372772" target="_blank" rel="noopener noreferrer" class="hover:text-green-400 transition">+92 334 2372772</a></p>
         </div>
     </div>

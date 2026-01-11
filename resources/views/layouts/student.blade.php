@@ -4,17 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Student - Kitabasan Learning Platform')</title>
+    <title>@yield('title', 'Student - KITAB ASAN')</title>
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Alpine.js for mobile menu -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Vite Assets (Tailwind CSS, Alpine.js, AOS, etc.) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Custom Styles -->
     <style>
-        [x-cloak] { display: none !important; }
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         @media (max-width: 768px) {
             .sidebar-overlay {
@@ -35,26 +31,39 @@
 
     @stack('styles')
 </head>
-<body class="bg-gray-100" x-data="{ sidebarOpen: false }">
+<body class="bg-gray-100" x-data="{ sidebarOpen: false, profileMenuOpen: false }">
     <div class="min-h-screen flex">
         <!-- Mobile Overlay -->
         <div x-show="sidebarOpen" @click="sidebarOpen = false" class="sidebar-overlay lg:hidden" x-cloak></div>
-        
+
         <!-- Sidebar -->
-        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
                class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gray-800 text-white min-h-screen transform transition-transform duration-300 ease-in-out lg:translate-x-0">
             <div class="p-4">
-                <div class="flex items-center justify-between mb-8">
-                    <a href="{{ route('student.dashboard') }}" class="flex items-center space-x-2">
-                        <img src="{{ asset('logo.jpeg') }}" alt="Logo" class="h-10">
-                        <span class="text-xl font-bold">Student Panel</span>
-                    </a>
-                    <!-- Close button for mobile -->
-                    <button @click="sidebarOpen = false" class="lg:hidden text-white hover:text-gray-300 focus:outline-none">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
+                <div class="mb-8">
+                    <!-- Close button (Mobile only) -->
+                    <div class="lg:hidden flex justify-end mb-4">
+                        <button @click="sidebarOpen = false" class="text-white hover:text-gray-300 focus:outline-none">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Logo and Name with Role (All Screens) -->
+                    <div class="pb-4 border-b border-gray-700">
+                        <!-- Logo -->
+                        <a href="{{ route('student.dashboard') }}" class="flex justify-center mb-3 hover:opacity-80 transition">
+                            <img src="{{ asset('logo.jpeg') }}" alt="Logo" class="h-12">
+                        </a>
+                        <!-- Name and Role -->
+                        <div class="text-center">
+                            <p class="text-white font-semibold text-sm">
+                                {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}
+                            </p>
+                            <p class="text-gray-400 text-xs mt-1">Student</p>
+                        </div>
+                    </div>
                 </div>
 
                 <nav class="space-y-2">
@@ -110,12 +119,77 @@
                         </button>
                         <h1 class="text-xl lg:text-2xl font-bold text-gray-800">@yield('page-title', 'Dashboard')</h1>
                     </div>
-                    <div class="flex items-center space-x-2 lg:space-x-4">
-                        <span class="text-sm lg:text-base text-gray-600 hidden sm:inline">{{ Auth::user()->name }}</span>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="text-red-600 hover:text-red-700 text-sm lg:text-base px-2 lg:px-0">Logout</button>
-                        </form>
+                    <!-- Profile Dropdown (All Screen Sizes) -->
+                    <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                        <button @click="open = !open" class="flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1">
+                            @if(Auth::user()->profile_image)
+                                <img src="{{ Auth::user()->getProfileImageUrl() }}" alt="{{ Auth::user()->name }}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">
+                            @else
+                                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center border-2 border-gray-300">
+                                    <span class="text-white font-semibold text-sm">{{ Auth::user()->getInitials() }}</span>
+                                </div>
+                            @endif
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div x-show="open"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-200 overflow-hidden"
+                             x-cloak>
+                            <!-- User Info Section -->
+                            <div class="px-4 py-4 bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200">
+                                <div class="mb-3">
+                                    <p class="text-base font-semibold text-gray-900 mb-1">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
+                                    <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                                </div>
+                                @if(Auth::user()->last_login_at)
+                                    <div class="mt-3 pt-3 border-t border-gray-200/60">
+                                        <div class="flex items-start space-x-2">
+                                            <svg class="w-4 h-4 text-gray-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Last Login</p>
+                                                <p class="text-sm text-gray-900 font-semibold">{{ Auth::user()->last_login_at->format('M d, Y') }}</p>
+                                                <p class="text-xs text-gray-500">{{ Auth::user()->last_login_at->format('h:i A') }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="mt-3 pt-3 border-t border-gray-200/60">
+                                        <div class="flex items-center space-x-2">
+                                            <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">First Login</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                            <!-- Menu Items -->
+                            <div class="flex border-t border-gray-100 py-1">
+                                <a href="{{ route('student.profile.edit') }}" class="flex-1 flex items-center justify-center space-x-1.5 px-4 py-3 mx-1 my-1 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 border-r border-gray-200 rounded-lg">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span class="font-medium text-xs">Edit Profile</span>
+                                </a>
+                                <form action="{{ route('logout') }}" method="POST" class="flex-1">
+                                    @csrf
+                                    <button type="submit" class="flex items-center justify-center space-x-1.5 w-full px-4 py-3 mx-1 my-1 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 rounded-lg">
+                                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                        </svg>
+                                        <span class="font-medium text-xs">Logout</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>

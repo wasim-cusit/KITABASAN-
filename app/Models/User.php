@@ -35,6 +35,7 @@ class User extends Authenticatable
         'country',
         'postal_code',
         'date_of_birth',
+        'last_login_at',
     ];
 
     /**
@@ -58,6 +59,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'date_of_birth' => 'date',
+            'last_login_at' => 'datetime',
         ];
     }
 

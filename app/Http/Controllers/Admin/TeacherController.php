@@ -8,11 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
-class UserController extends Controller
+class TeacherController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::role('admin'); // Only show admins
+        $query = User::role('teacher');
 
         // Search
         if ($request->has('search') && $request->search) {
@@ -28,25 +28,25 @@ class UserController extends Controller
             $query->where('status', $request->status);
         }
 
-        $users = $query->with('roles')->latest()->paginate(15);
+        $teachers = $query->with('roles')->latest()->paginate(15);
 
         // Get statistics
         $stats = [
-            'total' => User::role('admin')->count(),
-            'active' => User::role('admin')->where('status', 'active')->count(),
-            'inactive' => User::role('admin')->where('status', 'inactive')->count(),
-            'suspended' => User::role('admin')->where('status', 'suspended')->count(),
+            'total' => User::role('teacher')->count(),
+            'active' => User::role('teacher')->where('status', 'active')->count(),
+            'inactive' => User::role('teacher')->where('status', 'inactive')->count(),
+            'suspended' => User::role('teacher')->where('status', 'suspended')->count(),
         ];
 
         // Add pagination
-        $users->appends($request->except('page'));
+        $teachers->appends($request->except('page'));
 
-        return view('admin.users.index', compact('users', 'stats'));
+        return view('admin.teachers.index', compact('teachers', 'stats'));
     }
 
     public function create()
     {
-        return view('admin.users.create');
+        return view('admin.teachers.create');
     }
 
     public function store(Request $request)
@@ -71,39 +71,39 @@ class UserController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        $user->assignRole('admin');
+        $user->assignRole('teacher');
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'Admin created successfully.');
+        return redirect()->route('admin.teachers.index')
+            ->with('success', 'Teacher created successfully.');
     }
 
     public function show(User $user)
     {
-        // Ensure this is an admin
-        if (!$user->hasRole('admin')) {
-            abort(404, 'User is not an admin.');
+        // Ensure this is a teacher
+        if (!$user->hasRole('teacher')) {
+            abort(404, 'User is not a teacher.');
         }
 
         $user->load(['roles', 'enrollments.book', 'payments', 'deviceBindings']);
-        return view('admin.users.show', compact('user'));
+        return view('admin.teachers.show', compact('user'));
     }
 
     public function edit(User $user)
     {
-        // Ensure this is an admin
-        if (!$user->hasRole('admin')) {
-            abort(404, 'User is not an admin.');
+        // Ensure this is a teacher
+        if (!$user->hasRole('teacher')) {
+            abort(404, 'User is not a teacher.');
         }
 
         $user->load('roles');
-        return view('admin.users.edit', compact('user'));
+        return view('admin.teachers.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
-        // Ensure this is an admin
-        if (!$user->hasRole('admin')) {
-            abort(404, 'User is not an admin.');
+        // Ensure this is a teacher
+        if (!$user->hasRole('teacher')) {
+            abort(404, 'User is not a teacher.');
         }
 
         $request->validate([
@@ -130,26 +130,20 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'Admin updated successfully.');
+        return redirect()->route('admin.teachers.index')
+            ->with('success', 'Teacher updated successfully.');
     }
 
     public function destroy(User $user)
     {
-        // Ensure this is an admin
-        if (!$user->hasRole('admin')) {
-            abort(404, 'User is not an admin.');
-        }
-
-        // Prevent deleting the last admin user
-        if (User::role('admin')->count() <= 1) {
-            return redirect()->route('admin.users.index')
-                ->with('error', 'Cannot delete the last admin user.');
+        // Ensure this is a teacher
+        if (!$user->hasRole('teacher')) {
+            abort(404, 'User is not a teacher.');
         }
 
         $user->delete();
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'Admin deleted successfully.');
+        return redirect()->route('admin.teachers.index')
+            ->with('success', 'Teacher deleted successfully.');
     }
 }

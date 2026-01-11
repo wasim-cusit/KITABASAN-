@@ -113,7 +113,7 @@ class Book extends Model
 
     public function teachers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'course_teachers')
+        return $this->belongsToMany(User::class, 'course_teachers', 'book_id', 'teacher_id')
             ->withPivot('role')
             ->withTimestamps();
     }

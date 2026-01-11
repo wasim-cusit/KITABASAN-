@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Register - Kitabasan Learning Platform')
+@section('title', 'Register - KITAB ASAN')
 
 @section('content')
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -8,7 +8,7 @@
         <!-- Logo and Header -->
         <div class="text-center mb-8">
             <a href="{{ route('home') }}" class="inline-block mb-4">
-                <img src="{{ asset('logo.jpeg') }}" alt="Kitabasan Logo" class="h-20 mx-auto">
+                <img src="{{ asset('logo.jpeg') }}" alt="KITAB ASAN Logo" class="h-20 mx-auto">
             </a>
             <h2 class="text-3xl font-bold text-gray-900">
                 Create Your Account

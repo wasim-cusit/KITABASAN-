@@ -15,7 +15,7 @@ class SEOService
     {
         $siteName = SystemSetting::getValue('site_name', config('app.name'));
         $siteUrl = SystemSetting::getValue('site_url', config('app.url'));
-        $siteDescription = SystemSetting::getValue('site_description', 'Kitabasan Learning Platform - Your trusted learning platform for quality education.');
+        $siteDescription = SystemSetting::getValue('site_description', 'KITAB ASAN - Your trusted learning platform for quality education.');
 
         $defaults = [
             'title' => $siteName,

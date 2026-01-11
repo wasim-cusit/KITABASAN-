@@ -7,8 +7,8 @@
 
     @php
         $seo = isset($seo) ? $seo : \App\Services\SEOService::generateMetaTags([
-            'title' => $__env->yieldContent('title', 'Kitabasan Learning Platform'),
-            'description' => $__env->yieldContent('description', 'Kitabasan Learning Platform - Your trusted learning platform for quality education.'),
+            'title' => $__env->yieldContent('title', 'KITAB ASAN'),
+            'description' => $__env->yieldContent('description', 'KITAB ASAN - Your trusted learning platform for quality education.'),
             'keywords' => $__env->yieldContent('keywords', 'online learning, courses, education, e-learning, kitabasan, online courses, study online'),
             'image' => $__env->yieldContent('og_image', asset('logo.jpeg')),
             'url' => url()->current(),
@@ -46,8 +46,6 @@
     <meta name="twitter:image" content="{{ $seo['image'] }}">
 
     <!-- Performance Optimizations -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://wa.me">
     <link rel="dns-prefetch" href="https://wa.me">
 
@@ -56,7 +54,7 @@
     <meta name="geo.placename" content="Pakistan">
     <meta name="author" content="MUHAMMAD WASIM">
     <meta name="contact" content="+923342372772">
-    <meta name="copyright" content="Kitabasan Learning Platform">
+    <meta name="copyright" content="KITAB ASAN">
     <meta name="distribution" content="global">
     <meta name="rating" content="general">
 
@@ -66,19 +64,12 @@
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="{{ asset('logo.jpeg') }}">
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Alpine.js for interactive components -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Vite Assets (Tailwind CSS, Alpine.js, AOS, etc.) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Custom Styles -->
     <style>
-        [x-cloak] { display: none !important; }
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        /* Lazy loading for images */
-        img[loading="lazy"] { opacity: 0; transition: opacity 0.3s; }
-        img[loading="lazy"].loaded { opacity: 1; }
     </style>
 
     @stack('styles')
@@ -88,7 +79,13 @@
 </head>
 <body>
     <div class="min-h-screen bg-gray-50">
-        @include('partials.navigation')
+        @php
+            $routeName = request()->route() ? request()->route()->getName() : '';
+        @endphp
+        @if(!in_array($routeName, ['login', 'register']))
+            @include('partials.navigation')
+        @endif
+        {{-- Navigation commented out for login and register pages --}}
 
         @yield('content')
 

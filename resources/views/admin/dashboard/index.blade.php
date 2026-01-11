@@ -8,8 +8,8 @@
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-6 lg:mb-8">
         <div class="bg-white rounded-lg shadow p-4 lg:p-6">
-            <h3 class="text-gray-500 text-xs lg:text-sm font-medium">Total Users</h3>
-            <p class="text-xl lg:text-3xl font-bold text-gray-900">{{ $stats['total_users'] }}</p>
+            <h3 class="text-gray-500 text-xs lg:text-sm font-medium">Total Students</h3>
+            <p class="text-xl lg:text-3xl font-bold text-gray-900">{{ $stats['total_students'] }}</p>
         </div>
         <div class="bg-white rounded-lg shadow p-4 lg:p-6">
             <h3 class="text-gray-500 text-xs lg:text-sm font-medium">Total Courses</h3>

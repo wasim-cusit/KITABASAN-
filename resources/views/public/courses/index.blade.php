@@ -2,7 +2,7 @@
 
 @php
     $seo = \App\Services\SEOService::generateMetaTags([
-        'title' => 'All Courses - Kitabasan Learning Platform | Browse Online Courses',
+        'title' => 'All Courses - KITAB ASAN | Browse Online Courses',
         'description' => 'Browse our comprehensive collection of online courses. Find courses by grade, subject, or search by keywords. Free and paid courses available from expert instructors.',
         'keywords' => 'online courses, browse courses, all courses, course catalog, online learning courses, free courses, paid courses, course search, find courses',
         'url' => route('courses.index'),
@@ -37,36 +37,48 @@
     <!-- Filters and Search -->
     <section class="bg-white shadow-sm py-6">
         <div class="container mx-auto px-4">
-            <form method="GET" action="{{ route('courses.index') }}" class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1">
+            <form method="GET" action="{{ route('courses.index') }}" class="flex flex-col lg:flex-row gap-4">
+                <!-- Search Input -->
+                <div class="flex-1 w-full min-w-0">
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search courses..."
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
-                <div>
-                    <select name="grade" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Grades</option>
-                        @foreach($grades ?? [] as $grade)
-                            <option value="{{ $grade->id }}" {{ request('grade') == $grade->id ? 'selected' : '' }}>
-                                {{ $grade->name }}
-                            </option>
-                        @endforeach
-                    </select>
+
+                <!-- Filters Row -->
+                <div class="flex flex-col sm:flex-row gap-4 lg:shrink-0">
+                    <!-- Grade Filter -->
+                    <div class="w-full sm:w-48 lg:w-40">
+                        <select name="grade" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                            <option value="">All Grades</option>
+                            @foreach($grades ?? [] as $grade)
+                                <option value="{{ $grade->id }}" {{ request('grade') == $grade->id ? 'selected' : '' }}>
+                                    {{ $grade->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Type Filter -->
+                    <div class="w-full sm:w-40 lg:w-36">
+                        <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                            <option value="">All Types</option>
+                            <option value="free" {{ request('type') == 'free' ? 'selected' : '' }}>Free</option>
+                            <option value="paid" {{ request('type') == 'paid' ? 'selected' : '' }}>Paid</option>
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button type="submit" class="flex-1 sm:flex-none bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium transition whitespace-nowrap">
+                            Filter
+                        </button>
+                        @if(request()->hasAny(['search', 'grade', 'type']))
+                            <a href="{{ route('courses.index') }}" class="flex-1 sm:flex-none text-center bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 font-medium transition whitespace-nowrap">
+                                Clear
+                            </a>
+                        @endif
+                    </div>
                 </div>
-                <div>
-                    <select name="type" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Types</option>
-                        <option value="free" {{ request('type') == 'free' ? 'selected' : '' }}>Free</option>
-                        <option value="paid" {{ request('type') == 'paid' ? 'selected' : '' }}>Paid</option>
-                    </select>
-                </div>
-                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium">
-                    Filter
-                </button>
-                @if(request()->hasAny(['search', 'grade', 'type']))
-                    <a href="{{ route('courses.index') }}" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 font-medium">
-                        Clear
-                    </a>
-                @endif
             </form>
         </div>
     </section>

@@ -46,7 +46,7 @@ class PublicChatbotService
     {
         return [
             'platform_info' => [
-                'name' => 'Kitabasan Learning Platform',
+                'name' => 'KITAB ASAN',
                 'description' => 'An online learning platform offering quality courses from expert instructors',
                 'features' => [
                     'Online courses with video lessons',
@@ -54,13 +54,17 @@ class PublicChatbotService
                     'Expert instructors',
                     'Flexible learning schedule',
                     'Course progress tracking',
-                    'Certificates upon completion'
+                    'Certificates upon completion',
+                    'Interactive quizzes and assessments',
+                    'Multi-teacher support',
+                    'Mobile responsive design',
+                    'Progress analytics'
                 ]
             ],
             'faqs' => [
                 [
                     'question' => ['what is kitabasan', 'what is this platform', 'tell me about kitabasan'],
-                    'answer' => 'Kitabasan Learning Platform is an online education platform that offers quality courses taught by expert instructors. We provide both free and paid courses across various subjects and grade levels. You can learn at your own pace and track your progress.'
+                    'answer' => 'KITAB ASAN is an online education platform that offers quality courses taught by expert instructors. We provide both free and paid courses across various subjects and grade levels. You can learn at your own pace and track your progress.'
                 ],
                 [
                     'question' => ['how do i enroll', 'how to enroll', 'enrollment process', 'join course'],
@@ -80,7 +84,7 @@ class PublicChatbotService
                 ],
                 [
                     'question' => ['about us', 'who are we', 'company information'],
-                    'answer' => 'Kitabasan Learning Platform is dedicated to providing quality online education. We believe in making learning accessible to everyone through our comprehensive course library and expert instructors. Visit our About Us page to learn more about our mission and values.'
+                    'answer' => 'KITAB ASAN is dedicated to providing quality online education. We believe in making learning accessible to everyone through our comprehensive course library and expert instructors. Visit our About Us page to learn more about our mission and values.'
                 ],
                 [
                     'question' => ['courses available', 'what courses', 'subjects', 'what can i learn'],
@@ -100,12 +104,12 @@ class PublicChatbotService
                 ]
             ],
             'greetings' => [
-                'hi' => 'Hello! Welcome to Kitabasan Learning Platform. How can I help you today?',
+                'hi' => 'Hello! Welcome to KITAB ASAN. How can I help you today?',
                 'hello' => 'Hello! I\'m here to help you with any questions about our platform. What would you like to know?',
-                'hey' => 'Hey there! Welcome to Kitabasan. How can I assist you?',
-                'good morning' => 'Good morning! Welcome to Kitabasan Learning Platform. How can I help you today?',
-                'good afternoon' => 'Good afternoon! Welcome to Kitabasan. What would you like to know?',
-                'good evening' => 'Good evening! Welcome to Kitabasan Learning Platform. How can I assist you?'
+                'hey' => 'Hey there! Welcome to KITAB ASAN. How can I assist you?',
+                'good morning' => 'Good morning! Welcome to KITAB ASAN. How can I help you today?',
+                'good afternoon' => 'Good afternoon! Welcome to KITAB ASAN. What would you like to know?',
+                'good evening' => 'Good evening! Welcome to KITAB ASAN. How can I assist you?'
             ],
             'goodbyes' => [
                 'thank you' => 'You\'re welcome! If you have any more questions, feel free to ask. Happy learning!',
@@ -125,7 +129,7 @@ class PublicChatbotService
 
         if (empty($message)) {
             return [
-                'response' => 'I\'m here to help! Please ask me anything about Kitabasan Learning Platform.',
+                'response' => 'I\'m here to help! Please ask me anything about KITAB ASAN.',
                 'type' => 'info'
             ];
         }

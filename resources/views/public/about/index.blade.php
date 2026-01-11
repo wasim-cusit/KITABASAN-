@@ -2,8 +2,8 @@
 
 @php
     $seo = \App\Services\SEOService::generateMetaTags([
-        'title' => 'About Us - Kitabasan Learning Platform | Our Mission & Vision',
-        'description' => 'Learn about Kitabasan Learning Platform - our mission to provide quality online education, expert instructors, and comprehensive courses to help you achieve your learning goals.',
+        'title' => 'About Us - KITAB ASAN | Our Mission & Vision',
+        'description' => 'Learn about KITAB ASAN - our mission to provide quality online education, expert instructors, and comprehensive courses to help you achieve your learning goals.',
         'keywords' => 'about kitabasan, online education platform, e-learning mission, quality education, learn about us, educational platform, online learning about',
         'url' => route('about'),
     ]);

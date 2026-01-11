@@ -1,14 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', 'User Details')
-@section('page-title', 'User Details')
+@section('title', 'Teacher Details')
+@section('page-title', 'Teacher Details')
 
 @section('content')
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- User Info -->
+    <!-- Teacher Info -->
     <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
         <div class="flex items-center space-x-4 mb-6">
-            <img src="{{ $user->profile_image ? \Storage::url($user->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) }}" 
+            <img src="{{ $user->getProfileImageUrl() }}" 
                  alt="{{ $user->name }}" class="h-20 w-20 rounded-full">
             <div>
                 <h2 class="text-2xl font-bold">{{ $user->name }}</h2>
@@ -21,9 +21,7 @@
             <div>
                 <span class="text-sm text-gray-500">Role</span>
                 <p class="font-semibold">
-                    @foreach($user->roles as $role)
-                        <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">{{ ucfirst($role->name) }}</span>
-                    @endforeach
+                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">Teacher</span>
                 </p>
             </div>
             <div>
@@ -45,11 +43,11 @@
         </div>
 
         <div class="flex gap-2">
-            <a href="{{ route('admin.users.edit', $user->id) }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                Edit Admin
+            <a href="{{ route('admin.teachers.edit', $user->id) }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                Edit Teacher
             </a>
-            <a href="{{ route('admin.users.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
-                Back to Admins
+            <a href="{{ route('admin.teachers.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                Back to Teachers
             </a>
         </div>
     </div>
@@ -104,4 +102,3 @@
     </div>
 </div>
 @endsection
-

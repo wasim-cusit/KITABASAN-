@@ -2,8 +2,8 @@
 
 @php
     $seo = \App\Services\SEOService::generateMetaTags([
-        'title' => 'Home - Kitabasan Learning Platform | Online Courses & Education',
-        'description' => 'Discover quality online courses at Kitabasan Learning Platform. Learn from expert instructors, access free and paid courses, and advance your skills with our comprehensive e-learning platform.',
+        'title' => 'Home - KITAB ASAN | Online Courses & Education',
+        'description' => 'Discover quality online courses at KITAB ASAN. Learn from expert instructors, access free and paid courses, and advance your skills with our comprehensive e-learning platform.',
         'keywords' => 'online learning, online courses, e-learning platform, education, study online, learn online, courses, kitabasan, online education, skill development, professional courses, free courses',
         'url' => route('home'),
     ]);

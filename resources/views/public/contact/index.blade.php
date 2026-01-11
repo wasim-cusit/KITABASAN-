@@ -2,8 +2,8 @@
 
 @php
     $seo = \App\Services\SEOService::generateMetaTags([
-        'title' => 'Contact Us - Kitabasan Learning Platform | Get In Touch',
-        'description' => 'Contact Kitabasan Learning Platform. Reach out to our support team via email, phone, or WhatsApp. We are here to help with any questions about our courses and platform.',
+        'title' => 'Contact Us - KITAB ASAN | Get In Touch',
+        'description' => 'Contact KITAB ASAN. Reach out to our support team via email, phone, or WhatsApp. We are here to help with any questions about our courses and platform.',
         'keywords' => 'contact kitabasan, support, help, customer service, contact us, get in touch, whatsapp support, email support, phone support',
         'url' => route('contact'),
     ]);

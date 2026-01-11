@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Admin')
-@section('page-title', 'Edit Admin')
+@section('title', 'Edit Teacher')
+@section('page-title', 'Edit Teacher')
 
 @section('content')
 <div class="bg-white rounded-lg shadow p-6 max-w-2xl">
-    <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
+    <form action="{{ route('admin.teachers.update', $user->id) }}" method="POST">
         @csrf
         @method('PUT')
 
@@ -64,7 +64,6 @@
                        class="w-full px-4 py-2 border rounded-lg">
             </div>
 
-
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                 <select name="status" required class="w-full px-4 py-2 border rounded-lg">
@@ -76,9 +75,9 @@
 
             <div class="flex gap-4">
                 <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
-                    Update Admin
+                    Update Teacher
                 </button>
-                <a href="{{ route('admin.users.index') }}" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 text-center">
+                <a href="{{ route('admin.teachers.index') }}" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 text-center">
                     Cancel
                 </a>
             </div>
@@ -86,4 +85,3 @@
     </form>
 </div>
 @endsection
-

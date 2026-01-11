@@ -2,7 +2,7 @@
 
 @php
     use Illuminate\Support\Str;
-    $metaTitle = $course->meta_title ?? $course->title . ' - Kitabasan Learning Platform';
+    $metaTitle = $course->meta_title ?? $course->title . ' - KITAB ASAN';
     $metaDescription = $course->meta_description ?? Str::limit($course->description ?? $course->short_description ?? 'Learn ' . $course->title . ' online with expert instructors.', 160);
     $metaKeywords = $course->meta_keywords ? implode(', ', $course->meta_keywords) : ($course->tags ? implode(', ', $course->tags) : 'online course, ' . $course->title . ', ' . ($course->subject->name ?? '') . ', ' . ($course->subject->grade->name ?? ''));
     $ogImage = $course->cover_image ? Storage::url($course->cover_image) : asset('logo.jpeg');
