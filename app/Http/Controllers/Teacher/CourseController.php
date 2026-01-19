@@ -41,11 +41,12 @@ class CourseController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'short_description' => 'nullable|string|max:200',
+            'what_you_will_learn' => 'nullable|string',
             'price' => 'nullable|numeric|min:0',
             'is_free' => 'boolean',
             'access_duration_months' => 'nullable|integer|min:1',
-            'thumbnail' => 'nullable|image|max:2048',
-            'cover_image' => 'nullable|image|max:2048',
+            'thumbnail' => 'nullable|image|max:10240', // 10MB limit
+            'cover_image' => 'nullable|image|max:10240', // 10MB limit
             'language' => 'nullable|in:en,ur,ar,other',
             'difficulty_level' => 'nullable|in:beginner,intermediate,advanced,all',
         ]);
@@ -55,7 +56,7 @@ class CourseController extends Controller
             ['name' => $request->grade_name],
             ['slug' => \Illuminate\Support\Str::slug($request->grade_name), 'is_active' => true]
         );
-        
+
         $subject = null;
         if ($grade) {
             $subject = \App\Models\Subject::firstOrCreate(
@@ -77,6 +78,18 @@ class CourseController extends Controller
             $slug = $slug . '-' . ($slugCount + 1);
         }
 
+        // Process learning objectives from what_you_will_learn field
+        $learning_objectives = null;
+        if ($request->has('what_you_will_learn') && !empty($request->what_you_will_learn)) {
+            // Convert text to array (split by newlines or bullets)
+            $objectives = preg_split('/\n|•|\*|-/', $request->what_you_will_learn);
+            $objectives = array_map('trim', $objectives);
+            $objectives = array_filter($objectives); // Remove empty items
+            if (!empty($objectives)) {
+                $learning_objectives = array_values($objectives);
+            }
+        }
+
         $data = [
             'subject_id' => $subject ? $subject->id : null,
             'grade_name' => $request->grade_name,
@@ -86,6 +99,8 @@ class CourseController extends Controller
             'slug' => $slug,
             'short_description' => $request->short_description,
             'description' => $request->description,
+            'what_you_will_learn' => $request->what_you_will_learn,
+            'learning_objectives' => $learning_objectives,
             'language' => $request->language ?? 'en',
             'difficulty_level' => $request->difficulty_level ?? 'all',
             'price' => $request->has('is_free') && $request->is_free ? 0 : ($request->price ?? 0),
@@ -154,12 +169,13 @@ class CourseController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'short_description' => 'nullable|string|max:200',
+            'what_you_will_learn' => 'nullable|string',
             'price' => 'nullable|numeric|min:0',
             'is_free' => 'boolean',
             'access_duration_months' => 'nullable|integer|min:1',
-            'thumbnail' => 'nullable|image|max:2048',
-            'cover_image' => 'nullable|image|max:2048',
-            'status' => 'nullable|in:draft,pending',
+            'thumbnail' => 'nullable|image|max:10240', // 10MB limit
+            'cover_image' => 'nullable|image|max:10240', // 10MB limit
+            'status' => 'nullable|in:draft,pending,published',
         ]);
 
         // Try to find or create Grade and Subject by name
@@ -167,7 +183,7 @@ class CourseController extends Controller
             ['name' => $request->grade_name],
             ['slug' => \Illuminate\Support\Str::slug($request->grade_name), 'is_active' => true]
         );
-        
+
         $subject = null;
         if ($grade) {
             $subject = \App\Models\Subject::firstOrCreate(
@@ -182,6 +198,18 @@ class CourseController extends Controller
             );
         }
 
+        // Process learning objectives from what_you_will_learn field
+        $learning_objectives = null;
+        if ($request->has('what_you_will_learn') && !empty($request->what_you_will_learn)) {
+            // Convert text to array (split by newlines or bullets)
+            $objectives = preg_split('/\n|•|\*|-/', $request->what_you_will_learn);
+            $objectives = array_map('trim', $objectives);
+            $objectives = array_filter($objectives); // Remove empty items
+            if (!empty($objectives)) {
+                $learning_objectives = array_values($objectives);
+            }
+        }
+
         $data = [
             'subject_id' => $subject ? $subject->id : $course->subject_id,
             'grade_name' => $request->grade_name,
@@ -189,13 +217,15 @@ class CourseController extends Controller
             'title' => $request->title,
             'short_description' => $request->short_description,
             'description' => $request->description,
+            'what_you_will_learn' => $request->what_you_will_learn,
+            'learning_objectives' => $learning_objectives,
             'price' => $request->has('is_free') && $request->is_free ? 0 : ($request->price ?? $course->price),
             'is_free' => $request->has('is_free') ? true : false,
             'access_duration_months' => $request->access_duration_months ?? $course->access_duration_months,
         ];
 
-        // Teachers can only set status to draft or pending (not published)
-        if ($request->has('status') && in_array($request->status, ['draft', 'pending'])) {
+        // Allow teachers to set status to draft, pending, or published
+        if ($request->has('status') && in_array($request->status, ['draft', 'pending', 'published'])) {
             $data['status'] = $request->status;
         }
 

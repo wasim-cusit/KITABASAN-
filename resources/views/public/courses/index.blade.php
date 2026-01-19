@@ -113,9 +113,15 @@
                             <div class="flex items-center justify-between mb-4">
                                 @if($course->teacher)
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
-                                            <span class="text-blue-600 font-semibold text-xs">{{ substr($course->teacher->name, 0, 1) }}</span>
-                                        </div>
+                                        @if($course->teacher->profile_image)
+                                            <img src="{{ \Storage::url($course->teacher->profile_image) }}" 
+                                                 alt="{{ $course->teacher->name }}" 
+                                                 class="w-8 h-8 rounded-full object-cover mr-2 border border-blue-100">
+                                        @else
+                                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-2 border border-blue-100">
+                                                <span class="text-white font-semibold text-xs">{{ substr($course->teacher->name, 0, 1) }}</span>
+                                            </div>
+                                        @endif
                                         <span class="text-sm text-gray-600">{{ $course->teacher->name }}</span>
                                     </div>
                                 @endif

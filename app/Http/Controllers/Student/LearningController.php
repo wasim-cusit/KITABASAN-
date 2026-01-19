@@ -26,17 +26,23 @@ class LearningController extends Controller
         $book = Book::with(['chapters.lessons.topics'])->findOrFail($bookId);
         $user = Auth::user();
 
-        // Check enrollment
+        // Check enrollment - must have payment_status = 'paid' for paid courses
         $enrollment = CourseEnrollment::where('user_id', $user->id)
             ->where('book_id', $bookId)
             ->where('status', 'active')
+            ->where(function($query) use ($book) {
+                // For paid courses, require payment_status = 'paid'
+                if (!$book->is_free) {
+                    $query->where('payment_status', 'paid');
+                }
+            })
             ->where(function($query) {
                 $query->whereNull('expires_at')
                       ->orWhere('expires_at', '>', now());
             })
             ->first();
 
-        // If course is not free and user is not enrolled, they can still see free chapters
+        // If course is not free and user is not enrolled (with paid status), they can only see free chapters
         $chapters = $book->chapters()
             ->with(['lessons' => function($query) use ($enrollment, $book) {
                 $query->orderBy('order');
@@ -53,14 +59,20 @@ class LearningController extends Controller
 
     public function show($bookId, $lessonId)
     {
-        $book = Book::findOrFail($bookId);
-        $lesson = Lesson::with(['chapter', 'topics', 'quizzes'])->findOrFail($lessonId);
+        $book = Book::with(['modules.chapters.lessons', 'chapters.lessons'])->findOrFail($bookId);
+        $lesson = Lesson::with(['chapter.module', 'chapter', 'topics', 'quizzes'])->findOrFail($lessonId);
         $user = Auth::user();
 
-        // Check enrollment
+        // Check enrollment - must have payment_status = 'paid' for paid courses
         $enrollment = CourseEnrollment::where('user_id', $user->id)
             ->where('book_id', $bookId)
             ->where('status', 'active')
+            ->where(function($query) use ($book) {
+                // For paid courses, require payment_status = 'paid'
+                if (!$book->is_free) {
+                    $query->where('payment_status', 'paid');
+                }
+            })
             ->where(function($query) {
                 $query->whereNull('expires_at')
                       ->orWhere('expires_at', '>', now());
@@ -68,7 +80,7 @@ class LearningController extends Controller
             ->first();
 
         // Check if lesson is accessible
-        $isFreeLesson = $lesson->is_free || $lesson->chapter->is_free;
+        $isFreeLesson = $lesson->is_free || ($lesson->chapter && $lesson->chapter->is_free);
         $isFreeCourse = $book->is_free;
 
         // Allow access if: course is free OR user is enrolled OR lesson/chapter is free
@@ -84,9 +96,70 @@ class LearningController extends Controller
             });
         }
 
-        $chapters = $book->chapters()->with(['lessons'])->orderBy('order')->get();
+        // Load modules with chapters and lessons
+        $modules = $book->modules()
+            ->with(['chapters' => function($query) use ($enrollment, $book) {
+                $query->orderBy('order')
+                      ->with(['lessons' => function($q) use ($enrollment, $book) {
+                          $q->orderBy('order');
+                          if (!$book->is_free && !$enrollment) {
+                              $q->where('is_free', true);
+                          }
+                      }]);
+            }])
+            ->orderBy('order_index')
+            ->get();
 
-        return view('student.learning.show', compact('book', 'lesson', 'chapters', 'enrollment', 'videoService'));
+        // Load all chapters (with or without modules)
+        $chapters = $book->chapters()
+            ->with(['lessons' => function($query) use ($enrollment, $book) {
+                $query->orderBy('order');
+                if (!$book->is_free && !$enrollment) {
+                    $query->where('is_free', true);
+                }
+            }])
+            ->orderBy('order')
+            ->get();
+
+        // If no modules exist, create a default structure
+        if ($modules->isEmpty() && $chapters->isNotEmpty()) {
+            // Group chapters that don't have modules
+            $chaptersWithoutModules = $chapters->whereNull('module_id');
+            if ($chaptersWithoutModules->isNotEmpty()) {
+                // We'll show these in the sidebar without module grouping
+            }
+        }
+
+        // Calculate progress
+        $allLessons = $chapters->flatMap->lessons;
+        $totalLessons = $allLessons->count();
+        $completedLessons = LessonProgress::where('user_id', $user->id)
+            ->whereIn('lesson_id', $allLessons->pluck('id'))
+            ->where('is_completed', true)
+            ->count();
+
+        $progressPercentage = $totalLessons > 0 ? round(($completedLessons / $totalLessons) * 100) : 0;
+
+        // Get progress for each lesson
+        $lessonProgresses = LessonProgress::where('user_id', $user->id)
+            ->whereIn('lesson_id', $allLessons->pluck('id'))
+            ->get()
+            ->keyBy('lesson_id');
+
+        $videoService = $this->videoService;
+
+        return view('student.learning.show', compact(
+            'book',
+            'lesson',
+            'modules',
+            'chapters',
+            'enrollment',
+            'videoService',
+            'totalLessons',
+            'completedLessons',
+            'progressPercentage',
+            'lessonProgresses'
+        ));
     }
 
     public function showTopic($bookId, $lessonId, $topicId)
@@ -96,10 +169,16 @@ class LearningController extends Controller
         $topic = Topic::findOrFail($topicId);
         $user = Auth::user();
 
-        // Check enrollment
+        // Check enrollment - must have payment_status = 'paid' for paid courses
         $enrollment = CourseEnrollment::where('user_id', $user->id)
             ->where('book_id', $bookId)
             ->where('status', 'active')
+            ->where(function($query) use ($book) {
+                // For paid courses, require payment_status = 'paid'
+                if (!$book->is_free) {
+                    $query->where('payment_status', 'paid');
+                }
+            })
             ->where(function($query) {
                 $query->whereNull('expires_at')
                       ->orWhere('expires_at', '>', now());
@@ -118,6 +197,8 @@ class LearningController extends Controller
 
         $chapters = $book->chapters()->with(['lessons'])->orderBy('order')->get();
 
+        $videoService = $this->videoService;
+
         return view('student.learning.topic', compact('book', 'lesson', 'topic', 'chapters', 'enrollment', 'videoService'));
     }
 
@@ -134,10 +215,16 @@ class LearningController extends Controller
         $lesson = Lesson::findOrFail($request->lesson_id);
         $book = $lesson->chapter->book;
 
-        // Check enrollment
+        // Check enrollment - must have payment_status = 'paid' for paid courses
         $enrollment = CourseEnrollment::where('user_id', $user->id)
             ->where('book_id', $book->id)
             ->where('status', 'active')
+            ->where(function($query) use ($book) {
+                // For paid courses, require payment_status = 'paid'
+                if (!$book->is_free) {
+                    $query->where('payment_status', 'paid');
+                }
+            })
             ->first();
 
         // Check if lesson is free

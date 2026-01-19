@@ -113,7 +113,8 @@ class PaymentService
 
         // Get course details
         $book = Book::findOrFail($payment->book_id);
-        $accessDuration = $book->access_duration_months ?? $book->duration_months ?? 12; // Default to 12 months
+        // Null means lifetime access, use access_duration_months or fallback to duration_months
+        $accessDuration = $book->access_duration_months ?? $book->duration_months;
 
         // Create or update enrollment with payment link
         CourseEnrollment::updateOrCreate(
@@ -126,7 +127,7 @@ class PaymentService
                 'status' => 'active',
                 'payment_status' => 'paid',
                 'enrolled_at' => now(),
-                'expires_at' => $accessDuration ? now()->addMonths($accessDuration) : null,
+                'expires_at' => $accessDuration ? now()->addMonths($accessDuration) : null, // null = lifetime access
             ]
         );
 
@@ -222,6 +223,143 @@ class PaymentService
     private function generateTransactionId(): string
     {
         return 'TXN' . strtoupper(Str::random(12)) . time();
+    }
+
+    /**
+     * Get payment gateway redirect URL and form data
+     */
+    public function getGatewayRedirectData(Payment $payment, $paymentMethod)
+    {
+        if (!$paymentMethod) {
+            return null;
+        }
+
+        $gatewayCode = $paymentMethod->code;
+        $credentials = $paymentMethod->credentials ?? [];
+        $config = $paymentMethod->config ?? [];
+        $isSandbox = $paymentMethod->is_sandbox ?? true;
+
+        // Get base URL (sandbox or production)
+        $baseUrl = $isSandbox 
+            ? ($config['sandbox_url'] ?? 'https://sandbox.jazzcash.com.pk')
+            : ($config['production_url'] ?? 'https://payments.jazzcash.com.pk');
+
+        // Get callback URLs
+        $callbackUrl = route('student.payments.callback', [
+            'transaction_id' => $payment->transaction_id
+        ], true);
+
+        switch ($gatewayCode) {
+            case 'jazzcash':
+                return $this->prepareJazzCashRedirect($payment, $credentials, $baseUrl, $callbackUrl, $isSandbox);
+            
+            case 'easypaisa':
+                return $this->prepareEasyPaisaRedirect($payment, $credentials, $baseUrl, $callbackUrl, $isSandbox);
+            
+            default:
+                Log::warning("Unknown payment gateway: {$gatewayCode}");
+                return null;
+        }
+    }
+
+    /**
+     * Prepare JazzCash payment redirect data
+     */
+    private function prepareJazzCashRedirect($payment, $credentials, $baseUrl, $callbackUrl, $isSandbox)
+    {
+        $merchantId = $credentials['merchant_id'] ?? '';
+        $password = $credentials['password'] ?? '';
+        $integritySalt = $credentials['integrity_salt'] ?? '';
+
+        if (empty($merchantId) || empty($password) || empty($integritySalt)) {
+            Log::error('JazzCash credentials not configured');
+            return null;
+        }
+
+        // JazzCash requires specific format
+        $ppAmount = number_format($payment->amount, 2, '.', '');
+        $ppBillReference = $payment->transaction_id;
+        $ppDescription = "Course Payment - Transaction: {$payment->transaction_id}";
+        $ppReturnUrl = $callbackUrl;
+        
+        // Generate integrity hash (JazzCash specific format)
+        // Format: pp_Amount&pp_BillReference&pp_Description&pp_MerchantID&pp_Password&pp_ReturnURL
+        $hashString = $ppAmount . '&' . $ppBillReference . '&' . $ppDescription . '&' . 
+                     $merchantId . '&' . $password . '&' . $ppReturnUrl;
+        $ppSecureHash = hash_hmac('sha256', $hashString, $integritySalt);
+
+        // JazzCash payment URL
+        $paymentUrl = $isSandbox 
+            ? 'https://sandbox.jazzcash.com.pk/CustomerPortal/transactionmanagement/merchantform/'
+            : 'https://payments.jazzcash.com.pk/CustomerPortal/transactionmanagement/merchantform/';
+
+        return [
+            'url' => $paymentUrl,
+            'method' => 'POST',
+            'fields' => [
+                'pp_Version' => '1.1',
+                'pp_TxnType' => 'MWALLET',
+                'pp_Language' => 'EN',
+                'pp_MerchantID' => $merchantId,
+                'pp_SubMerchantID' => '',
+                'pp_Password' => $password,
+                'pp_BankID' => '',
+                'pp_ProductID' => '',
+                'pp_TxnRefNo' => $ppBillReference,
+                'pp_Amount' => $ppAmount,
+                'pp_TxnCurrency' => 'PKR',
+                'pp_TxnDateTime' => date('YmdHis'),
+                'pp_BillReference' => $ppBillReference,
+                'pp_Description' => $ppDescription,
+                'pp_TxnExpiryDateTime' => date('YmdHis', strtotime('+1 hour')),
+                'pp_ReturnURL' => $ppReturnUrl,
+                'pp_SecureHash' => $ppSecureHash,
+                'ppmpf_1' => '',
+                'ppmpf_2' => '',
+                'ppmpf_3' => '',
+                'ppmpf_4' => '',
+                'ppmpf_5' => '',
+            ]
+        ];
+    }
+
+    /**
+     * Prepare EasyPaisa payment redirect data
+     */
+    private function prepareEasyPaisaRedirect($payment, $credentials, $baseUrl, $callbackUrl, $isSandbox)
+    {
+        $merchantId = $credentials['merchant_id'] ?? '';
+        $password = $credentials['password'] ?? '';
+        $storeId = $credentials['store_id'] ?? '';
+
+        if (empty($merchantId) || empty($password)) {
+            Log::error('EasyPaisa credentials not configured');
+            return null;
+        }
+
+        // EasyPaisa payment URL
+        $paymentUrl = $isSandbox 
+            ? 'https://easypay.easypaisa.com.pk/easypay/Index.jsf'
+            : 'https://easypay.easypaisa.com.pk/easypay/Index.jsf';
+
+        $amount = number_format($payment->amount, 2, '.', '');
+        $orderRefNum = $payment->transaction_id;
+        $postBackURL = $callbackUrl;
+
+        return [
+            'url' => $paymentUrl,
+            'method' => 'POST',
+            'fields' => [
+                'storeId' => $storeId ?: $merchantId,
+                'merchantId' => $merchantId,
+                'password' => $password,
+                'orderRefNum' => $orderRefNum,
+                'paymentMethod' => 'OTC',
+                'amount' => $amount,
+                'postBackURL' => $postBackURL,
+                'expiryDate' => date('YmdHis', strtotime('+1 hour')),
+            ]
+        ];
     }
 }
 

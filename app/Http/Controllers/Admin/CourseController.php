@@ -51,6 +51,27 @@ class CourseController extends Controller
         return response()->json(['subjects' => []]);
     }
 
+    /**
+     * Calculate access duration based on validity type
+     */
+    private function calculateAccessDuration(Request $request)
+    {
+        $validityType = $request->input('validity_type', 'lifetime');
+        
+        switch ($validityType) {
+            case 'lifetime':
+                return null; // Lifetime access = null (no expiration)
+            case '3_months':
+                return 3;
+            case '6_months':
+                return 6;
+            case 'custom':
+                return $request->input('access_duration_months');
+            default:
+                return null; // Default to lifetime
+        }
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -68,12 +89,13 @@ class CourseController extends Controller
             'course_level' => 'nullable|in:elementary,secondary,higher_secondary,undergraduate,graduate,professional',
             'price' => 'nullable|numeric|min:0',
             'is_free' => 'boolean',
-            'access_duration_months' => 'nullable|integer|min:1',
+            'validity_type' => 'nullable|in:lifetime,3_months,6_months,custom',
+            'access_duration_months' => 'nullable|integer|min:1|required_if:validity_type,custom',
             'max_enrollments' => 'nullable|integer|min:1',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'thumbnail' => 'nullable|image|max:2048',
-            'cover_image' => 'nullable|image|max:2048',
+            'thumbnail' => 'nullable|image|max:10240', // 10MB limit
+            'cover_image' => 'nullable|image|max:10240', // 10MB limit
             'intro_video_url' => 'nullable|string',
             'intro_video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv|max:102400',
             'intro_video_provider' => 'nullable|in:youtube,vimeo,upload,bunny',
@@ -135,7 +157,7 @@ class CourseController extends Controller
             'target_audience' => $request->target_audience,
             'price' => $request->has('is_free') && $request->is_free ? 0 : ($request->price ?? 0),
             'is_free' => $request->has('is_free') ? true : false,
-            'access_duration_months' => $request->access_duration_months ?? 12,
+            'access_duration_months' => $this->calculateAccessDuration($request),
             'max_enrollments' => $request->max_enrollments,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -256,8 +278,8 @@ class CourseController extends Controller
             'description' => 'nullable|string',
             'price' => 'nullable|numeric|min:0',
             'is_free' => 'boolean',
-            'duration_months' => 'nullable|integer|min:1',
-            'cover_image' => 'nullable|image|max:2048',
+            'access_duration_months' => 'nullable|integer|min:1',
+            'cover_image' => 'nullable|image|max:10240', // 10MB limit
             'status' => 'required|in:draft,published',
         ]);
 
@@ -268,7 +290,7 @@ class CourseController extends Controller
             'description' => $request->description,
             'price' => $request->price ?? 0,
             'is_free' => $request->has('is_free') ? true : false,
-            'duration_months' => $request->duration_months ?? $course->duration_months,
+            'access_duration_months' => $request->access_duration_months ?? $course->access_duration_months,
             'status' => $request->status,
         ];
 

@@ -27,7 +27,7 @@ return new class extends Migration
             ['key' => 'mail_port', 'name' => 'Mail Port', 'value' => (string)config('mail.mailers.smtp.port'), 'type' => 'number', 'group' => 'email', 'order' => 3],
             ['key' => 'mail_username', 'name' => 'Mail Username', 'value' => config('mail.mailers.smtp.username'), 'type' => 'text', 'group' => 'email', 'order' => 4],
             ['key' => 'mail_password', 'name' => 'Mail Password', 'value' => config('mail.mailers.smtp.password'), 'type' => 'password', 'group' => 'email', 'order' => 5],
-            ['key' => 'mail_encryption', 'name' => 'Mail Encryption', 'value' => config('mail.mailers.smtp.encryption'), 'type' => 'text', 'group' => 'email', 'order' => 6],
+            ['key' => 'mail_encryption', 'name' => 'Mail Encryption', 'value' => 'tls', 'type' => 'text', 'group' => 'email', 'order' => 6],
             ['key' => 'mail_from_address', 'name' => 'From Email Address', 'value' => config('mail.from.address'), 'type' => 'email', 'group' => 'email', 'order' => 7],
             ['key' => 'mail_from_name', 'name' => 'From Name', 'value' => config('mail.from.name'), 'type' => 'text', 'group' => 'email', 'order' => 8],
 

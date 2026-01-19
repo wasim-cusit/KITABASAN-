@@ -103,6 +103,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin', 'devic
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class); // Admins only
     Route::resource('teachers', \App\Http\Controllers\Admin\TeacherController::class);
     Route::resource('students', \App\Http\Controllers\Admin\StudentController::class);
+    Route::post('students/bulk/send-email', [\App\Http\Controllers\Admin\StudentController::class, 'bulkSendEmail'])->name('students.bulk.send-email');
+    Route::post('students/bulk/send-sms', [\App\Http\Controllers\Admin\StudentController::class, 'bulkSendSMS'])->name('students.bulk.send-sms');
     Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
     Route::get('courses/subjects-by-grade', [\App\Http\Controllers\Admin\CourseController::class, 'getSubjectsByGrade'])->name('courses.subjects-by-grade');
     Route::post('courses/{id}/approve', [\App\Http\Controllers\Admin\CourseController::class, 'approve'])->name('courses.approve');
@@ -139,6 +141,7 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher', 
 
     // Chapter routes (nested under courses)
     Route::post('courses/{bookId}/chapters', [\App\Http\Controllers\Teacher\ChapterController::class, 'store'])->name('courses.chapters.store');
+    Route::get('courses/{bookId}/chapters/{chapterId}', [\App\Http\Controllers\Teacher\ChapterController::class, 'show'])->name('courses.chapters.show');
     Route::put('courses/{bookId}/chapters/{chapterId}', [\App\Http\Controllers\Teacher\ChapterController::class, 'update'])->name('courses.chapters.update');
     Route::delete('courses/{bookId}/chapters/{chapterId}', [\App\Http\Controllers\Teacher\ChapterController::class, 'destroy'])->name('courses.chapters.destroy');
 
@@ -148,6 +151,7 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher', 
     Route::delete('courses/{bookId}/chapters/{chapterId}/lessons/{lessonId}', [\App\Http\Controllers\Teacher\LessonController::class, 'destroy'])->name('courses.chapters.lessons.destroy');
 
     // Topic routes (nested under lessons)
+    Route::get('courses/{bookId}/chapters/{chapterId}/lessons/{lessonId}/topics', [\App\Http\Controllers\Teacher\TopicController::class, 'index'])->name('courses.chapters.lessons.topics.index');
     Route::post('courses/{bookId}/chapters/{chapterId}/lessons/{lessonId}/topics', [\App\Http\Controllers\Teacher\TopicController::class, 'store'])->name('courses.chapters.lessons.topics.store');
     Route::put('courses/{bookId}/chapters/{chapterId}/lessons/{lessonId}/topics/{topicId}', [\App\Http\Controllers\Teacher\TopicController::class, 'update'])->name('courses.chapters.lessons.topics.update');
     Route::delete('courses/{bookId}/chapters/{chapterId}/lessons/{lessonId}/topics/{topicId}', [\App\Http\Controllers\Teacher\TopicController::class, 'destroy'])->name('courses.chapters.lessons.topics.destroy');
@@ -196,6 +200,7 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'role:student', 
     // Payment routes
     Route::get('/payments', [\App\Http\Controllers\Student\PaymentController::class, 'index'])->name('payments.index');
     Route::post('/payments', [\App\Http\Controllers\Student\PaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/status', [\App\Http\Controllers\Student\PaymentController::class, 'status'])->name('payments.status');
     Route::get('/payments/callback', [\App\Http\Controllers\Student\PaymentController::class, 'callback'])->name('payments.callback');
 
     // Chatbot routes

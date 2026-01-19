@@ -14,11 +14,14 @@ class Module extends Model
         'description',
         'order_index',
         'is_active',
+        'release_type',
+        'release_date',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'order_index' => 'integer',
+        'release_date' => 'datetime',
     ];
 
     public function book(): BelongsTo

@@ -10,18 +10,6 @@
             <h2 class="text-xl lg:text-2xl font-bold">My Students</h2>
         </div>
 
-        @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                {{ session('error') }}
-            </div>
-        @endif
-
         <!-- Search Filter -->
         <form method="GET" action="{{ route('teacher.students.index') }}" class="mb-6">
             <div class="flex flex-col sm:flex-row gap-4">

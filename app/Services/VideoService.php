@@ -7,14 +7,6 @@ use Illuminate\Support\Facades\Http;
 class VideoService
 {
     /**
-     * Get YouTube video embed URL
-     */
-    public function getYouTubeEmbedUrl(string $videoId): string
-    {
-        return "https://www.youtube.com/embed/{$videoId}";
-    }
-
-    /**
      * Get YouTube video details using YouTube Data API v3
      */
     public function getYouTubeVideoDetails(string $videoId, bool $checkPrivacy = false): array

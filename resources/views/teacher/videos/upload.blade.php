@@ -55,8 +55,6 @@
             </a>
         </div>
 
-        <div id="errorMessage" class="hidden mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded"></div>
-        <div id="successMessage" class="hidden mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded"></div>
     </div>
 </div>
 
@@ -74,8 +72,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressText = document.getElementById('progressText');
     const videoPreview = document.getElementById('videoPreview');
     const previewPlayer = document.getElementById('previewPlayer');
-    const errorMessage = document.getElementById('errorMessage');
-    const successMessage = document.getElementById('successMessage');
 
     const uploadUrl = '{{ $uploadUrl }}';
     let selectedFile = null;
@@ -198,20 +194,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.classList.remove('hidden');
-        successMessage.classList.add('hidden');
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, 'error');
+        } else {
+            alert(message);
+        }
     }
 
     function showSuccess(message) {
-        successMessage.textContent = message;
-        successMessage.classList.remove('hidden');
-        errorMessage.classList.add('hidden');
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, 'success');
+        } else {
+            alert(message);
+        }
     }
 
     function hideMessages() {
-        errorMessage.classList.add('hidden');
-        successMessage.classList.add('hidden');
+        // Messages are now handled by global toast notifications
     }
 
     function formatFileSize(bytes) {

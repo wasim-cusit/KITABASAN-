@@ -55,9 +55,15 @@
 
                     @if($course->teacher)
                     <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                            <span class="text-blue-600 font-semibold">{{ substr($course->teacher->name, 0, 1) }}</span>
-                        </div>
+                        @if($course->teacher->profile_image)
+                            <img src="{{ \Storage::url($course->teacher->profile_image) }}" 
+                                 alt="{{ $course->teacher->name }}" 
+                                 class="w-12 h-12 rounded-full object-cover mr-4 border-2 border-blue-100">
+                        @else
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-4 border-2 border-blue-100">
+                                <span class="text-white font-semibold text-sm">{{ substr($course->teacher->name, 0, 1) }}</span>
+                            </div>
+                        @endif
                         <div>
                             <div class="font-semibold text-gray-900">Instructor</div>
                             <div class="text-gray-600">{{ $course->teacher->name }}</div>

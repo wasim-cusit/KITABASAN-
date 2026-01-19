@@ -33,29 +33,46 @@ class PaymentController extends Controller
                 ->with('error', 'Please select a course to purchase.');
         }
 
-        $course = Book::findOrFail($courseId);
-        $user = Auth::user();
+        try {
+            $course = Book::findOrFail($courseId);
+            $user = Auth::user();
 
-        // Check if already enrolled
-        $enrollment = \App\Models\CourseEnrollment::where('user_id', $user->id)
-            ->where('book_id', $course->id)
-            ->where('payment_status', 'paid')
-            ->first();
+            // Check if already enrolled
+            $enrollment = \App\Models\CourseEnrollment::where('user_id', $user->id)
+                ->where('book_id', $course->id)
+                ->where('payment_status', 'paid')
+                ->first();
 
-        if ($enrollment) {
-            return redirect()->route('student.learning.index', $course->id)
-                ->with('info', 'You are already enrolled in this course.');
+            if ($enrollment) {
+                return redirect()->route('student.learning.index', $course->id)
+                    ->with('info', 'You are already enrolled in this course.');
+            }
+
+            // Check if free course
+            if ($course->is_free) {
+                return redirect()->route('student.courses.enroll', $course->id)
+                    ->with('info', 'This is a free course. You can enroll directly.');
+            }
+
+            // Validate course has a price
+            if (!$course->price || $course->price <= 0) {
+                return redirect()->route('student.courses.show', $course->id)
+                    ->with('error', 'This course does not have a valid price. Please contact support.');
+            }
+
+            // Get active payment methods
+            $paymentMethods = \App\Models\PaymentMethod::getActive();
+
+            return view('student.payments.index', compact('course', 'paymentMethods'));
+            
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->route('student.courses.index')
+                ->with('error', 'Course not found.');
+        } catch (\Exception $e) {
+            Log::error('Payment page error: ' . $e->getMessage());
+            return redirect()->route('student.courses.index')
+                ->with('error', 'An error occurred while loading the payment page. Please try again.');
         }
-
-        // Check if free course
-        if ($course->is_free) {
-            return redirect()->route('student.courses.enroll', $course->id);
-        }
-
-        // Get active payment methods
-        $paymentMethods = \App\Models\PaymentMethod::getActive();
-
-        return view('student.payments.index', compact('course', 'paymentMethods'));
     }
 
     /**
@@ -63,10 +80,22 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Get active payment methods to determine if payment_method_id is required
+        $activePaymentMethods = \App\Models\PaymentMethod::getActive();
+        
+        $validationRules = [
             'course_id' => 'required|exists:books,id',
-            'payment_method_id' => 'nullable|exists:payment_methods,id',
-        ]);
+            'terms' => 'required|accepted',
+        ];
+
+        // Make payment_method_id required if there are active payment methods
+        if ($activePaymentMethods->count() > 0) {
+            $validationRules['payment_method_id'] = 'required|exists:payment_methods,id';
+        } else {
+            $validationRules['payment_method_id'] = 'nullable|exists:payment_methods,id';
+        }
+
+        $request->validate($validationRules);
 
         $user = Auth::user();
         $course = Book::findOrFail($request->course_id);
@@ -87,8 +116,35 @@ class PaymentController extends Controller
             return redirect()->route('student.courses.enroll', $course->id);
         }
 
+        // Validate course has a price
+        if (!$course->price || $course->price <= 0) {
+            return redirect()->back()
+                ->with('error', 'This course does not have a valid price. Please contact support.');
+        }
+
         try {
             DB::beginTransaction();
+
+            // Get payment method if provided
+            $paymentMethod = null;
+            $gateway = 'manual';
+            
+            if ($request->payment_method_id) {
+                $paymentMethod = \App\Models\PaymentMethod::find($request->payment_method_id);
+                if ($paymentMethod) {
+                    $gateway = $paymentMethod->code ?? 'manual';
+                }
+            }
+
+            // Calculate total amount with fees
+            $baseAmount = $course->price;
+            $feeAmount = 0;
+            
+            if ($paymentMethod) {
+                $feeAmount = $paymentMethod->calculateFee($baseAmount);
+            }
+            
+            $totalAmount = $baseAmount + $feeAmount;
 
             // Generate unique transaction ID
             $transactionId = 'TXN' . strtoupper(\Illuminate\Support\Str::random(12)) . time();
@@ -98,9 +154,10 @@ class PaymentController extends Controller
                 'user_id' => $user->id,
                 'book_id' => $course->id,
                 'transaction_id' => $transactionId,
-                'gateway' => 'manual', // Will be updated based on payment gateway
+                'gateway' => $gateway,
                 'payment_method_id' => $request->payment_method_id,
-                'amount' => $course->price ?? 0,
+                'amount' => $totalAmount, // Include fees in total amount
+                'currency' => 'PKR',
                 'status' => 'pending',
                 'gateway_response' => null,
             ]);
@@ -109,29 +166,76 @@ class PaymentController extends Controller
             Transaction::create([
                 'payment_id' => $payment->id,
                 'user_id' => $user->id,
-                'type' => 'debit', // Debit for payment (money going out from user's perspective)
-                'amount' => $course->price ?? 0,
-                'description' => "Payment for course: {$course->title}",
+                'type' => 'debit',
+                'amount' => $totalAmount,
+                'description' => "Payment for course: {$course->title}" . ($feeAmount > 0 ? " (Fee: Rs. " . number_format($feeAmount, 2) . ")" : ""),
                 'status' => 'pending',
                 'notes' => "Transaction ID: {$transactionId}",
             ]);
 
             DB::commit();
 
-            // TODO: Redirect to payment gateway or process payment
-            // For now, redirect to callback for testing (in production, this would redirect to gateway)
-            return redirect()->route('student.payments.callback', [
-                'transaction_id' => $transactionId,
-                'status' => 'success' // In production, this comes from gateway
-            ]);
+            // Get gateway redirect data
+            $gatewayData = $this->paymentService->getGatewayRedirectData($payment, $paymentMethod);
+
+            // If gateway data is available and credentials are configured, redirect to gateway
+            if ($gatewayData && $gatewayData['url']) {
+                // Store payment ID in session for reference
+                session(['payment_redirect_' . $transactionId => $payment->id]);
+                
+                // Return view with auto-submit form to redirect to payment gateway
+                return view('student.payments.redirect', [
+                    'gateway' => $gatewayData,
+                    'payment' => $payment,
+                    'course' => $course,
+                ]);
+            }
+
+            // If no gateway configured or sandbox mode without credentials, show pending page
+            // Admin can manually approve in sandbox mode
+            return redirect()->route('student.payments.status', [
+                'transaction_id' => $transactionId
+            ])->with('info', $paymentMethod && $paymentMethod->is_sandbox 
+                ? 'Your payment request has been submitted. It will be reviewed and activated once confirmed.'
+                : 'Payment gateway is not properly configured. Please contact support.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Payment processing error: ' . $e->getMessage());
+            Log::error('Payment processing error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all(),
+            ]);
             
             return redirect()->back()
-                ->with('error', 'An error occurred while processing your payment. Please try again.');
+                ->withInput()
+                ->with('error', 'An error occurred while processing your payment: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Show payment status page
+     */
+    public function status(Request $request)
+    {
+        $transactionId = $request->get('transaction_id');
+        
+        if (!$transactionId) {
+            return redirect()->route('student.courses.index')
+                ->with('error', 'Invalid payment transaction.');
+        }
+
+        $payment = Payment::where('transaction_id', $transactionId)
+            ->where('user_id', Auth::id())
+            ->with(['book', 'paymentMethod'])
+            ->firstOrFail();
+
+        $course = $payment->book;
+        $enrollment = \App\Models\CourseEnrollment::where('user_id', Auth::id())
+            ->where('book_id', $course->id)
+            ->where('payment_status', 'paid')
+            ->first();
+
+        return view('student.payments.status', compact('payment', 'course', 'enrollment'));
     }
 
     /**
@@ -139,13 +243,20 @@ class PaymentController extends Controller
      */
     public function callback(Request $request)
     {
-        $request->validate([
-            'transaction_id' => 'required|string',
-            'status' => 'required|in:success,failed,cancelled',
-        ]);
+        // Handle different gateway response formats
+        $transactionId = $request->input('transaction_id') 
+            ?? $request->input('pp_BillReference') 
+            ?? $request->input('orderRefNum')
+            ?? $request->input('PP_TRAN_REF');
+        
+        // Determine status from gateway response
+        $status = $this->determinePaymentStatus($request);
 
-        $transactionId = $request->transaction_id;
-        $status = $request->status;
+        if (!$transactionId) {
+            Log::error('Payment callback: No transaction ID found', $request->all());
+            return redirect()->route('student.courses.index')
+                ->with('error', 'Invalid payment response. Please contact support if you have already made the payment.');
+        }
 
         try {
             DB::beginTransaction();
@@ -155,8 +266,8 @@ class PaymentController extends Controller
             if (!$payment) {
                 DB::rollBack();
                 Log::error("Payment callback: Payment not found for transaction ID: {$transactionId}");
-                return redirect()->route('student.payments.index', ['course_id' => $request->course_id ?? null])
-                    ->with('error', 'Payment record not found.');
+                return redirect()->route('student.courses.index')
+                    ->with('error', 'Payment record not found. Please contact support if you have already made the payment.');
             }
 
             // Check if payment is already processed (idempotency)
@@ -288,5 +399,43 @@ class PaymentController extends Controller
 
             return response()->json(['error' => 'Webhook processing failed'], 500);
         }
+    }
+
+    /**
+     * Determine payment status from gateway response
+     */
+    private function determinePaymentStatus(Request $request): string
+    {
+        // Check if status is explicitly provided
+        if ($request->has('status')) {
+            $status = strtolower($request->input('status'));
+            if (in_array($status, ['success', 'failed', 'cancelled', 'completed'])) {
+                return $status === 'completed' ? 'success' : $status;
+            }
+        }
+
+        // JazzCash response format
+        if ($request->has('pp_ResponseCode')) {
+            $responseCode = $request->input('pp_ResponseCode');
+            // JazzCash: 000 = success, others = failed
+            return ($responseCode === '000' || $responseCode === '0') ? 'success' : 'failed';
+        }
+
+        // EasyPaisa response format
+        if ($request->has('responseCode')) {
+            $responseCode = $request->input('responseCode');
+            return ($responseCode === '0000' || $responseCode === '0') ? 'success' : 'failed';
+        }
+
+        // Check for success indicators
+        if ($request->has('pp_ResponseMessage')) {
+            $message = strtolower($request->input('pp_ResponseMessage'));
+            if (strpos($message, 'success') !== false || strpos($message, 'approved') !== false) {
+                return 'success';
+            }
+        }
+
+        // Default to failed if no clear indication
+        return 'failed';
     }
 }

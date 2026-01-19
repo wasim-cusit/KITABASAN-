@@ -49,14 +49,34 @@
                                 class="w-full h-full">
                             </iframe>
                         @elseif($topic->video_host === 'bunny' && $topic->video_id)
-                            <video controls class="w-full h-full">
+                            <video controls class="w-full h-full" controlsList="nodownload" oncontextmenu="return false;">
                                 <source src="{{ $videoService->getBunnyStreamUrl($topic->video_id, $book->bunny_library_id ?? '') }}" type="video/mp4">
                             </video>
                         @elseif($topic->video_host === 'upload' && $topic->video_file)
-                            <video controls class="w-full h-full">
+                            <video controls class="w-full h-full" controlsList="nodownload" oncontextmenu="return false;" preload="metadata" id="topicVideoPlayer">
                                 <source src="{{ \Storage::url($topic->video_file) }}" type="{{ $topic->video_mime_type }}">
                                 Your browser does not support the video tag.
                             </video>
+                            <script>
+                                // Prevent video download
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const video = document.getElementById('topicVideoPlayer');
+                                    if (video) {
+                                        // Disable right-click context menu
+                                        video.addEventListener('contextmenu', function(e) {
+                                            e.preventDefault();
+                                            return false;
+                                        });
+                                        // Prevent keyboard shortcuts
+                                        video.addEventListener('keydown', function(e) {
+                                            if (e.key === 's' || (e.ctrlKey && e.key === 's')) {
+                                                e.preventDefault();
+                                                return false;
+                                            }
+                                        });
+                                    }
+                                });
+                            </script>
                         @else
                             <div class="flex items-center justify-center h-full text-white">
                                 <p>No video available</p>

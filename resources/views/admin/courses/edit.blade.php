@@ -8,7 +8,7 @@
     <form action="{{ route('admin.courses.update', $course->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
-        
+
         <div class="space-y-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Grade</label>
@@ -63,6 +63,7 @@
                     </div>
                 @endif
                 <input type="file" name="cover_image" accept="image/*" class="w-full px-4 py-2 border rounded-lg">
+                <p class="text-xs text-gray-500 mt-1">Recommended: 1200x675px, max 10MB</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -73,7 +74,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Duration (Months)</label>
-                    <input type="number" name="duration_months" value="{{ old('duration_months', $course->duration_months) }}" min="1"
+                    <input type="number" name="access_duration_months" value="{{ old('access_duration_months', $course->access_duration_months) }}" min="1"
                            class="w-full px-4 py-2 border rounded-lg">
                 </div>
             </div>
@@ -119,7 +120,7 @@ function loadSubjects() {
     const gradeId = document.getElementById('grade_id').value;
     const subjectSelect = document.getElementById('subject_id');
     subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-    
+
     if (gradeId) {
         const grade = grades.find(g => g.id == gradeId);
         if (grade && grade.subjects) {

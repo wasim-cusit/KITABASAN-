@@ -14,14 +14,14 @@
                     <!-- Basic Information -->
                     <div class="border-b pb-4">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Basic Information</h2>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Grade Input (Text) -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Grade <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" name="grade_name" id="grade_name" required 
+                                <input type="text" name="grade_name" id="grade_name" required
                                        value="{{ old('grade_name') }}"
                                        placeholder="Enter Grade (e.g., Grade 10, Class 12)"
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('grade_name') border-red-500 @enderror">
@@ -36,7 +36,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Subject <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" name="subject_name" id="subject_name" required 
+                                <input type="text" name="subject_name" id="subject_name" required
                                        value="{{ old('subject_name') }}"
                                        placeholder="Enter Subject (e.g., Mathematics, English)"
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('subject_name') border-red-500 @enderror">
@@ -51,7 +51,7 @@
                     <!-- Course Details -->
                     <div class="border-b pb-4">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Course Details</h2>
-                        
+
                         <!-- Course Title -->
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -79,16 +79,28 @@
                         <!-- Full Description -->
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                            <textarea name="description" rows="5" 
+                            <textarea name="description" rows="5"
                                       placeholder="Detailed course description"
                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('description') }}</textarea>
+                        </div>
+
+                        <!-- What You Will Learn -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                What Students Will Learn
+                                <span class="text-gray-400 text-xs font-normal">(Enter one learning point per line or use bullet points)</span>
+                            </label>
+                            <textarea name="what_you_will_learn" rows="5"
+                                      placeholder="Enter key learning points, one per line:&#10;• Learn fundamental concepts&#10;• Master advanced techniques&#10;• Apply knowledge in real-world scenarios"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('what_you_will_learn') }}</textarea>
+                            <p class="text-xs text-gray-500 mt-1">Each line will be displayed as a separate learning objective</p>
                         </div>
                     </div>
 
                     <!-- Media Section -->
                     <div class="border-b pb-4">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Media</h2>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Thumbnail -->
                             <div>
@@ -97,7 +109,7 @@
                                        onchange="previewImage(this, 'thumbnail_preview')"
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <div id="thumbnail_preview" class="mt-2"></div>
-                                <p class="text-xs text-gray-500 mt-1">Recommended: 400x300px, max 2MB</p>
+                                <p class="text-xs text-gray-500 mt-1">Recommended: 400x300px, max 10MB</p>
                             </div>
 
                             <!-- Cover Image -->
@@ -107,7 +119,7 @@
                                        onchange="previewImage(this, 'cover_preview')"
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <div id="cover_preview" class="mt-2"></div>
-                                <p class="text-xs text-gray-500 mt-1">Recommended: 1200x675px, max 2MB</p>
+                                <p class="text-xs text-gray-500 mt-1">Recommended: 1200x675px, max 10MB</p>
                             </div>
                         </div>
                     </div>
@@ -115,7 +127,7 @@
                     <!-- Pricing & Access -->
                     <div class="border-b pb-4">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Pricing & Access</h2>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Price -->
                             <div>
@@ -134,7 +146,7 @@
 
                         <!-- Free Course Checkbox -->
                         <div class="mt-4 flex items-center">
-                            <input type="checkbox" name="is_free" id="is_free" value="1" class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500" 
+                            <input type="checkbox" name="is_free" id="is_free" value="1" class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
                                    onchange="togglePriceField()" {{ old('is_free') ? 'checked' : '' }}>
                             <label for="is_free" class="ml-2 text-sm font-medium text-gray-700">This is a free course</label>
                         </div>
@@ -143,7 +155,7 @@
                     <!-- Course Classification -->
                     <div class="pb-4">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Course Classification</h2>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Language -->
                             <div>
@@ -220,14 +232,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (shortDesc) {
         // Initialize counter
         document.getElementById('short_desc_count').textContent = shortDesc.value.length;
-        
+
         // Update counter on input
         shortDesc.addEventListener('input', function() {
             const count = this.value.length;
             document.getElementById('short_desc_count').textContent = count;
         });
     }
-    
+
     // Initialize price field
     togglePriceField();
 });

@@ -14,6 +14,7 @@ class Chapter extends Model
         'module_id',
         'title',
         'description',
+        'chapter_type',
         'order',
         'is_preview',
         'is_free', // Keep for backward compatibility

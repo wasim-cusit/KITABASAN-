@@ -23,12 +23,6 @@
         <div class="bg-white rounded-lg shadow p-4 lg:p-6">
             <h3 class="text-lg lg:text-xl font-bold text-gray-900 mb-6">Payment Details</h3>
 
-            @if(session('error'))
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
-                    {{ session('error') }}
-                </div>
-            @endif
-
             <form action="{{ route('student.payments.store') }}" method="POST" id="paymentForm">
                 @csrf
                 <input type="hidden" name="course_id" value="{{ $course->id }}">
@@ -54,7 +48,7 @@
                 <!-- Payment Method Selection -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">
-                        Select Payment Method <span class="text-red-500">*</span>
+                        Select Payment Method @if($paymentMethods->count() > 0)<span class="text-red-500">*</span>@endif
                     </label>
 
                     @if($paymentMethods->count() > 0)
@@ -63,10 +57,10 @@
                                 <label class="flex items-start p-4 border-2 rounded-lg cursor-pointer hover:border-blue-400 transition-colors payment-method-option {{ $loop->first ? 'border-blue-500' : 'border-gray-200' }}">
                                     <input type="radio" name="payment_method_id" value="{{ $method->id }}"
                                            class="mt-1 payment-method-radio"
-                                           data-fee-percentage="{{ $method->transaction_fee_percentage }}"
-                                           data-fee-fixed="{{ $method->transaction_fee_fixed }}"
+                                           data-fee-percentage="{{ $method->transaction_fee_percentage ?? 0 }}"
+                                           data-fee-fixed="{{ $method->transaction_fee_fixed ?? 0 }}"
                                            {{ $loop->first ? 'checked' : '' }}
-                                           required>
+                                           @if($paymentMethods->count() > 0) required @endif>
                                     <div class="ml-3 flex-1">
                                         <div class="flex items-center justify-between">
                                             <div>
@@ -79,14 +73,15 @@
                                                 <img src="{{ \Storage::url($method->icon) }}" alt="{{ $method->name }}" class="w-12 h-12 object-contain">
                                             @endif
                                         </div>
-                                        @if($method->transaction_fee_percentage > 0 || $method->transaction_fee_fixed > 0)
+                                        @if(($method->transaction_fee_percentage ?? 0) > 0 || ($method->transaction_fee_fixed ?? 0) > 0)
                                             <p class="text-xs text-gray-500 mt-2">
                                                 Fee:
-                                                @if($method->transaction_fee_percentage > 0)
-                                                    {{ $method->transaction_fee_percentage }}%
+                                                @if(($method->transaction_fee_percentage ?? 0) > 0)
+                                                    {{ number_format($method->transaction_fee_percentage, 2) }}%
                                                 @endif
-                                                @if($method->transaction_fee_fixed > 0)
-                                                    + Rs. {{ number_format($method->transaction_fee_fixed, 2) }}
+                                                @if(($method->transaction_fee_fixed ?? 0) > 0)
+                                                    @if(($method->transaction_fee_percentage ?? 0) > 0) + @endif
+                                                    Rs. {{ number_format($method->transaction_fee_fixed, 2) }}
                                                 @endif
                                             </p>
                                         @endif
@@ -100,6 +95,7 @@
                                 <strong>No payment methods available.</strong> Please contact support or try again later.
                             </p>
                         </div>
+                        <input type="hidden" name="payment_method_id" value="">
                     @endif
 
                     @error('payment_method_id')
@@ -207,6 +203,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updatePaymentSummary(radio) {
+        if (!radio) return;
+        
         const feePercentage = parseFloat(radio.dataset.feePercentage) || 0;
         const feeFixed = parseFloat(radio.dataset.feeFixed) || 0;
 
@@ -215,17 +213,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const total = coursePrice + totalFee;
 
         if (totalFee > 0) {
-            feeDetails.classList.remove('hidden');
-            feeRow.classList.remove('hidden');
-            feeAmount.textContent = 'Rs. ' + totalFee.toFixed(2);
-            feeDisplay.textContent = 'Rs. ' + totalFee.toFixed(2);
-            totalAmount.textContent = 'Rs. ' + total.toFixed(2);
-            finalTotal.textContent = 'Rs. ' + total.toFixed(2);
+            if (feeDetails) feeDetails.classList.remove('hidden');
+            if (feeRow) feeRow.classList.remove('hidden');
+            if (feeAmount) feeAmount.textContent = 'Rs. ' + totalFee.toFixed(2);
+            if (feeDisplay) feeDisplay.textContent = 'Rs. ' + totalFee.toFixed(2);
+            if (totalAmount) totalAmount.textContent = 'Rs. ' + total.toFixed(2);
+            if (finalTotal) finalTotal.textContent = 'Rs. ' + total.toFixed(2);
         } else {
-            feeDetails.classList.add('hidden');
-            feeRow.classList.add('hidden');
-            totalAmount.textContent = 'Rs. ' + coursePrice.toFixed(2);
-            finalTotal.textContent = 'Rs. ' + coursePrice.toFixed(2);
+            if (feeDetails) feeDetails.classList.add('hidden');
+            if (feeRow) feeRow.classList.add('hidden');
+            if (totalAmount) totalAmount.textContent = 'Rs. ' + coursePrice.toFixed(2);
+            if (finalTotal) finalTotal.textContent = 'Rs. ' + coursePrice.toFixed(2);
         }
     }
 

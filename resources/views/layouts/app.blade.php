@@ -132,5 +132,8 @@
     </script>
 
     @stack('scripts')
+
+    <!-- Toast Notifications -->
+    @include('components.notification-toast')
 </body>
 </html>

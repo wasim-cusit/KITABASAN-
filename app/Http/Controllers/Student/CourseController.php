@@ -66,7 +66,7 @@ class CourseController extends Controller
                     'status' => 'active',
                     'payment_status' => 'free', // Set payment status to 'free' for free courses
                     'enrolled_at' => now(),
-                    'expires_at' => $course->duration_months ? now()->addMonths($course->duration_months) : null,
+                    'expires_at' => ($course->access_duration_months ?? $course->duration_months) ? now()->addMonths($course->access_duration_months ?? $course->duration_months) : null, // null = lifetime access
                 ]
             );
 
