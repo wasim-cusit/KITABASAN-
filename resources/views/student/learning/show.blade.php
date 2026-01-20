@@ -40,35 +40,128 @@
             <div class="lg:col-span-3">
                 <!-- Video Player -->
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-                    <div class="bg-black" style="aspect-ratio: 16/9; position: relative;">
+                    <div class="bg-black" style="aspect-ratio: 16/9; position: relative; width: 100%; padding-bottom: 56.25%;">
                         @php
                             $canAccess = $book->is_free || $enrollment || $lesson->is_free || ($lesson->chapter && $lesson->chapter->is_free);
+                            // Check if lesson has video
+                            $hasLessonVideo = ($lesson->video_host === 'youtube' && !empty($lesson->video_id)) 
+                                           || ($lesson->video_host === 'bunny' && !empty($lesson->video_id))
+                                           || ($lesson->video_host === 'upload' && !empty($lesson->video_file));
+                            // Get first topic with video if lesson doesn't have one
+                            $videoTopic = null;
+                            if (!$hasLessonVideo && $lesson->topics && $lesson->topics->count() > 0) {
+                                $videoTopic = $lesson->topics->first(function($topic) {
+                                    return ($topic->video_host === 'youtube' && !empty($topic->video_id)) 
+                                        || ($topic->video_host === 'bunny' && !empty($topic->video_id))
+                                        || ($topic->video_host === 'upload' && !empty($topic->video_file));
+                                });
+                            }
                         @endphp
                         @if($canAccess)
-                            @if($lesson->video_host === 'youtube' && $lesson->video_id)
-                                <iframe
-                                    src="{{ $videoService->getYouTubeEmbedUrl($lesson->video_id) }}?enablejsapi=1"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen
-                                    class="w-full h-full">
-                                </iframe>
-                            @elseif($lesson->video_host === 'bunny' && $lesson->video_id)
-                                <video controls class="w-full h-full" id="videoPlayer">
-                                    <source src="{{ $videoService->getBunnyStreamUrl($lesson->video_id, $book->bunny_library_id ?? '') }}" type="video/mp4">
-                                </video>
-                            @elseif($lesson->video_host === 'upload' && $lesson->video_file)
-                                <video controls class="w-full h-full" id="videoPlayer">
-                                    <source src="{{ \Storage::url($lesson->video_file) }}" type="{{ $lesson->video_mime_type }}">
-                                    Your browser does not support the video tag.
-                                </video>
+                            @if($hasLessonVideo)
+                                {{-- Lesson has video --}}
+                                @if($lesson->video_host === 'youtube' && $lesson->video_id)
+                                    @php
+                                        // Extract clean video ID (handles both URLs and IDs)
+                                        $cleanVideoId = $videoService->extractYouTubeId($lesson->video_id);
+                                        $embedUrl = $videoService->getYouTubeEmbedUrl($cleanVideoId);
+                                    @endphp
+                                    @if(!empty($cleanVideoId) && strlen($cleanVideoId) >= 11)
+                                        <iframe
+                                            id="youtube-player-{{ $lesson->id }}"
+                                            src="{{ $embedUrl }}"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen
+                                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;">
+                                        </iframe>
+                                        <script>
+                                            console.log('YouTube Video Debug:', {
+                                                lessonId: {{ $lesson->id }},
+                                                videoHost: '{{ $lesson->video_host }}',
+                                                original: '{{ $lesson->video_id }}',
+                                                extracted: '{{ $cleanVideoId }}',
+                                                embedUrl: '{{ $embedUrl }}',
+                                                canAccess: {{ $canAccess ? 'true' : 'false' }}
+                                            });
+                                        </script>
+                                    @else
+                                        <div class="flex items-center justify-center h-full text-white">
+                                            <div class="text-center">
+                                                <p class="text-gray-400">Invalid YouTube video ID</p>
+                                                <p class="text-gray-500 text-sm mt-2">Original: {{ $lesson->video_id }}</p>
+                                                <p class="text-gray-500 text-sm">Extracted: {{ $cleanVideoId }}</p>
+                                                <p class="text-gray-500 text-sm mt-2">Please check the video ID in the lesson settings</p>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @elseif($lesson->video_host === 'bunny' && $lesson->video_id)
+                                    <video controls class="w-full h-full" id="videoPlayer">
+                                        <source src="{{ $videoService->getBunnyStreamUrl($lesson->video_id, $book->bunny_library_id ?? '') }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                @elseif($lesson->video_host === 'upload' && $lesson->video_file)
+                                    <video controls class="w-full h-full" id="videoPlayer">
+                                        <source src="{{ asset('storage/' . $lesson->video_file) }}" type="{{ $lesson->video_mime_type ?? 'video/mp4' }}">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                @endif
+                            @elseif($videoTopic)
+                                {{-- Use first topic video if lesson doesn't have one --}}
+                                @if($videoTopic->video_host === 'youtube' && $videoTopic->video_id)
+                                    @php
+                                        // Extract clean video ID (handles both URLs and IDs)
+                                        $cleanVideoId = $videoService->extractYouTubeId($videoTopic->video_id);
+                                        $embedUrl = $videoService->getYouTubeEmbedUrl($cleanVideoId);
+                                    @endphp
+                                    @if(!empty($cleanVideoId) && strlen($cleanVideoId) >= 11)
+                                        <iframe
+                                            id="youtube-player-topic-{{ $videoTopic->id }}"
+                                            src="{{ $embedUrl }}"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen
+                                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;">
+                                        </iframe>
+                                        <script>
+                                            console.log('YouTube Topic Video Debug:', {
+                                                topicId: {{ $videoTopic->id }},
+                                                videoHost: '{{ $videoTopic->video_host }}',
+                                                original: '{{ $videoTopic->video_id }}',
+                                                extracted: '{{ $cleanVideoId }}',
+                                                embedUrl: '{{ $embedUrl }}'
+                                            });
+                                        </script>
+                                    @else
+                                        <div class="flex items-center justify-center h-full text-white">
+                                            <div class="text-center">
+                                                <p class="text-gray-400">Invalid YouTube video ID: {{ $videoTopic->video_id }}</p>
+                                                <p class="text-gray-500 text-sm mt-2">Please check the video ID in the topic settings</p>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @elseif($videoTopic->video_host === 'bunny' && $videoTopic->video_id)
+                                    <video controls class="w-full h-full" id="videoPlayer">
+                                        <source src="{{ $videoService->getBunnyStreamUrl($videoTopic->video_id, $book->bunny_library_id ?? '') }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                @elseif($videoTopic->video_host === 'upload' && $videoTopic->video_file)
+                                    <video controls class="w-full h-full" id="videoPlayer">
+                                        <source src="{{ asset('storage/' . $videoTopic->video_file) }}" type="{{ $videoTopic->video_mime_type ?? 'video/mp4' }}">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                @endif
                             @else
+                                {{-- No video available --}}
                                 <div class="flex items-center justify-center h-full text-white">
                                     <div class="text-center">
                                         <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                         </svg>
-                                        <p class="text-gray-400">No video available</p>
+                                        <p class="text-gray-400">No video available for this lesson</p>
+                                        @if($lesson->topics && $lesson->topics->count() > 0)
+                                            <p class="text-gray-500 text-sm mt-2">Check topics below for video content</p>
+                                        @endif
                                     </div>
                                 </div>
                             @endif

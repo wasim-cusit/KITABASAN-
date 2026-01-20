@@ -6,6 +6,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Teacher - KITAB ASAN')</title>
 
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
     <!-- Vite Assets (Tailwind CSS, Alpine.js, AOS, etc.) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -25,6 +31,115 @@
                 bottom: 0;
                 background-color: rgba(0, 0, 0, 0.5);
                 z-index: 40;
+            }
+        }
+        
+        /* Bootstrap Modal Backdrop Enhancement */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.6) !important;
+            z-index: 1040;
+        }
+        
+        .modal-backdrop.show {
+            opacity: 1;
+        }
+        
+        /* Remove rounded borders from all form inputs - Force override */
+        .modal .form-control,
+        .modal .form-select,
+        .modal input[type="text"],
+        .modal input[type="number"],
+        .modal input[type="email"],
+        .modal input[type="password"],
+        .modal textarea,
+        .modal select {
+            border-radius: 0 !important;
+            -webkit-border-radius: 0 !important;
+            -moz-border-radius: 0 !important;
+        }
+        
+        /* Remove any rounded classes that might be applied */
+        .modal .rounded-lg,
+        .modal .rounded-xl,
+        .modal .rounded-md,
+        .modal .rounded {
+            border-radius: 0 !important;
+        }
+        
+        /* Remove rounded borders from buttons in modals */
+        .modal .btn,
+        .modal button {
+            border-radius: 0 !important;
+        }
+        
+        /* Ensure modal content has no rounded corners */
+        .modal-content,
+        .modal-header,
+        .modal-footer {
+            border-radius: 0 !important;
+        }
+        
+        /* Modal footer button alignment - Proper spacing for laptop screens */
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .modal-footer .btn {
+            min-width: 100px;
+            padding: 0.5rem 1.25rem;
+            border-radius: 0 !important;
+            font-weight: 500;
+        }
+        
+        /* Ensure proper button order: Cancel on left, Submit on right */
+        .modal-footer .btn-secondary {
+            margin-right: auto;
+        }
+        
+        @media (min-width: 576px) {
+            .modal-footer .btn-secondary {
+                margin-right: 0;
+            }
+        }
+        
+        /* Ensure buttons are side by side on desktop */
+        @media (min-width: 576px) {
+            .modal-footer {
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+            
+            .modal-footer .btn-secondary {
+                order: 1;
+            }
+            
+            .modal-footer .btn-primary {
+                order: 2;
+            }
+        }
+        
+        /* Ensure modal is properly centered and sized */
+        .modal-dialog {
+            max-width: 800px;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-dialog {
+                max-width: 95%;
+                margin: 1rem auto;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+            
+            .modal-footer .btn {
+                width: 100%;
             }
         }
     </style>
@@ -202,6 +317,9 @@
     </div>
 
     @stack('scripts')
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <!-- Toast Notifications -->
     @include('components.notification-toast')

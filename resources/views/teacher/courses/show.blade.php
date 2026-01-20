@@ -344,9 +344,15 @@
                                         </span>
                                     </div>
                                     <div class="flex gap-2 shrink-0">
-                                        <button onclick="editLesson({{ $lesson->id }}, {!! json_encode($lesson->title) !!}, {!! json_encode($lesson->description ?? '') !!}, {{ $lesson->is_free ? 'true' : 'false' }}, {{ $lesson->order }}, {!! json_encode($lesson->status) !!}, {{ $chapter->id }})"
-                                                class="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-1 rounded transition-colors whitespace-nowrap"
-                                                type="button">
+                                        <button type="button"
+                                                class="edit-lesson-btn text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-1 rounded transition-colors whitespace-nowrap"
+                                                data-lesson-id="{{ $lesson->id }}"
+                                                data-lesson-title="{{ htmlspecialchars($lesson->title ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                                data-lesson-description="{{ htmlspecialchars($lesson->description ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                                data-lesson-is-free="{{ $lesson->is_free ? '1' : '0' }}"
+                                                data-lesson-order="{{ $lesson->order ?? 0 }}"
+                                                data-lesson-status="{{ htmlspecialchars($lesson->status ?? 'draft', ENT_QUOTES, 'UTF-8') }}"
+                                                data-chapter-id="{{ $chapter->id }}">
                                             Edit
                                         </button>
                                         <form action="{{ route('teacher.courses.chapters.lessons.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id, 'lessonId' => $lesson->id]) }}"
@@ -376,8 +382,18 @@
                                                         @endif
                                                     </div>
                                                     <div class="flex gap-2 shrink-0">
-                                                        <button onclick="editTopic({{ $topic->id }}, {!! json_encode($topic->title) !!}, {!! json_encode($topic->description ?? '') !!}, {{ $topic->is_free ? 'true' : 'false' }}, {{ $topic->order }}, {!! json_encode($topic->type) !!}, {!! json_encode($topic->video_host ?? '') !!}, {!! json_encode($topic->video_id ?? '') !!}, {{ $lesson->id }}, {{ $chapter->id }})"
-                                                                class="text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap">
+                                                        <button type="button"
+                                                                class="edit-topic-btn text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
+                                                                data-topic-id="{{ $topic->id }}"
+                                                                data-topic-title="{{ htmlspecialchars($topic->title ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                                                data-topic-description="{{ htmlspecialchars($topic->description ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                                                data-topic-is-free="{{ $topic->is_free ? '1' : '0' }}"
+                                                                data-topic-order="{{ $topic->order ?? 0 }}"
+                                                                data-topic-type="{{ htmlspecialchars($topic->type ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                                                data-topic-video-host="{{ htmlspecialchars($topic->video_host ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                                                data-topic-video-id="{{ htmlspecialchars($topic->video_id ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                                                data-lesson-id="{{ $lesson->id }}"
+                                                                data-chapter-id="{{ $chapter->id }}">
                                                             Edit
                                                         </button>
                                                         <form action="{{ route('teacher.courses.chapters.lessons.topics.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id, 'lessonId' => $lesson->id, 'topicId' => $topic->id]) }}"
@@ -445,39 +461,39 @@
 
 @push('scripts')
 <script>
-function showAddChapterModal() {
-    const modal = document.getElementById('addChapterModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.style.display = 'block';
-        // Prevent background scrolling
-        document.body.style.overflow = 'hidden';
-        document.body.style.paddingRight = '0px'; // Prevent layout shift
-        // Lock the body
-        document.documentElement.style.overflow = 'hidden';
+// Bootstrap Modal Helper Functions
+function showBootstrapModal(modalId) {
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
     }
+}
+
+function hideBootstrapModal(modalId) {
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+    }
+}
+
+function showAddChapterModal() {
+    showBootstrapModal('addChapterModal');
 }
 
 function editChapter(id, title, description, isFree, order) {
     try {
-        console.log('editChapter called with:', {id, title, description, isFree, order});
-
         const titleInput = document.getElementById('edit_chapter_title');
         const descInput = document.getElementById('edit_chapter_description');
         const orderInput = document.getElementById('edit_chapter_order');
         const isFreeCheckbox = document.getElementById('edit_chapter_is_free');
         const form = document.getElementById('editChapterForm');
-        const modal = document.getElementById('editChapterModal');
 
-        if (!titleInput || !descInput || !orderInput || !isFreeCheckbox || !form || !modal) {
-            console.error('Required elements not found:', {
-                titleInput: !!titleInput,
-                descInput: !!descInput,
-                orderInput: !!orderInput,
-                isFreeCheckbox: !!isFreeCheckbox,
-                form: !!form,
-                modal: !!modal
-            });
+        if (!titleInput || !descInput || !orderInput || !isFreeCheckbox || !form) {
+            console.error('Required elements not found');
             alert('Error: Edit form elements not found. Please refresh the page.');
             return;
         }
@@ -488,12 +504,7 @@ function editChapter(id, title, description, isFree, order) {
         isFreeCheckbox.checked = isFree === true || isFree === 'true' || isFree === 1 || isFree === '1';
         form.action = '{{ route("teacher.courses.chapters.update", ["bookId" => $course->id, "chapterId" => ":id"]) }}'.replace(':id', id);
 
-        modal.classList.remove('hidden');
-        modal.style.display = 'block';
-        // Prevent background scrolling
-        document.body.style.overflow = 'hidden';
-        document.body.style.paddingRight = '0px';
-        document.documentElement.style.overflow = 'hidden';
+        showBootstrapModal('editChapterModal');
     } catch (error) {
         console.error('Error in editChapter:', error);
         alert('An error occurred while opening the edit form. Please check the console for details.');
@@ -502,52 +513,38 @@ function editChapter(id, title, description, isFree, order) {
 
 function showAddLessonModal(chapterId) {
     document.getElementById('addLessonForm').action = '{{ route("teacher.courses.chapters.lessons.store", ["bookId" => $course->id, "chapterId" => ":id"]) }}'.replace(':id', chapterId);
-    const modal = document.getElementById('addLessonModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.style.display = 'block';
-        // Prevent background scrolling
-        document.body.style.overflow = 'hidden';
-        document.body.style.paddingRight = '0px';
-        document.documentElement.style.overflow = 'hidden';
-        document.getElementById('addLessonForm').reset();
-    }
+    document.getElementById('addLessonForm').reset();
+    showBootstrapModal('addLessonModal');
 }
 
 function editLesson(lessonId, title, description, isFree, order, status, chapterId) {
     try {
-        document.getElementById('edit_lesson_title').value = title || '';
-        document.getElementById('edit_lesson_description').value = description || '';
-        document.getElementById('edit_lesson_order').value = order || 0;
-        document.getElementById('edit_lesson_is_free').checked = isFree === true || isFree === 'true' || isFree === 1;
-        document.getElementById('edit_lesson_status').value = status || 'draft';
-        document.getElementById('editLessonForm').action = '{{ route("teacher.courses.chapters.lessons.update", ["bookId" => $course->id, "chapterId" => ":chapterId", "lessonId" => ":lessonId"]) }}'
+        const titleInput = document.getElementById('edit_lesson_title');
+        const descInput = document.getElementById('edit_lesson_description');
+        const orderInput = document.getElementById('edit_lesson_order');
+        const isFreeCheckbox = document.getElementById('edit_lesson_is_free');
+        const statusSelect = document.getElementById('edit_lesson_status');
+        const form = document.getElementById('editLessonForm');
+        
+        if (!titleInput || !descInput || !orderInput || !isFreeCheckbox || !statusSelect || !form) {
+            console.error('Required elements not found');
+            alert('Error: Edit form elements not found. Please refresh the page.');
+            return;
+        }
+        
+        titleInput.value = title || '';
+        descInput.value = description || '';
+        orderInput.value = order || 0;
+        isFreeCheckbox.checked = isFree === true || isFree === 'true' || isFree === 1 || isFree === '1';
+        statusSelect.value = status || 'draft';
+        form.action = '{{ route("teacher.courses.chapters.lessons.update", ["bookId" => $course->id, "chapterId" => ":chapterId", "lessonId" => ":lessonId"]) }}'
             .replace(':chapterId', chapterId)
             .replace(':lessonId', lessonId);
-        const modal = document.getElementById('editLessonModal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.style.display = 'block';
-            // Prevent background scrolling
-            document.body.style.overflow = 'hidden';
-            document.body.style.paddingRight = '0px';
-            document.documentElement.style.overflow = 'hidden';
-        }
+        
+        showBootstrapModal('editLessonModal');
     } catch (error) {
         console.error('Error in editLesson:', error);
         alert('An error occurred while opening the edit form. Please check the console for details.');
-    }
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
-        // Restore background scrolling
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        document.documentElement.style.overflow = '';
     }
 }
 
@@ -555,45 +552,57 @@ function showAddTopicModal(lessonId, chapterId) {
     document.getElementById('addTopicForm').action = '{{ route("teacher.courses.chapters.lessons.topics.store", ["bookId" => $course->id, "chapterId" => ":chapterId", "lessonId" => ":lessonId"]) }}'
         .replace(':chapterId', chapterId)
         .replace(':lessonId', lessonId);
-    const modal = document.getElementById('addTopicModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.style.display = 'block';
-        // Prevent background scrolling
-        document.body.style.overflow = 'hidden';
-        document.body.style.paddingRight = '0px';
-        document.documentElement.style.overflow = 'hidden';
-        document.getElementById('addTopicForm').reset();
-        toggleVideoInputs('add');
-    }
+    document.getElementById('addTopicForm').reset();
+    toggleVideoInputs('add');
+    showBootstrapModal('addTopicModal');
 }
 
 function editTopic(topicId, title, description, isFree, order, type, videoHost, videoId, lessonId, chapterId) {
-    document.getElementById('edit_topic_title').value = title;
-    document.getElementById('edit_topic_description').value = description || '';
-    document.getElementById('edit_topic_order').value = order;
-    document.getElementById('edit_topic_type').value = type;
-    document.getElementById('edit_topic_is_free').checked = isFree;
-    document.getElementById('edit_topic_video_host').value = videoHost || '';
-    if (videoHost === 'youtube' || videoHost === 'bunny') {
-        document.getElementById('edit_topic_video_id').value = videoId || '';
-        if (videoHost === 'bunny') {
-            document.getElementById('edit_topic_bunny_video_id').value = videoId || '';
+    try {
+        const titleInput = document.getElementById('edit_topic_title');
+        const descInput = document.getElementById('edit_topic_description');
+        const orderInput = document.getElementById('edit_topic_order');
+        const typeSelect = document.getElementById('edit_topic_type');
+        const isFreeCheckbox = document.getElementById('edit_topic_is_free');
+        const videoHostSelect = document.getElementById('edit_topic_video_host');
+        const form = document.getElementById('editTopicForm');
+        
+        if (!titleInput || !descInput || !orderInput || !typeSelect || !isFreeCheckbox || !videoHostSelect || !form) {
+            console.error('Required elements not found');
+            alert('Error: Edit form elements not found. Please refresh the page.');
+            return;
         }
-    }
-    document.getElementById('editTopicForm').action = '{{ route("teacher.courses.chapters.lessons.topics.update", ["bookId" => $course->id, "chapterId" => ":chapterId", "lessonId" => ":lessonId", "topicId" => ":topicId"]) }}'
-        .replace(':chapterId', chapterId)
-        .replace(':lessonId', lessonId)
-        .replace(':topicId', topicId);
-    const modal = document.getElementById('editTopicModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.style.display = 'block';
-        // Prevent background scrolling
-        document.body.style.overflow = 'hidden';
-        document.body.style.paddingRight = '0px';
-        document.documentElement.style.overflow = 'hidden';
+        
+        titleInput.value = title || '';
+        descInput.value = description || '';
+        orderInput.value = order || 0;
+        typeSelect.value = type || '';
+        isFreeCheckbox.checked = isFree === true || isFree === 'true' || isFree === 1 || isFree === '1';
+        videoHostSelect.value = videoHost || '';
+        
+        if (videoHost === 'youtube' || videoHost === 'bunny') {
+            const videoIdInput = document.getElementById('edit_topic_video_id');
+            if (videoIdInput) {
+                videoIdInput.value = videoId || '';
+            }
+            if (videoHost === 'bunny') {
+                const bunnyVideoIdInput = document.getElementById('edit_topic_bunny_video_id');
+                if (bunnyVideoIdInput) {
+                    bunnyVideoIdInput.value = videoId || '';
+                }
+            }
+        }
+        
+        form.action = '{{ route("teacher.courses.chapters.lessons.topics.update", ["bookId" => $course->id, "chapterId" => ":chapterId", "lessonId" => ":lessonId", "topicId" => ":topicId"]) }}'
+            .replace(':chapterId', chapterId)
+            .replace(':lessonId', lessonId)
+            .replace(':topicId', topicId);
+        
         toggleVideoInputs('edit');
+        showBootstrapModal('editTopicModal');
+    } catch (error) {
+        console.error('Error in editTopic:', error);
+        alert('An error occurred while opening the edit form. Please check the console for details.');
     }
 }
 
@@ -601,67 +610,95 @@ function toggleVideoInputs(mode) {
     const prefix = mode === 'add' ? 'add_topic' : 'edit_topic';
     const videoHost = document.getElementById(prefix + '_video_host').value;
 
-    document.getElementById(prefix + '_youtube_input').classList.add('hidden');
-    document.getElementById(prefix + '_bunny_input').classList.add('hidden');
-    document.getElementById(prefix + '_upload_input').classList.add('hidden');
+    // Hide all video inputs
+    const youtubeInput = document.getElementById(prefix + '_youtube_input');
+    const bunnyInput = document.getElementById(prefix + '_bunny_input');
+    const uploadInput = document.getElementById(prefix + '_upload_input');
 
-    if (videoHost === 'youtube') {
-        document.getElementById(prefix + '_youtube_input').classList.remove('hidden');
-    } else if (videoHost === 'bunny') {
-        document.getElementById(prefix + '_bunny_input').classList.remove('hidden');
-    } else if (videoHost === 'upload') {
-        document.getElementById(prefix + '_upload_input').classList.remove('hidden');
+    if (youtubeInput) youtubeInput.style.display = 'none';
+    if (bunnyInput) bunnyInput.style.display = 'none';
+    if (uploadInput) uploadInput.style.display = 'none';
+
+    // Show relevant input
+    if (videoHost === 'youtube' && youtubeInput) {
+        youtubeInput.style.display = 'block';
+    } else if (videoHost === 'bunny' && bunnyInput) {
+        bunnyInput.style.display = 'block';
+    } else if (videoHost === 'upload' && uploadInput) {
+        uploadInput.style.display = 'block';
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     // Handle edit chapter buttons with data attributes - use event delegation
     document.addEventListener('click', function(e) {
-        const button = e.target.closest('.edit-chapter-btn');
-        if (button) {
+        const chapterButton = e.target.closest('.edit-chapter-btn');
+        if (chapterButton) {
             e.preventDefault();
             e.stopPropagation();
-            const chapterId = button.getAttribute('data-chapter-id');
-            const title = button.getAttribute('data-chapter-title');
-            const description = button.getAttribute('data-chapter-description');
-            const isFree = button.getAttribute('data-chapter-is-free') === '1';
-            const order = parseInt(button.getAttribute('data-chapter-order')) || 0;
-
+            const chapterId = chapterButton.getAttribute('data-chapter-id');
+            const title = chapterButton.getAttribute('data-chapter-title');
+            const description = chapterButton.getAttribute('data-chapter-description');
+            const isFree = chapterButton.getAttribute('data-chapter-is-free') === '1';
+            const order = parseInt(chapterButton.getAttribute('data-chapter-order')) || 0;
+            
             console.log('Edit chapter button clicked:', {chapterId, title, description, isFree, order});
-
+            
             if (chapterId) {
                 editChapter(chapterId, title, description, isFree, order);
             } else {
                 console.error('Chapter ID not found on button');
             }
+            return;
         }
-    });
-
-    // Prevent body scroll when modal is open
-    const modals = ['addLessonModal', 'editLessonModal', 'addChapterModal', 'editChapterModal', 'addTopicModal', 'editTopicModal'];
-
-    // Handle ESC key to close modals
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            modals.forEach(modalId => {
-                const modal = document.getElementById(modalId);
-                if (modal && !modal.classList.contains('hidden')) {
-                    closeModal(modalId);
-                }
-            });
+        
+        // Handle edit lesson buttons with data attributes
+        const lessonButton = e.target.closest('.edit-lesson-btn');
+        if (lessonButton) {
+            e.preventDefault();
+            e.stopPropagation();
+            const lessonId = lessonButton.getAttribute('data-lesson-id');
+            const title = lessonButton.getAttribute('data-lesson-title');
+            const description = lessonButton.getAttribute('data-lesson-description');
+            const isFree = lessonButton.getAttribute('data-lesson-is-free') === '1';
+            const order = parseInt(lessonButton.getAttribute('data-lesson-order')) || 0;
+            const status = lessonButton.getAttribute('data-lesson-status') || 'draft';
+            const chapterId = lessonButton.getAttribute('data-chapter-id');
+            
+            console.log('Edit lesson button clicked:', {lessonId, title, description, isFree, order, status, chapterId});
+            
+            if (lessonId && chapterId) {
+                editLesson(lessonId, title, description, isFree, order, status, chapterId);
+            } else {
+                console.error('Lesson ID or Chapter ID not found on button');
+            }
+            return;
         }
-    });
-
-    // Handle click outside modal to close
-    modals.forEach(modalId => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.addEventListener('click', function(e) {
-                // Close if clicking on the backdrop (the modal container itself)
-                if (e.target === modal || e.target.classList.contains('bg-black')) {
-                    closeModal(modalId);
-                }
-            });
+        
+        // Handle edit topic buttons with data attributes
+        const topicButton = e.target.closest('.edit-topic-btn');
+        if (topicButton) {
+            e.preventDefault();
+            e.stopPropagation();
+            const topicId = topicButton.getAttribute('data-topic-id');
+            const title = topicButton.getAttribute('data-topic-title');
+            const description = topicButton.getAttribute('data-topic-description');
+            const isFree = topicButton.getAttribute('data-topic-is-free') === '1';
+            const order = parseInt(topicButton.getAttribute('data-topic-order')) || 0;
+            const type = topicButton.getAttribute('data-topic-type') || '';
+            const videoHost = topicButton.getAttribute('data-topic-video-host') || '';
+            const videoId = topicButton.getAttribute('data-topic-video-id') || '';
+            const lessonId = topicButton.getAttribute('data-lesson-id');
+            const chapterId = topicButton.getAttribute('data-chapter-id');
+            
+            console.log('Edit topic button clicked:', {topicId, title, description, isFree, order, type, videoHost, videoId, lessonId, chapterId});
+            
+            if (topicId && lessonId && chapterId) {
+                editTopic(topicId, title, description, isFree, order, type, videoHost, videoId, lessonId, chapterId);
+            } else {
+                console.error('Topic ID, Lesson ID or Chapter ID not found on button');
+            }
+            return;
         }
     });
 });

@@ -86,6 +86,12 @@ class LessonController extends Controller
             'status' => 'nullable|in:draft,published',
         ]);
 
+        // Extract YouTube video ID from URL if full URL provided
+        $videoId = $request->video_id;
+        if ($request->video_host === 'youtube' && $videoId) {
+            $videoId = $this->extractYouTubeId($videoId);
+        }
+
         $lesson = Lesson::create([
             'chapter_id' => $chapterId,
             'title' => $request->title,
@@ -93,7 +99,7 @@ class LessonController extends Controller
             'order' => $request->order ?? 0,
             'is_free' => $request->boolean('is_free'),
             'video_host' => $request->video_host,
-            'video_id' => $request->video_id,
+            'video_id' => $videoId,
             'status' => $request->status ?? 'draft',
         ]);
 
@@ -127,13 +133,19 @@ class LessonController extends Controller
             'status' => 'nullable|in:draft,published',
         ]);
 
+        // Extract YouTube video ID from URL if full URL provided
+        $videoId = $request->video_id;
+        if ($request->video_host === 'youtube' && $videoId) {
+            $videoId = $this->extractYouTubeId($videoId);
+        }
+
         $lesson->update([
             'title' => $request->title,
             'description' => $request->description,
             'order' => $request->order ?? $lesson->order,
             'is_free' => $request->boolean('is_free'),
             'video_host' => $request->video_host,
-            'video_id' => $request->video_id,
+            'video_id' => $videoId,
             'status' => $request->status ?? $lesson->status,
         ]);
 
@@ -155,5 +167,38 @@ class LessonController extends Controller
         $lesson->delete();
 
         return redirect()->back()->with('success', 'Lesson deleted successfully.');
+    }
+
+    /**
+     * Extract YouTube video ID from URL or return as-is if already an ID
+     */
+    private function extractYouTubeId($input): string
+    {
+        if (empty($input)) {
+            return '';
+        }
+
+        // If it's already just an ID (11 characters, alphanumeric, dashes, underscores)
+        if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $input)) {
+            return $input;
+        }
+
+        // Try to extract from various YouTube URL formats
+        $patterns = [
+            '/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/',
+            '/youtu\.be\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/v\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/.*[?&]v=([a-zA-Z0-9_-]{11})/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $input, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        // If no pattern matches, return original (might be invalid, but let validation handle it)
+        return $input;
     }
 }

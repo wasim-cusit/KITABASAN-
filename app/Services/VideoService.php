@@ -61,11 +61,47 @@ class VideoService
     }
 
     /**
+     * Extract YouTube video ID from URL or return as-is if already an ID
+     */
+    public function extractYouTubeId($input): string
+    {
+        if (empty($input)) {
+            return '';
+        }
+
+        // If it's already just an ID (11 characters, alphanumeric, dashes, underscores)
+        if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $input)) {
+            return $input;
+        }
+
+        // Try to extract from various YouTube URL formats
+        $patterns = [
+            '/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/',
+            '/youtu\.be\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/v\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/.*[?&]v=([a-zA-Z0-9_-]{11})/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $input, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        // If no pattern matches, return original (might be invalid, but let validation handle it)
+        return $input;
+    }
+
+    /**
      * Get YouTube embed URL with privacy controls for unlisted/private videos
      */
     public function getYouTubeEmbedUrl(string $videoId, string $privacy = 'public', array $options = []): string
     {
-        $embedUrl = "https://www.youtube.com/embed/{$videoId}";
+        // Extract video ID if a full URL was provided
+        $cleanVideoId = $this->extractYouTubeId($videoId);
+        
+        $embedUrl = "https://www.youtube.com/embed/{$cleanVideoId}";
         
         $params = array_merge([
             'enablejsapi' => 1,
