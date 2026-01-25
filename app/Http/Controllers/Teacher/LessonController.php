@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Chapter;
 use App\Models\Lesson;
+use App\Services\AdminNotificationService;
+use App\Services\CourseNotificationService;
+use App\Services\StudentNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -148,6 +151,10 @@ class LessonController extends Controller
             'video_id' => $videoId,
             'status' => $request->status ?? $lesson->status,
         ]);
+
+        CourseNotificationService::notifyCourseUpdate($book, 'Lesson updated: ' . $lesson->title);
+        StudentNotificationService::notifyCourseUpdate($book, 'Lesson updated: ' . $lesson->title);
+        AdminNotificationService::notifyCourseUpdate($book, 'Lesson updated: ' . $lesson->title);
 
         return redirect()->back()->with('success', 'Lesson updated successfully.');
     }

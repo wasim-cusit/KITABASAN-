@@ -8,6 +8,10 @@
     <div class="bg-white rounded-lg shadow p-4 lg:p-6">
         <h1 class="text-xl lg:text-2xl font-bold mb-6">Student Settings</h1>
 
+        @if(session('success'))
+            <div class="mb-4 p-3 rounded bg-green-100 text-green-800">{{ session('success') }}</div>
+        @endif
+
         <form action="{{ route('student.settings.update') }}" method="POST">
             @csrf
             @method('PUT')
@@ -17,12 +21,12 @@
                     <h2 class="text-xl font-semibold mb-4">Notification Settings</h2>
                     <div class="space-y-2">
                         <label class="flex items-center">
-                            <input type="checkbox" name="email_notifications" value="1" checked class="mr-2">
-                            <span>Email notifications for course updates</span>
+                            <input type="checkbox" name="email_enrollment_confirmation" value="1" @checked($settings->email_enrollment_confirmation ?? true) class="mr-2">
+                            <span>Email when I enroll in a course</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="checkbox" name="course_reminders" value="1" checked class="mr-2">
-                            <span>Course completion reminders</span>
+                            <input type="checkbox" name="email_course_updates" value="1" @checked($settings->email_course_updates ?? true) class="mr-2">
+                            <span>Email when a course I'm in is updated</span>
                         </label>
                     </div>
                 </div>

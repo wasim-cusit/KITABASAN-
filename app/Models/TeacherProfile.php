@@ -20,11 +20,19 @@ class TeacherProfile extends Model
         'rating',
         'rating_count',
         'status',
+        'email_notifications',
+        'course_updates',
+        'show_profile',
+        'show_email',
     ];
 
     protected $casts = [
         'social_links' => 'array',
         'rating' => 'decimal:2',
+        'email_notifications' => 'boolean',
+        'course_updates' => 'boolean',
+        'show_profile' => 'boolean',
+        'show_email' => 'boolean',
     ];
 
     public function user(): BelongsTo

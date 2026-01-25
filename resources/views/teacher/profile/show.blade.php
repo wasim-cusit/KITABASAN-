@@ -4,87 +4,81 @@
 @section('page-title', 'My Profile')
 
 @section('content')
-<div class="bg-white rounded-lg shadow p-4 lg:p-6">
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 gap-4">
-        <div class="flex items-center space-x-4">
-            <!-- Profile Picture with Initials Fallback -->
+<div class="teacher-profile-container">
+<div class="teacher-profile-card">
+    <div class="teacher-profile-header">
+        <div class="teacher-profile-hero">
             @if($user->profile_image)
-                <img src="{{ \Storage::url($user->profile_image) }}" 
-                     alt="{{ $user->name }}" 
-                     class="h-24 w-24 rounded-full object-cover border-4 border-blue-100">
+                <img src="{{ \Storage::url($user->profile_image) }}" alt="{{ $user->name }}" class="teacher-profile-avatar">
             @else
-                <div class="h-24 w-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-blue-100">
-                    {{ $user->getInitials() }}
-                </div>
+                <div class="teacher-profile-avatar-placeholder">{{ $user->getInitials() }}</div>
             @endif
             <div>
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900">
+                <h1 class="teacher-profile-name">
                     {{ trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: $user->name }}
                 </h1>
-                <p class="text-sm text-gray-500">{{ $user->email }}</p>
+                <p class="teacher-profile-email">{{ $user->email }}</p>
             </div>
         </div>
-        <a href="{{ route('teacher.profile.edit') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm lg:text-base text-center">
-            Edit Profile
-        </a>
+        <a href="{{ route('teacher.profile.edit') }}" class="teacher-profile-edit-btn">Edit Profile</a>
     </div>
 
     <!-- Basic Information -->
-    <div class="border-t pt-6 mb-6">
-        <h2 class="text-xl font-bold mb-4">Basic Information</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                <p class="text-gray-900">{{ $user->first_name ?? 'N/A' }}</p>
+    <div class="teacher-profile-section">
+        <h2 class="teacher-profile-section-title">Basic Information</h2>
+        <div class="teacher-profile-grid">
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">First Name</label>
+                <p class="teacher-profile-value">{{ $user->first_name ?? 'N/A' }}</p>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                <p class="text-gray-900">{{ $user->last_name ?? 'N/A' }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">Last Name</label>
+                <p class="teacher-profile-value">{{ $user->last_name ?? 'N/A' }}</p>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <p class="text-gray-900">{{ $user->email }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">Email</label>
+                <p class="teacher-profile-value">{{ $user->email }}</p>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
-                <p class="text-gray-900">{{ $user->mobile ?? 'N/A' }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">Mobile</label>
+                <p class="teacher-profile-value">{{ $user->mobile ?? 'N/A' }}</p>
             </div>
             @if($user->date_of_birth)
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                <p class="text-gray-900">{{ $user->date_of_birth->format('F d, Y') }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">Date of Birth</label>
+                <p class="teacher-profile-value">{{ $user->date_of_birth->format('F d, Y') }}</p>
             </div>
             @endif
             @if($profile)
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Total Courses</label>
-                <p class="text-gray-900">{{ $profile->total_courses ?? 0 }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">Total Courses</label>
+                <p class="teacher-profile-value">{{ $profile->total_courses ?? 0 }}</p>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Total Students</label>
-                <p class="text-gray-900">{{ $profile->total_students ?? 0 }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">Total Students</label>
+                <p class="teacher-profile-value">{{ $profile->total_students ?? 0 }}</p>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
-                <p class="text-gray-900">{{ number_format($profile->rating ?? 0, 2) }} / 5.00</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">Rating</label>
+                <p class="teacher-profile-value">{{ number_format($profile->rating ?? 0, 2) }} / 5.00</p>
             </div>
             @endif
             @if($user->bio || ($profile && $profile->bio))
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                <p class="text-gray-900 whitespace-pre-line">{{ $profile->bio ?? $user->bio }}</p>
+            <div class="teacher-profile-field teacher-profile-field--full">
+                <label class="teacher-profile-label">Bio</label>
+                <p class="teacher-profile-value teacher-profile-value--pre">{{ $profile->bio ?? $user->bio }}</p>
             </div>
             @endif
             @if($profile && $profile->qualifications)
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Qualifications</label>
-                <p class="text-gray-900 whitespace-pre-line">{{ $profile->qualifications }}</p>
+            <div class="teacher-profile-field teacher-profile-field--full">
+                <label class="teacher-profile-label">Qualifications</label>
+                <p class="teacher-profile-value teacher-profile-value--pre">{{ $profile->qualifications }}</p>
             </div>
             @endif
             @if($profile && $profile->specializations)
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Specializations</label>
-                <p class="text-gray-900">{{ $profile->specializations }}</p>
+            <div class="teacher-profile-field teacher-profile-field--full">
+                <label class="teacher-profile-label">Specializations</label>
+                <p class="teacher-profile-value">{{ $profile->specializations }}</p>
             </div>
             @endif
         </div>
@@ -92,37 +86,37 @@
 
     <!-- Address Information -->
     @if($user->address || $user->city || $user->state || $user->country || $user->postal_code)
-    <div class="border-t pt-6 mb-6">
-        <h2 class="text-xl font-bold mb-4">Address Information</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="teacher-profile-section">
+        <h2 class="teacher-profile-section-title">Address Information</h2>
+        <div class="teacher-profile-grid">
             @if($user->address)
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <p class="text-gray-900">{{ $user->address }}</p>
+            <div class="teacher-profile-field teacher-profile-field--full">
+                <label class="teacher-profile-label">Address</label>
+                <p class="teacher-profile-value">{{ $user->address }}</p>
             </div>
             @endif
             @if($user->city)
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
-                <p class="text-gray-900">{{ $user->city }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">City</label>
+                <p class="teacher-profile-value">{{ $user->city }}</p>
             </div>
             @endif
             @if($user->state)
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
-                <p class="text-gray-900">{{ $user->state }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">State/Province</label>
+                <p class="teacher-profile-value">{{ $user->state }}</p>
             </div>
             @endif
             @if($user->country)
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                <p class="text-gray-900">{{ $user->country }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">Country</label>
+                <p class="teacher-profile-value">{{ $user->country }}</p>
             </div>
             @endif
             @if($user->postal_code)
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
-                <p class="text-gray-900">{{ $user->postal_code }}</p>
+            <div class="teacher-profile-field">
+                <label class="teacher-profile-label">Postal Code</label>
+                <p class="teacher-profile-value">{{ $user->postal_code }}</p>
             </div>
             @endif
         </div>
@@ -130,37 +124,33 @@
     @endif
 
     <!-- Change Password Section -->
-    <div class="border-t pt-6">
-        <h2 class="text-xl font-bold mb-4">Change Password</h2>
+    <div class="teacher-profile-section">
+        <h2 class="teacher-profile-section-title">Change Password</h2>
         <form action="{{ route('teacher.profile.password.update') }}" method="POST">
             @csrf
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="teacher-profile-password-grid">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-                    <input type="password" name="current_password" required 
-                           class="w-full px-3 py-2 border rounded-lg @error('current_password') border-red-500 @enderror">
+                    <label class="teacher-profile-label">Current Password</label>
+                    <input type="password" name="current_password" required class="teacher-profile-input @error('current_password') border-red-500 @enderror">
                     @error('current_password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        <p class="teacher-profile-error">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                    <input type="password" name="password" required 
-                           class="w-full px-3 py-2 border rounded-lg @error('password') border-red-500 @enderror">
+                    <label class="teacher-profile-label">New Password</label>
+                    <input type="password" name="password" required class="teacher-profile-input @error('password') border-red-500 @enderror">
                     @error('password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        <p class="teacher-profile-error">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                    <input type="password" name="password_confirmation" required 
-                           class="w-full px-3 py-2 border rounded-lg">
+                    <label class="teacher-profile-label">Confirm Password</label>
+                    <input type="password" name="password_confirmation" required class="teacher-profile-input">
                 </div>
             </div>
-            <button type="submit" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                Update Password
-            </button>
+            <button type="submit" class="teacher-profile-submit-btn">Update Password</button>
         </form>
     </div>
+</div>
 </div>
 @endsection

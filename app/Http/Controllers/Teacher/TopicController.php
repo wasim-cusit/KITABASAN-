@@ -83,17 +83,17 @@ class TopicController extends Controller
             $data['video_id'] = $request->video_id;
         } elseif ($request->video_host === 'upload' && $request->hasFile('video_file')) {
             $file = $request->file('video_file');
-            
+
             // Validate file extension as fallback
             $allowedExtensions = ['mp4', 'webm', 'mov', 'avi', 'flv', 'wmv', 'mkv'];
             $extension = strtolower($file->getClientOriginalExtension());
-            
+
             if (!in_array($extension, $allowedExtensions)) {
                 return redirect()->back()->withErrors([
                     'video_file' => 'Invalid video file format. Allowed formats: ' . implode(', ', $allowedExtensions)
                 ])->withInput();
             }
-            
+
             $path = $file->store('videos/topics', 'public');
             $data['video_file'] = $path;
             $data['video_size'] = $file->getSize();
@@ -102,7 +102,7 @@ class TopicController extends Controller
 
         $topic = Topic::create($data);
 
-        return redirect()->back()->with('success', 'Topic created successfully.');
+        return redirect()->route('teacher.courses.show', $bookId)->with('success', 'Topic created successfully.');
     }
 
     public function update(Request $request, $bookId, $chapterId, $lessonId, $topicId)
@@ -156,33 +156,49 @@ class TopicController extends Controller
         ];
 
         // Handle video based on source
-        if ($request->video_host === 'youtube' && $request->video_id) {
-            // Extract YouTube video ID from URL if full URL provided
-            $videoId = $this->extractYouTubeId($request->video_id);
-            $data['video_id'] = $videoId;
+        if ($request->video_host === 'youtube') {
+            if ($request->filled('video_id')) {
+                // Extract YouTube video ID from URL if full URL provided
+                $videoId = $this->extractYouTubeId($request->video_id);
+                $data['video_id'] = $videoId;
+            } elseif ($request->video_host === $topic->video_host && $topic->video_id) {
+                // If video_host hasn't changed and no new video_id provided, keep existing video_id
+                $data['video_id'] = $topic->video_id;
+            } else {
+                // If switching to YouTube but no video_id provided, clear it
+                $data['video_id'] = null;
+            }
             // Clear upload fields if switching to YouTube
             $data['video_file'] = null;
             $data['video_size'] = null;
             $data['video_mime_type'] = null;
-        } elseif ($request->video_host === 'bunny' && $request->video_id) {
-            $data['video_id'] = $request->video_id;
+        } elseif ($request->video_host === 'bunny') {
+            if ($request->filled('video_id')) {
+                $data['video_id'] = $request->video_id;
+            } elseif ($request->video_host === $topic->video_host && $topic->video_id) {
+                // If video_host hasn't changed and no new video_id provided, keep existing video_id
+                $data['video_id'] = $topic->video_id;
+            } else {
+                // If switching to Bunny but no video_id provided, clear it
+                $data['video_id'] = null;
+            }
             // Clear upload fields if switching to Bunny
             $data['video_file'] = null;
             $data['video_size'] = null;
             $data['video_mime_type'] = null;
         } elseif ($request->video_host === 'upload' && $request->hasFile('video_file')) {
             $file = $request->file('video_file');
-            
+
             // Validate file extension as fallback
             $allowedExtensions = ['mp4', 'webm', 'mov', 'avi', 'flv', 'wmv', 'mkv'];
             $extension = strtolower($file->getClientOriginalExtension());
-            
+
             if (!in_array($extension, $allowedExtensions)) {
                 return redirect()->back()->withErrors([
                     'video_file' => 'Invalid video file format. Allowed formats: ' . implode(', ', $allowedExtensions)
                 ])->withInput();
             }
-            
+
             // Delete old video file if exists
             if ($topic->video_file) {
                 Storage::disk('public')->delete($topic->video_file);
@@ -202,7 +218,7 @@ class TopicController extends Controller
 
         $topic->update($data);
 
-        return redirect()->back()->with('success', 'Topic updated successfully.');
+        return redirect()->route('teacher.courses.show', $bookId)->with('success', 'Topic updated successfully.');
     }
 
     public function destroy($bookId, $chapterId, $lessonId, $topicId)
@@ -224,7 +240,7 @@ class TopicController extends Controller
 
         $topic->delete();
 
-        return redirect()->back()->with('success', 'Topic deleted successfully.');
+        return redirect()->route('teacher.courses.show', $bookId)->with('success', 'Topic deleted successfully.');
     }
 
     /**

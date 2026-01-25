@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminNotificationSetting;
 use App\Models\ThemeSetting;
 use App\Models\SystemSetting;
 use App\Models\PaymentMethod;
@@ -18,8 +19,12 @@ class SettingsController extends Controller
         $systemSettings = SystemSetting::getGrouped();
         $paymentMethods = PaymentMethod::orderBy('order')->get();
         $languages = Language::orderBy('order')->get();
+        $adminNotification = AdminNotificationSetting::firstOrCreate(
+            ['user_id' => auth()->id()],
+            ['email_new_students' => true, 'email_new_teachers' => true, 'email_new_courses' => true, 'email_course_updates' => true]
+        );
 
-        return view('admin.settings.index', compact('themeSettings', 'systemSettings', 'paymentMethods', 'languages'));
+        return view('admin.settings.index', compact('themeSettings', 'systemSettings', 'paymentMethods', 'languages', 'adminNotification'));
     }
 
     public function update(Request $request)
@@ -167,6 +172,19 @@ class SettingsController extends Controller
             }
 
             SystemSetting::clearCache();
+        }
+
+        // Update admin notification preferences
+        if ($request->has('notification_settings')) {
+            $an = AdminNotificationSetting::firstOrCreate(
+                ['user_id' => auth()->id()],
+                ['email_new_students' => true, 'email_new_teachers' => true, 'email_new_courses' => true, 'email_course_updates' => true]
+            );
+            $an->email_new_students = $request->boolean('notification_settings.email_new_students');
+            $an->email_new_teachers = $request->boolean('notification_settings.email_new_teachers');
+            $an->email_new_courses = $request->boolean('notification_settings.email_new_courses');
+            $an->email_course_updates = $request->boolean('notification_settings.email_course_updates');
+            $an->save();
         }
 
         return redirect()->route('admin.settings.index')

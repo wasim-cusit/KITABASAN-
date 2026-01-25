@@ -50,7 +50,19 @@
                     <div id="add_topic_youtube_input" class="mb-3" style="display: none;">
                         <label for="add_topic_video_id" class="form-label fw-semibold">YouTube Video ID or URL</label>
                         <input type="text" class="form-control" id="add_topic_video_id" name="video_id"
-                               placeholder="Enter YouTube video ID or URL" style="border-radius: 0;">
+                               placeholder="Enter YouTube video ID or URL" style="border-radius: 0;"
+                               oninput="showYouTubePreview('add', this.value)">
+                        <div id="add_topic_youtube_preview" class="mt-3" style="display: none;">
+                            <label class="form-label fw-semibold mb-2">Video Preview</label>
+                            <div class="bg-black rounded" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                                <iframe id="add_topic_youtube_preview_iframe"
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
                     </div>
                     <div id="add_topic_bunny_input" class="mb-3" style="display: none;">
                         <label for="add_topic_bunny_video_id" class="form-label fw-semibold">Bunny Video ID</label>
@@ -133,7 +145,19 @@
                     <div id="edit_topic_youtube_input" class="mb-3" style="display: none;">
                         <label for="edit_topic_video_id" class="form-label fw-semibold">YouTube Video ID or URL</label>
                         <input type="text" class="form-control" id="edit_topic_video_id" name="video_id"
-                               placeholder="Enter YouTube video ID or URL" style="border-radius: 0;">
+                               placeholder="Enter YouTube video ID or URL" style="border-radius: 0;"
+                               oninput="showYouTubePreview('edit', this.value)">
+                        <div id="edit_topic_youtube_preview" class="mt-3" style="display: none;">
+                            <label class="form-label fw-semibold mb-2">Video Preview</label>
+                            <div class="bg-black rounded" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                                <iframe id="edit_topic_youtube_preview_iframe"
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
                     </div>
                     <div id="edit_topic_bunny_input" class="mb-3" style="display: none;">
                         <label for="edit_topic_bunny_video_id" class="form-label fw-semibold">Bunny Video ID</label>

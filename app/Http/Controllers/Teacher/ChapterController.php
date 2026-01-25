@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Chapter;
+use App\Services\AdminNotificationService;
+use App\Services\CourseNotificationService;
+use App\Services\StudentNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,6 +41,10 @@ class ChapterController extends Controller
             'order' => $request->order ?? 0,
             'is_free' => $request->boolean('is_free'),
         ]);
+
+        CourseNotificationService::notifyCourseUpdate($book, 'New chapter added: ' . $chapter->title);
+        StudentNotificationService::notifyCourseUpdate($book, 'New chapter added: ' . $chapter->title);
+        AdminNotificationService::notifyCourseUpdate($book, 'New chapter added: ' . $chapter->title);
 
         return redirect()->back()->with('success', 'Chapter created successfully.');
     }
@@ -85,6 +92,10 @@ class ChapterController extends Controller
             'order' => $request->order ?? $chapter->order,
             'is_free' => $request->boolean('is_free'),
         ]);
+
+        CourseNotificationService::notifyCourseUpdate($book, 'Chapter updated: ' . $chapter->title);
+        StudentNotificationService::notifyCourseUpdate($book, 'Chapter updated: ' . $chapter->title);
+        AdminNotificationService::notifyCourseUpdate($book, 'Chapter updated: ' . $chapter->title);
 
         return redirect()->back()->with('success', 'Chapter updated successfully.');
     }

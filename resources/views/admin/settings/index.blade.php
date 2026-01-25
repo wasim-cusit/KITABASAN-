@@ -32,6 +32,10 @@
                     data-tab="video" type="button">
                 Video Settings
             </button>
+            <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-button"
+                    data-tab="notifications" type="button">
+                Notifications
+            </button>
         </nav>
     </div>
 
@@ -453,6 +457,34 @@
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <p class="text-xs text-gray-500 mt-1">Comma-separated list of allowed video formats</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Notifications Tab (Admin email preferences) -->
+        <div id="tab-notifications" class="tab-content p-6 hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Notification Preferences</h2>
+            <p class="text-sm text-gray-600 mb-4">Choose which emails you receive as an administrator.</p>
+            <div class="space-y-3">
+                <label class="flex items-center">
+                    <input type="hidden" name="notification_settings[email_new_students]" value="0">
+                    <input type="checkbox" name="notification_settings[email_new_students]" value="1" @checked($adminNotification->email_new_students ?? true) class="mr-2 rounded border-gray-300">
+                    <span>Email when a new student is registered or added</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="hidden" name="notification_settings[email_new_teachers]" value="0">
+                    <input type="checkbox" name="notification_settings[email_new_teachers]" value="1" @checked($adminNotification->email_new_teachers ?? true) class="mr-2 rounded border-gray-300">
+                    <span>Email when a new teacher is added</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="hidden" name="notification_settings[email_new_courses]" value="0">
+                    <input type="checkbox" name="notification_settings[email_new_courses]" value="1" @checked($adminNotification->email_new_courses ?? true) class="mr-2 rounded border-gray-300">
+                    <span>Email when a new course is created</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="hidden" name="notification_settings[email_course_updates]" value="0">
+                    <input type="checkbox" name="notification_settings[email_course_updates]" value="1" @checked($adminNotification->email_course_updates ?? true) class="mr-2 rounded border-gray-300">
+                    <span>Email when a course is updated (chapters, lessons, details)</span>
+                </label>
             </div>
         </div>
 

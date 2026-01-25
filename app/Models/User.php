@@ -144,6 +144,14 @@ class User extends Authenticatable
         return $this->hasRole('admin');
     }
 
+    /**
+     * Super admin is the primary admin (admin@kitabasan.com) and cannot be deleted or deactivated.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->isAdmin() && $this->email === 'admin@kitabasan.com';
+    }
+
     public function isTeacher(): bool
     {
         return $this->hasRole('teacher');

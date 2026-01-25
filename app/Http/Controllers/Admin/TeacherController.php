@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountCreatedMail;
 use App\Models\User;
+use App\Services\AdminNotificationService;
+use App\Services\EmailConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 
 class TeacherController extends Controller
@@ -72,6 +77,17 @@ class TeacherController extends Controller
         ]);
 
         $user->assignRole('teacher');
+
+        try {
+            EmailConfigService::apply();
+            if (EmailConfigService::isConfigured()) {
+                Mail::to($user->email)->send(new AccountCreatedMail($user, 'teacher', 'admin'));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('AccountCreatedMail not sent (teacher): ' . $e->getMessage());
+        }
+
+        AdminNotificationService::notifyNewTeacher($user);
 
         return redirect()->route('admin.teachers.index')
             ->with('success', 'Teacher created successfully.');

@@ -3,14 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Mail\AccountCreatedMail;
 use App\Models\CourseEnrollment;
 use App\Models\SystemSetting;
+use App\Models\User;
+use App\Services\AdminNotificationService;
+use App\Services\EmailConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 use App\Mail\StudentOfferMail;
 
@@ -89,6 +91,17 @@ class StudentController extends Controller
         ]);
 
         $student->assignRole('student');
+
+        try {
+            EmailConfigService::apply();
+            if (EmailConfigService::isConfigured()) {
+                Mail::to($student->email)->send(new AccountCreatedMail($student, 'student', 'admin'));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('AccountCreatedMail not sent (student): ' . $e->getMessage());
+        }
+
+        AdminNotificationService::notifyNewStudent($student, 'admin');
 
         return redirect()->route('admin.students.index')
             ->with('success', 'Student created successfully.');

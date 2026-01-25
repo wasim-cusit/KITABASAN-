@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountCreatedMail;
 use App\Models\User;
+use App\Services\AdminNotificationService;
+use App\Services\EmailConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
@@ -35,6 +40,17 @@ class RegisterController extends Controller
 
         // Assign student role by default
         $user->assignRole('student');
+
+        try {
+            EmailConfigService::apply();
+            if (EmailConfigService::isConfigured()) {
+                Mail::to($user->email)->send(new AccountCreatedMail($user, 'student', null));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('AccountCreatedMail not sent after registration: ' . $e->getMessage());
+        }
+
+        AdminNotificationService::notifyNewStudent($user, 'registration');
 
         Auth::login($user);
 

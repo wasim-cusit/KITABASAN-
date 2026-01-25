@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
-use App\Models\Subject;
 use App\Models\Grade;
+use App\Models\Subject;
+use App\Services\AdminNotificationService;
+use App\Services\CourseNotificationService;
+use App\Services\StudentNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -118,6 +121,8 @@ class CourseController extends Controller
         }
 
         $course = Book::create($data);
+
+        AdminNotificationService::notifyNewCourse($course, 'teacher');
 
         return redirect()->route('teacher.courses.show', $course->id)
             ->with('success', 'Course created successfully. Now add chapters and lessons.');
@@ -244,6 +249,10 @@ class CourseController extends Controller
         }
 
         $course->update($data);
+
+        CourseNotificationService::notifyCourseUpdate($course, 'Course details or status updated.');
+        StudentNotificationService::notifyCourseUpdate($course, 'Course details or status updated.');
+        AdminNotificationService::notifyCourseUpdate($course, 'Course details or status updated.');
 
         return redirect()->route('teacher.courses.show', $course->id)
             ->with('success', 'Course updated successfully.');

@@ -3,10 +3,16 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewEnrollmentMail;
 use App\Models\Book;
 use App\Models\CourseEnrollment;
+use App\Models\TeacherProfile;
+use App\Services\EmailConfigService;
+use App\Services\StudentNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class CourseController extends Controller
 {
@@ -33,6 +39,12 @@ class CourseController extends Controller
         $enrollment = CourseEnrollment::where('user_id', $user->id)
             ->where('book_id', $id)
             ->where('status', 'active')
+            ->where(function($query) use ($course) {
+                // For paid courses, require payment_status = 'paid'
+                if (!$course->is_free) {
+                    $query->where('payment_status', 'paid');
+                }
+            })
             ->where(function($query) {
                 $query->whereNull('expires_at')
                       ->orWhere('expires_at', '>', now());
@@ -69,6 +81,26 @@ class CourseController extends Controller
                     'expires_at' => ($course->access_duration_months ?? $course->duration_months) ? now()->addMonths($course->access_duration_months ?? $course->duration_months) : null, // null = lifetime access
                 ]
             );
+
+            // Notify teacher of new enrollment if they have email_notifications on
+            if ($enrollment->wasRecentlyCreated) {
+                try {
+                    $enrollment->load(['book', 'user']);
+                    $teacher = $course->teacher;
+                    if ($teacher) {
+                        $profile = TeacherProfile::where('user_id', $teacher->id)->first();
+                        if ($profile->email_notifications ?? true) {
+                            EmailConfigService::apply();
+                            if (EmailConfigService::isConfigured()) {
+                                Mail::to($teacher->email)->send(new NewEnrollmentMail($enrollment, $teacher));
+                            }
+                        }
+                    }
+                    StudentNotificationService::sendEnrollmentConfirmation($enrollment);
+                } catch (\Throwable $e) {
+                    Log::warning('NewEnrollmentMail not sent (free enroll): ' . $e->getMessage());
+                }
+            }
 
             return redirect()->route('student.learning.index', $course->id)
                 ->with('success', 'Successfully enrolled in the course!');

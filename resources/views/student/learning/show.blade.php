@@ -7,10 +7,10 @@
 <div class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-6">
         <!-- Header with Back Button and Progress -->
-        <div class="mb-6">
+                <div class="mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-4">
-                    <a href="{{ route('student.courses.show', $book->id) }}" 
+                    <a href="{{ route('student.learning.index', $book->id) }}"
                        class="text-gray-600 hover:text-gray-900 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -27,7 +27,7 @@
                     <div class="text-right">
                         <div class="text-sm font-semibold text-gray-700">{{ $progressPercentage ?? 0 }}% Complete</div>
                         <div class="w-48 bg-gray-200 rounded-full h-2 mt-1">
-                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
                                  style="width: {{ $progressPercentage ?? 0 }}%"></div>
                         </div>
                     </div>
@@ -44,14 +44,14 @@
                         @php
                             $canAccess = $book->is_free || $enrollment || $lesson->is_free || ($lesson->chapter && $lesson->chapter->is_free);
                             // Check if lesson has video
-                            $hasLessonVideo = ($lesson->video_host === 'youtube' && !empty($lesson->video_id)) 
+                            $hasLessonVideo = ($lesson->video_host === 'youtube' && !empty($lesson->video_id))
                                            || ($lesson->video_host === 'bunny' && !empty($lesson->video_id))
                                            || ($lesson->video_host === 'upload' && !empty($lesson->video_file));
                             // Get first topic with video if lesson doesn't have one
                             $videoTopic = null;
                             if (!$hasLessonVideo && $lesson->topics && $lesson->topics->count() > 0) {
                                 $videoTopic = $lesson->topics->first(function($topic) {
-                                    return ($topic->video_host === 'youtube' && !empty($topic->video_id)) 
+                                    return ($topic->video_host === 'youtube' && !empty($topic->video_id))
                                         || ($topic->video_host === 'bunny' && !empty($topic->video_id))
                                         || ($topic->video_host === 'upload' && !empty($topic->video_file));
                                 });
@@ -190,35 +190,94 @@
                             <p class="text-gray-600">{{ $lesson->description ?? 'No description available.' }}</p>
                         </div>
                         @if(auth()->user()->hasRole('teacher') || auth()->user()->hasRole('admin'))
-                            <a href="{{ route('teacher.courses.chapters.lessons.edit', ['bookId' => $book->id, 'chapterId' => $lesson->chapter_id, 'lessonId' => $lesson->id]) }}" 
+                            <a href="{{ route('teacher.courses.chapters.lessons.edit', ['bookId' => $book->id, 'chapterId' => $lesson->chapter_id, 'lessonId' => $lesson->id]) }}"
                                class="text-sm bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors">
                                 Instructor View
                             </a>
                         @endif
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div class="flex flex-wrap gap-3 mt-6">
-                        @if($lesson->documents && $lesson->documents->count() > 0)
-                            <button class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
+                    <!-- Topics in This Lesson -->
+                    @if($lesson->topics && $lesson->topics->count() > 0)
+                        <div class="mt-6 border-t pt-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Topics in This Lesson</h3>
+                            <div class="space-y-3">
+                                @foreach($lesson->topics as $topic)
+                                    @php
+                                        $topicCanAccess = $book->is_free || $enrollment || $topic->is_free || $lesson->is_free || ($lesson->chapter && $lesson->chapter->is_free);
+                                    @endphp
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                                        <div class="flex items-center gap-3 flex-1">
+                                            <div class="flex-shrink-0">
+                                                @if($topic->type)
+                                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">{{ strtoupper($topic->type) }}</span>
+                                                @else
+                                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <h4 class="font-medium text-gray-900">{{ $topic->title }}</h4>
+                                                @if($topic->description)
+                                                    <p class="text-sm text-gray-600 mt-1 line-clamp-1">{{ $topic->description }}</p>
+                                                @endif
+                                                <div class="flex items-center gap-2 mt-2">
+                                                    @if($topic->is_free)
+                                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">FREE</span>
+                                                    @elseif(!$enrollment && !$book->is_free)
+                                                        <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">PAID</span>
+                                                    @endif
+                                                    @if(($topic->video_host === 'youtube' && !empty($topic->video_id)) ||
+                                                        ($topic->video_host === 'bunny' && !empty($topic->video_id)) ||
+                                                        ($topic->video_host === 'upload' && !empty($topic->video_file)))
+                                                        <span class="text-xs text-gray-500 flex items-center gap-1">
+                                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
+                                                            </svg>
+                                                            Video Available
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('student.learning.topic', ['bookId' => $book->id, 'lessonId' => $lesson->id, 'topicId' => $topic->id]) }}"
+                                           class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap {{ !$topicCanAccess ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' }}">
+                                            View Topic
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Navigation: Previous/Next Lesson -->
+                    <div class="mt-6 pt-6 border-t flex items-center justify-between">
+                        @if(isset($previousLesson))
+                            <a href="{{ route('student.learning.lesson', ['bookId' => $book->id, 'lessonId' => $previousLesson->id]) }}"
+                               class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                                 </svg>
-                                Download Resources
-                            </button>
+                                <span class="text-sm font-medium">Previous Lesson</span>
+                                <span class="text-xs text-gray-500 hidden sm:inline">{{ \Illuminate\Support\Str::limit($previousLesson->title, 30) }}</span>
+                            </a>
+                        @else
+                            <div></div>
                         @endif
-                        <button class="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                            View Notes
-                        </button>
-                        <button class="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                            </svg>
-                            Ask Question
-                        </button>
+
+                        @if(isset($nextLesson))
+                            <a href="{{ route('student.learning.lesson', ['bookId' => $book->id, 'lessonId' => $nextLesson->id]) }}"
+                               class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <span class="text-sm font-medium">Next Lesson</span>
+                                <span class="text-xs opacity-90 hidden sm:inline">{{ \Illuminate\Support\Str::limit($nextLesson->title, 30) }}</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        @else
+                            <div></div>
+                        @endif
                     </div>
                 </div>
 
@@ -263,7 +322,7 @@
                         @if(isset($modules) && $modules->count() > 0)
                             @foreach($modules as $module)
                                 <div class="module-section">
-                                    <button onclick="toggleModule({{ $module->id }})" 
+                                    <button onclick="toggleModule({{ $module->id }})"
                                             class="w-full flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
                                         <span class="font-semibold text-sm text-gray-900">{{ $module->title }}</span>
                                         <svg id="icon-{{ $module->id }}" class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,90 +401,157 @@
 
 @push('scripts')
 <script>
-function toggleModule(moduleId) {
-    const content = document.getElementById('module-' + moduleId);
-    const icon = document.getElementById('icon-' + moduleId);
+(function() {
+    'use strict';
     
-    if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.style.transform = 'rotate(180deg)';
-    } else {
-        content.classList.add('hidden');
-        icon.style.transform = 'rotate(0deg)';
+    // Error handling wrapper
+    function safeExecute(fn) {
+        try {
+            return fn();
+        } catch (error) {
+            console.error('Error in lesson page:', error);
+            return null;
+        }
     }
-}
 
-// Expand module containing current lesson
-document.addEventListener('DOMContentLoaded', function() {
-    @if(isset($modules) && $modules->count() > 0)
-        @foreach($modules as $module)
-            @foreach($module->chapters as $chapter)
-                @foreach($chapter->lessons as $chapLesson)
-                    @if($chapLesson->id === $lesson->id)
-                        // Expand this module
-                        const module{{ $module->id }} = document.getElementById('module-{{ $module->id }}');
-                        const icon{{ $module->id }} = document.getElementById('icon-{{ $module->id }}');
-                        if (module{{ $module->id }}) {
-                            module{{ $module->id }}.classList.remove('hidden');
-                            if (icon{{ $module->id }}) {
-                                icon{{ $module->id }}.style.transform = 'rotate(180deg)';
-                            }
-                        }
-                    @endif
-                @endforeach
-            @endforeach
-        @endforeach
-    @endif
-});
-
-// Video progress tracking
-document.addEventListener('DOMContentLoaded', function() {
-    const videoPlayer = document.getElementById('videoPlayer');
-    if (videoPlayer) {
-        let lastUpdateTime = 0;
-        
-        videoPlayer.addEventListener('timeupdate', function() {
-            const currentTime = Math.floor(videoPlayer.currentTime);
-            const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-
-            // Update progress every 5 seconds
-            if (currentTime - lastUpdateTime >= 5) {
-                lastUpdateTime = currentTime;
-                    fetch('{{ route("student.learning.progress") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        lesson_id: {{ $lesson->id }},
-                        watch_percentage: Math.round(progress),
-                        last_watched_position: currentTime
-                    })
-                }).catch(err => console.error('Progress update failed:', err));
+    function toggleModule(moduleId) {
+        safeExecute(function() {
+            const content = document.getElementById('module-' + moduleId);
+            const icon = document.getElementById('icon-' + moduleId);
+            
+            if (content && icon) {
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    content.classList.add('hidden');
+                    icon.style.transform = 'rotate(0deg)';
+                }
             }
         });
+    }
 
-        // Mark as completed when video ends
-        videoPlayer.addEventListener('ended', function() {
-                    fetch('{{ route("student.learning.progress") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    lesson_id: {{ $lesson->id }},
-                    watch_percentage: 100,
-                    is_completed: true
-                })
-            }).then(() => {
-                // Reload page to update completion status
-                setTimeout(() => window.location.reload(), 1000);
-            }).catch(err => console.error('Completion update failed:', err));
+    // Make function globally available
+    window.toggleModule = toggleModule;
+
+    // Expand module containing current lesson
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            safeExecute(function() {
+                @if(isset($modules) && $modules->count() > 0)
+                    @foreach($modules as $module)
+                        @foreach($module->chapters as $chapter)
+                            @foreach($chapter->lessons as $chapLesson)
+                                @if($chapLesson->id === $lesson->id)
+                                    // Expand this module
+                                    const module{{ $module->id }} = document.getElementById('module-{{ $module->id }}');
+                                    const icon{{ $module->id }} = document.getElementById('icon-{{ $module->id }}');
+                                    if (module{{ $module->id }}) {
+                                        module{{ $module->id }}.classList.remove('hidden');
+                                        if (icon{{ $module->id }}) {
+                                            icon{{ $module->id }}.style.transform = 'rotate(180deg)';
+                                        }
+                                    }
+                                @endif
+                            @endforeach
+                        @endforeach
+                    @endforeach
+                @endif
+            });
+        });
+    } else {
+        safeExecute(function() {
+            @if(isset($modules) && $modules->count() > 0)
+                @foreach($modules as $module)
+                    @foreach($module->chapters as $chapter)
+                        @foreach($chapter->lessons as $chapLesson)
+                            @if($chapLesson->id === $lesson->id)
+                                // Expand this module
+                                const module{{ $module->id }} = document.getElementById('module-{{ $module->id }}');
+                                const icon{{ $module->id }} = document.getElementById('icon-{{ $module->id }}');
+                                if (module{{ $module->id }}) {
+                                    module{{ $module->id }}.classList.remove('hidden');
+                                    if (icon{{ $module->id }}) {
+                                        icon{{ $module->id }}.style.transform = 'rotate(180deg)';
+                                    }
+                                }
+                            @endif
+                        @endforeach
+                    @endforeach
+                @endforeach
+            @endif
         });
     }
-});
+
+    // Video progress tracking
+    function initVideoTracking() {
+        safeExecute(function() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            if (!videoPlayer) return;
+            
+            let lastUpdateTime = 0;
+            
+            videoPlayer.addEventListener('timeupdate', function() {
+                safeExecute(function() {
+                    if (!videoPlayer.duration || videoPlayer.duration === 0) return;
+                    
+                    const currentTime = Math.floor(videoPlayer.currentTime);
+                    const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+
+                    // Update progress every 5 seconds
+                    if (currentTime - lastUpdateTime >= 5) {
+                        lastUpdateTime = currentTime;
+                        fetch('{{ route("student.learning.progress") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                lesson_id: {{ $lesson->id }},
+                                watch_percentage: Math.round(progress),
+                                last_watched_position: currentTime
+                            })
+                        }).catch(function(err) {
+                            console.error('Progress update failed:', err);
+                        });
+                    }
+                });
+            });
+
+            // Mark as completed when video ends
+            videoPlayer.addEventListener('ended', function() {
+                safeExecute(function() {
+                    fetch('{{ route("student.learning.progress") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            lesson_id: {{ $lesson->id }},
+                            watch_percentage: 100,
+                            is_completed: true
+                        })
+                    }).then(function() {
+                        // Reload page to update completion status
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1000);
+                    }).catch(function(err) {
+                        console.error('Completion update failed:', err);
+                    });
+                });
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVideoTracking);
+    } else {
+        initVideoTracking();
+    }
+})();
 </script>
 @endpush
 @endsection

@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\Hash;
 
 class RoleSeeder extends Seeder
 {
@@ -46,14 +45,15 @@ class RoleSeeder extends Seeder
             'use chatbot',
         ];
 
+        $guard = 'web';
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => $guard]);
         }
 
-        // Create roles
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
-        $studentRole = Role::firstOrCreate(['name' => 'student']);
+        // Create roles (guard_name must match for hasRole/assignRole to work)
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => $guard]);
+        $teacherRole = Role::firstOrCreate(['name' => 'teacher', 'guard_name' => $guard]);
+        $studentRole = Role::firstOrCreate(['name' => 'student', 'guard_name' => $guard]);
 
         // Assign permissions to roles
         $adminRole->givePermissionTo(Permission::all());
@@ -75,46 +75,37 @@ class RoleSeeder extends Seeder
             'use chatbot',
         ]);
 
-        // Create default admin user
+        // Create default super admin user (admin@kitabasan.com)
         $admin = User::firstOrCreate(
             ['email' => 'admin@kitabasan.com'],
             [
                 'name' => 'Admin User',
                 'mobile' => '03001234567',
-                'password' => Hash::make('password'),
+                'password' => 'password', // cast 'hashed' will hash it
                 'status' => 'active',
             ]
         );
-        if (!$admin->hasRole('admin')) {
-            $admin->assignRole('admin');
-        }
+        // Always reset password and status so credentials are: admin@kitabasan.com / password
+        $admin->update(['password' => 'password', 'status' => 'active', 'name' => 'Admin User']);
+        $admin->syncRoles(['admin']);
 
-        // Create default teacher user
+        // Create default teacher user (teacher@kitabasan.com / password)
         $teacher = User::firstOrCreate(
             ['email' => 'teacher@kitabasan.com'],
-            [
-                'name' => 'Teacher User',
-                'mobile' => '03001234568',
-                'password' => Hash::make('password'),
-                'status' => 'active',
-            ]
+            ['name' => 'Teacher User', 'mobile' => '03001234568', 'password' => 'password', 'status' => 'active']
         );
-        if (!$teacher->hasRole('teacher')) {
-            $teacher->assignRole('teacher');
-        }
+        $teacher->update(['password' => 'password', 'status' => 'active']);
+        $teacher->syncRoles(['teacher']);
 
-        // Create default student user
+        // Create default student user (student@kitabasan.com / password)
         $student = User::firstOrCreate(
             ['email' => 'student@kitabasan.com'],
-            [
-                'name' => 'Student User',
-                'mobile' => '03001234569',
-                'password' => Hash::make('password'),
-                'status' => 'active',
-            ]
+            ['name' => 'Student User', 'mobile' => '03001234569', 'password' => 'password', 'status' => 'active']
         );
-        if (!$student->hasRole('student')) {
-            $student->assignRole('student');
-        }
+        $student->update(['password' => 'password', 'status' => 'active']);
+        $student->syncRoles(['student']);
+
+        // Clear permission cache so role checks work immediately
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
     }
 }

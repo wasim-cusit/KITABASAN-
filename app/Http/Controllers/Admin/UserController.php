@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountCreatedMail;
 use App\Models\User;
+use App\Services\EmailConfigService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -73,6 +77,15 @@ class UserController extends Controller
 
         $user->assignRole('admin');
 
+        try {
+            EmailConfigService::apply();
+            if (EmailConfigService::isConfigured()) {
+                Mail::to($user->email)->send(new AccountCreatedMail($user, 'admin', 'admin'));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('AccountCreatedMail not sent (admin): ' . $e->getMessage());
+        }
+
         return redirect()->route('admin.users.index')
             ->with('success', 'Admin created successfully.');
     }
@@ -124,6 +137,12 @@ class UserController extends Controller
             'status' => $request->status,
         ];
 
+        // Prevent deactivating the super admin (would lock them out)
+        if ($user->isSuperAdmin() && $request->status !== 'active') {
+            return redirect()->route('admin.users.edit', $user)
+                ->with('error', 'The super admin account cannot be deactivated.');
+        }
+
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -139,6 +158,12 @@ class UserController extends Controller
         // Ensure this is an admin
         if (!$user->hasRole('admin')) {
             abort(404, 'User is not an admin.');
+        }
+
+        // Prevent deleting the super admin (admin@kitabasan.com)
+        if ($user->isSuperAdmin()) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'The super admin account cannot be deleted.');
         }
 
         // Prevent deleting the last admin user

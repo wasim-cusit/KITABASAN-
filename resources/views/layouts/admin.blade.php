@@ -27,18 +27,46 @@
                 z-index: 40;
             }
         }
+        .admin-layout-root {
+            min-height: 100vh;
+            display: flex;
+            --admin-header-height: 6rem;
+            overflow-x: hidden;
+        }
+        .admin-layout-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            background-color: #ffffff;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+        @media (min-width: 1024px) {
+            .admin-layout-header {
+                left: 16rem;
+                right: 0;
+            }
+            .admin-layout-main {
+                margin-left: 16rem;
+                max-width: calc(100% - 16rem);
+            }
+        }
+        .admin-layout-content {
+            padding-top: var(--admin-header-height);
+        }
     </style>
 
     @stack('styles')
 </head>
 <body class="bg-gray-100" x-data="{ sidebarOpen: false, profileMenuOpen: false }">
-    <div class="min-h-screen flex">
+    <div class="admin-layout-root min-h-screen flex">
         <!-- Mobile Overlay -->
         <div x-show="sidebarOpen" @click="sidebarOpen = false" class="sidebar-overlay lg:hidden" x-cloak></div>
 
         <!-- Sidebar -->
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-               class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gray-800 text-white min-h-screen transform transition-transform duration-300 ease-in-out lg:translate-x-0">
+               class="admin-layout-sidebar fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 text-white h-screen overflow-y-auto transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0">
             <div class="p-4">
                 <div class="mb-8">
                     <!-- Close button (Mobile only) -->
@@ -121,9 +149,9 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col lg:ml-0">
+        <div class="admin-layout-main flex-1 flex flex-col min-w-0 w-full lg:ml-64 lg:max-w-[calc(100%-16rem)]">
             <!-- Top Bar -->
-            <header class="bg-white shadow-sm">
+            <header class="admin-layout-header">
                 <div class="flex items-center justify-between px-4 lg:px-6 py-4">
                     <div class="flex items-center space-x-4">
                         <!-- Mobile Menu Button -->
@@ -210,7 +238,7 @@
             </header>
 
             <!-- Content -->
-            <main class="flex-1 p-4 lg:p-6">
+            <main class="admin-layout-content flex-1 px-4 pb-4 lg:px-6 lg:pb-6">
                 @yield('content')
             </main>
         </div>

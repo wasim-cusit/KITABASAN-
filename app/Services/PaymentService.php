@@ -2,13 +2,18 @@
 
 namespace App\Services;
 
-use App\Models\Payment;
-use App\Models\CourseEnrollment;
+use App\Mail\NewEnrollmentMail;
 use App\Models\Book;
-use App\Models\User;
+use App\Models\CourseEnrollment;
+use App\Models\Payment;
+use App\Models\TeacherProfile;
 use App\Models\Transaction;
-use Illuminate\Support\Str;
+use App\Models\User;
+use App\Services\EmailConfigService;
+use App\Services\StudentNotificationService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 class PaymentService
@@ -117,7 +122,7 @@ class PaymentService
         $accessDuration = $book->access_duration_months ?? $book->duration_months;
 
         // Create or update enrollment with payment link
-        CourseEnrollment::updateOrCreate(
+        $enrollment = CourseEnrollment::updateOrCreate(
             [
                 'user_id' => $payment->user_id,
                 'book_id' => $payment->book_id,
@@ -130,6 +135,26 @@ class PaymentService
                 'expires_at' => $accessDuration ? now()->addMonths($accessDuration) : null, // null = lifetime access
             ]
         );
+
+        // Notify teacher of new enrollment if they have email_notifications on
+        if ($enrollment->wasRecentlyCreated) {
+            try {
+                $enrollment->load(['book', 'user']);
+                $teacher = $book->teacher;
+                if ($teacher) {
+                    $profile = TeacherProfile::where('user_id', $teacher->id)->first();
+                    if ($profile->email_notifications ?? true) {
+                        EmailConfigService::apply();
+                        if (EmailConfigService::isConfigured()) {
+                            Mail::to($teacher->email)->send(new NewEnrollmentMail($enrollment, $teacher));
+                        }
+                    }
+                }
+                StudentNotificationService::sendEnrollmentConfirmation($enrollment);
+            } catch (\Throwable $e) {
+                Log::warning('NewEnrollmentMail not sent: ' . $e->getMessage());
+            }
+        }
 
         return true;
     }

@@ -30,10 +30,16 @@ class LoginController extends Controller
             /** @var User $user */
             $user = Auth::user();
 
-            // Update last login time
-            if ($user) {
-                $user->update(['last_login_at' => now()]);
+            // Block inactive or suspended users (including super admin)
+            if ($user->status !== 'active') {
+                Auth::logout();
+                throw ValidationException::withMessages([
+                    'email' => ['Your account is not active. Please contact support.'],
+                ]);
             }
+
+            // Update last login time
+            $user->update(['last_login_at' => now()]);
 
             // Redirect based on role with proper intended URL handling
             if ($user->isAdmin()) {

@@ -44,20 +44,20 @@
                     <span>{{ $course->subject->name ?? 'N/A' }}</span>
                 </div>
             </div>
-            <div class="flex flex-col sm:flex-row gap-2 shrink-0">
-                <a href="{{ route('teacher.courses.edit', $course->id) }}"
-                   class="inline-flex items-center justify-center bg-blue-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                    Edit Course
-                </a>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0 w-full sm:w-auto">
                 <a href="{{ route('teacher.courses.index') }}"
-                   class="inline-flex items-center justify-center bg-gray-100 text-gray-700 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg hover:bg-gray-200 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center justify-center h-11 w-full sm:w-auto min-w-0 px-3 sm:px-4 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap">
+                    <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                     Back to Courses
+                </a>
+                <a href="{{ route('teacher.courses.edit', $course->id) }}"
+                   class="flex items-center justify-center h-11 w-full sm:w-auto min-w-0 px-3 sm:px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap">
+                    <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit Course
                 </a>
             </div>
         </div>
@@ -73,18 +73,18 @@
         </h2>
 
         <!-- Quick Stats Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 mb-4">
             <!-- Status Card -->
-            <div class="flex flex-col items-center sm:items-start gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col items-center sm:items-start gap-1.5 p-2 sm:p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="w-8 h-8 rounded-md bg-blue-100 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <div class="text-center sm:text-left w-full">
-                    <p class="text-xs font-medium text-gray-500 mb-0.5">Status</p>
-                    <p class="text-xs font-semibold">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $course->status === 'published' ? 'bg-green-100 text-green-800' : ($course->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                <div class="text-center sm:text-left w-full min-w-0">
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 truncate">Status</p>
+                    <p class="text-xs font-semibold truncate">
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] font-medium {{ $course->status === 'published' ? 'bg-green-100 text-green-800' : ($course->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
                             {{ ucfirst($course->status) }}
                         </span>
                     </p>
@@ -92,15 +92,15 @@
             </div>
 
             <!-- Price Card -->
-            <div class="flex flex-col items-center sm:items-start gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col items-center sm:items-start gap-1.5 p-2 sm:p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="w-8 h-8 rounded-md bg-green-100 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <div class="text-center sm:text-left w-full">
-                    <p class="text-xs font-medium text-gray-500 mb-0.5">Price</p>
-                    <p class="text-xs sm:text-sm font-bold">
+                <div class="text-center sm:text-left w-full min-w-0">
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 truncate">Price</p>
+                    <p class="text-xs font-bold truncate">
                         @if($course->is_free)
                             <span class="text-green-600">Free</span>
                         @else
@@ -111,80 +111,80 @@
             </div>
 
             <!-- Access Duration Card -->
-            <div class="flex flex-col items-center sm:items-start gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col items-center sm:items-start gap-1.5 p-2 sm:p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="w-8 h-8 rounded-md bg-purple-100 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <div class="text-center sm:text-left w-full">
-                    <p class="text-xs font-medium text-gray-500 mb-0.5">Duration</p>
-                    <p class="text-xs sm:text-sm font-bold text-gray-900">{{ $course->access_duration_months ?? $course->duration_months ?? 'N/A' }}m</p>
+                <div class="text-center sm:text-left w-full min-w-0">
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 truncate">Duration</p>
+                    <p class="text-xs font-bold text-gray-900 truncate">{{ $course->access_duration_months ?? $course->duration_months ?? 'N/A' }}m</p>
                 </div>
             </div>
 
             <!-- Chapters Count -->
-            <div class="flex flex-col items-center sm:items-start gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col items-center sm:items-start gap-1.5 p-2 sm:p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="w-8 h-8 rounded-md bg-indigo-100 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
-                <div class="text-center sm:text-left w-full">
-                    <p class="text-xs font-medium text-gray-500 mb-0.5">Chapters</p>
-                    <p class="text-xs sm:text-sm font-bold text-gray-900">{{ $course->chapters->count() ?? 0 }}</p>
+                <div class="text-center sm:text-left w-full min-w-0">
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 truncate">Chapters</p>
+                    <p class="text-xs font-bold text-gray-900 truncate">{{ $course->chapters->count() ?? 0 }}</p>
                 </div>
             </div>
 
             <!-- Lessons Count -->
-            <div class="flex flex-col items-center sm:items-start gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col items-center sm:items-start gap-1.5 p-2 sm:p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="w-8 h-8 rounded-md bg-orange-100 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                     </svg>
                 </div>
-                <div class="text-center sm:text-left w-full">
-                    <p class="text-xs font-medium text-gray-500 mb-0.5">Lessons</p>
-                    <p class="text-xs sm:text-sm font-bold text-gray-900">{{ $course->chapters->sum(function($chapter) { return $chapter->lessons->count(); }) ?? 0 }}</p>
+                <div class="text-center sm:text-left w-full min-w-0">
+                    <p class="text-[11px] sm:text-xs font-medium text-gray-500 truncate">Lessons</p>
+                    <p class="text-xs font-bold text-gray-900 truncate">{{ $course->chapters->sum(function($chapter) { return $chapter->lessons->count(); }) ?? 0 }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Additional Details -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 mb-4">
             @if($course->description)
             <div class="sm:col-span-2 lg:col-span-3">
-                <h3 class="text-xs font-semibold text-gray-700 mb-2 flex items-center">
-                    <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 class="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
                     </svg>
                     Description
                 </h3>
-                <p class="text-xs sm:text-sm text-gray-700 line-clamp-3">{{ $course->description }}</p>
+                <p class="text-sm text-gray-700 leading-relaxed line-clamp-4">{{ $course->description }}</p>
             </div>
             @endif
 
             @if($course->difficulty_level)
-            <div>
-                <h3 class="text-xs font-semibold text-gray-700 mb-1.5 flex items-center">
-                    <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="min-w-0">
+                <h3 class="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
                     Difficulty
                 </h3>
-                <p class="text-xs sm:text-sm text-gray-900 capitalize">{{ $course->difficulty_level }}</p>
+                <p class="text-sm text-gray-900 capitalize leading-snug">{{ $course->difficulty_level }}</p>
             </div>
             @endif
 
             @if($course->language)
-            <div>
-                <h3 class="text-xs font-semibold text-gray-700 mb-1.5 flex items-center">
-                    <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="min-w-0">
+                <h3 class="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
                     </svg>
                     Language
                 </h3>
-                <p class="text-xs sm:text-sm text-gray-900">
+                <p class="text-sm text-gray-900 leading-snug">
                     @php
                         $languages = [
                             'en' => 'English',
@@ -199,49 +199,49 @@
             @endif
 
             @if($course->short_description)
-            <div class="sm:col-span-2 lg:col-span-1">
-                <h3 class="text-xs font-semibold text-gray-700 mb-1.5 flex items-center">
-                    <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="sm:col-span-2 lg:col-span-1 min-w-0">
+                <h3 class="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10m-7 4h7"></path>
                     </svg>
                     Short Description
                 </h3>
-                <p class="text-xs sm:text-sm text-gray-700">{{ $course->short_description }}</p>
+                <p class="text-sm text-gray-700 leading-snug">{{ $course->short_description }}</p>
             </div>
             @endif
         </div>
 
         <!-- Learning Objectives -->
         @if($course->learning_objectives && is_array($course->learning_objectives) && count($course->learning_objectives) > 0)
-            <div class="border-t pt-4 mt-4">
-                <h3 class="text-sm sm:text-base font-semibold text-gray-900 mb-3 flex items-center">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="border-t border-gray-200 pt-5 mt-5">
+                <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     What Students Will Learn
                 </h3>
-                <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3" role="list">
                     @foreach($course->learning_objectives as $objective)
                         @if(!empty(trim($objective)))
-                        <li class="flex items-start gap-2">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <li class="flex items-start gap-2.5">
+                            <svg class="w-5 h-5 text-green-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
-                            <span class="text-xs sm:text-sm text-gray-700 break-words">{{ trim($objective) }}</span>
+                            <span class="text-sm text-gray-700 leading-snug break-words">{{ trim($objective) }}</span>
                         </li>
                         @endif
                     @endforeach
                 </ul>
             </div>
         @elseif($course->what_you_will_learn)
-            <div class="border-t pt-4 mt-4">
-                <h3 class="text-sm sm:text-base font-semibold text-gray-900 mb-3 flex items-center">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="border-t border-gray-200 pt-5 mt-5">
+                <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     What Students Will Learn
                 </h3>
-                <div class="text-xs sm:text-sm text-gray-700 whitespace-pre-line bg-gray-50 p-3 sm:p-4 rounded-lg break-words">{{ $course->what_you_will_learn }}</div>
+                <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-line bg-gray-50 border border-gray-100 p-4 rounded-lg">{{ $course->what_you_will_learn }}</div>
             </div>
         @endif
     </div>
@@ -271,53 +271,47 @@
         <div class="space-y-4">
             @forelse($course->chapters as $chapter)
                 <div class="chapter-card bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
-                    <!-- Chapter Header -->
-                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
-                                <div class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white font-bold text-xs sm:text-sm shrink-0">
-                                    {{ $loop->iteration }}
-                                </div>
-                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 break-words flex-1 min-w-0">{{ $chapter->title }}</h3>
-                                @if($chapter->is_free)
-                                    <span class="inline-flex items-center px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 shrink-0">
-                                        FREE
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 shrink-0">
-                                        PAID
-                                    </span>
-                                @endif
+                    <!-- Chapter Header: number, title, FREE/PAID, Edit, Delete in one line -->
+                    <div class="mb-3">
+                        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3">
+                            <div class="flex-none flex items-center justify-center w-8 h-8 min-w-8 min-h-8 rounded-full bg-blue-600 text-white text-sm font-bold tabular-nums shrink-0">
+                                {{ $loop->iteration }}
                             </div>
-                            @if($chapter->description)
-                                <p class="text-xs sm:text-sm text-gray-600 mt-2 break-words">{{ $chapter->description }}</p>
+                            <h3 class="flex-1 min-w-0 text-base sm:text-lg font-semibold text-gray-900 truncate">{{ $chapter->title }}</h3>
+                            @if($chapter->is_free)
+                                <span class="inline-flex items-center px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 shrink-0">FREE</span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 shrink-0">PAID</span>
                             @endif
-                        </div>
-                        <div class="flex gap-2 shrink-0">
-                            <button type="button"
-                                    class="edit-chapter-btn inline-flex items-center px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors whitespace-nowrap"
-                                    data-chapter-id="{{ $chapter->id }}"
-                                    data-chapter-title="{{ htmlspecialchars($chapter->title ?? '', ENT_QUOTES, 'UTF-8') }}"
-                                    data-chapter-description="{{ htmlspecialchars($chapter->description ?? '', ENT_QUOTES, 'UTF-8') }}"
-                                    data-chapter-is-free="{{ $chapter->is_free ? '1' : '0' }}"
-                                    data-chapter-order="{{ $chapter->order ?? 0 }}">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                                <span class="hidden sm:inline">Edit</span>
-                            </button>
-                            <form action="{{ route('teacher.courses.chapters.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id]) }}"
-                                  method="POST" onsubmit="return confirm('Are you sure? This will delete all lessons and topics in this chapter.')" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="inline-flex items-center px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors whitespace-nowrap">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button type="button"
+                                        class="edit-chapter-btn inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors whitespace-nowrap"
+                                        data-chapter-id="{{ $chapter->id }}"
+                                        data-chapter-title="{{ htmlspecialchars($chapter->title ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                        data-chapter-description="{{ htmlspecialchars($chapter->description ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                        data-chapter-is-free="{{ $chapter->is_free ? '1' : '0' }}"
+                                        data-chapter-order="{{ $chapter->order ?? 0 }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
-                                    <span class="hidden sm:inline">Delete</span>
+                                    Edit
                                 </button>
-                            </form>
+                                <form action="{{ route('teacher.courses.chapters.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id]) }}"
+                                      method="POST" onsubmit="return confirm('Are you sure? This will delete all lessons and topics in this chapter.')" class="inline m-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors whitespace-nowrap">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </div>
+                        @if($chapter->description)
+                            <p class="text-xs sm:text-sm text-gray-600 mt-2 break-words">{{ $chapter->description }}</p>
+                        @endif
                     </div>
 
                     <!-- Lessons in Chapter -->
@@ -326,7 +320,7 @@
                             <div class="lesson-item bg-white rounded-lg p-2 sm:p-3 border border-gray-200">
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                                     <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
-                                        <div class="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-100 text-blue-700 font-semibold text-xs shrink-0">
+                                        <div class="flex-none flex items-center justify-center w-6 h-6 min-w-6 min-h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold tabular-nums shrink-0">
                                             {{ $loop->iteration }}
                                         </div>
                                         <span class="text-xs sm:text-sm font-medium text-gray-900 break-words flex-1 min-w-0">{{ $lesson->title }}</span>
@@ -343,9 +337,9 @@
                                             {{ ucfirst($lesson->status) }}
                                         </span>
                                     </div>
-                                    <div class="flex gap-2 shrink-0">
+                                    <div class="flex flex-wrap items-center gap-2 shrink-0">
                                         <button type="button"
-                                                class="edit-lesson-btn text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-1 rounded transition-colors whitespace-nowrap"
+                                                class="edit-lesson-btn inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors whitespace-nowrap"
                                                 data-lesson-id="{{ $lesson->id }}"
                                                 data-lesson-title="{{ htmlspecialchars($lesson->title ?? '', ENT_QUOTES, 'UTF-8') }}"
                                                 data-lesson-description="{{ htmlspecialchars($lesson->description ?? '', ENT_QUOTES, 'UTF-8') }}"
@@ -353,13 +347,19 @@
                                                 data-lesson-order="{{ $lesson->order ?? 0 }}"
                                                 data-lesson-status="{{ htmlspecialchars($lesson->status ?? 'draft', ENT_QUOTES, 'UTF-8') }}"
                                                 data-chapter-id="{{ $chapter->id }}">
+                                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
                                             Edit
                                         </button>
                                         <form action="{{ route('teacher.courses.chapters.lessons.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id, 'lessonId' => $lesson->id]) }}"
-                                              method="POST" onsubmit="return confirm('Are you sure? This will delete all topics in this lesson.');" class="inline-block">
+                                              method="POST" onsubmit="return confirm('Are you sure? This will delete all topics in this lesson.');" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors whitespace-nowrap">
+                                            <button type="submit" class="inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors whitespace-nowrap">
+                                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
                                                 Delete
                                             </button>
                                         </form>
@@ -381,9 +381,9 @@
                                                             </span>
                                                         @endif
                                                     </div>
-                                                    <div class="flex gap-2 shrink-0">
+                                                    <div class="flex flex-wrap items-center gap-2 shrink-0">
                                                         <button type="button"
-                                                                class="edit-topic-btn text-xs text-blue-500 hover:text-blue-700 whitespace-nowrap"
+                                                                class="edit-topic-btn inline-flex items-center justify-center gap-1.5 h-8 min-h-8 px-2.5 rounded-lg text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors whitespace-nowrap"
                                                                 data-topic-id="{{ $topic->id }}"
                                                                 data-topic-title="{{ htmlspecialchars($topic->title ?? '', ENT_QUOTES, 'UTF-8') }}"
                                                                 data-topic-description="{{ htmlspecialchars($topic->description ?? '', ENT_QUOTES, 'UTF-8') }}"
@@ -394,13 +394,19 @@
                                                                 data-topic-video-id="{{ htmlspecialchars($topic->video_id ?? '', ENT_QUOTES, 'UTF-8') }}"
                                                                 data-lesson-id="{{ $lesson->id }}"
                                                                 data-chapter-id="{{ $chapter->id }}">
+                                                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                            </svg>
                                                             Edit
                                                         </button>
                                                         <form action="{{ route('teacher.courses.chapters.lessons.topics.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id, 'lessonId' => $lesson->id, 'topicId' => $topic->id]) }}"
                                                               method="POST" onsubmit="return confirm('Are you sure?')" class="inline">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="text-xs text-red-500 hover:text-red-700 whitespace-nowrap">
+                                                            <button type="submit" class="inline-flex items-center justify-center gap-1.5 h-8 min-h-8 px-2.5 rounded-lg text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors whitespace-nowrap">
+                                                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                                </svg>
                                                                 Delete
                                                             </button>
                                                         </form>
@@ -412,8 +418,8 @@
                                 @endif
 
                                 <button onclick="showAddTopicModal({{ $lesson->id }}, {{ $chapter->id }})"
-                                        class="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-1 rounded mt-2 inline-flex items-center transition-colors whitespace-nowrap">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        class="inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors whitespace-nowrap mt-2">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                     </svg>
                                     Add Topic
@@ -426,8 +432,8 @@
                         @endforelse
 
                         <button onclick="showAddLessonModal({{ $chapter->id }})"
-                                class="inline-flex items-center text-xs sm:text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-colors font-medium mt-2">
-                            <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors whitespace-nowrap mt-2">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
                             Add Lesson
@@ -525,13 +531,13 @@ function editLesson(lessonId, title, description, isFree, order, status, chapter
         const isFreeCheckbox = document.getElementById('edit_lesson_is_free');
         const statusSelect = document.getElementById('edit_lesson_status');
         const form = document.getElementById('editLessonForm');
-        
+
         if (!titleInput || !descInput || !orderInput || !isFreeCheckbox || !statusSelect || !form) {
             console.error('Required elements not found');
             alert('Error: Edit form elements not found. Please refresh the page.');
             return;
         }
-        
+
         titleInput.value = title || '';
         descInput.value = description || '';
         orderInput.value = order || 0;
@@ -540,7 +546,7 @@ function editLesson(lessonId, title, description, isFree, order, status, chapter
         form.action = '{{ route("teacher.courses.chapters.lessons.update", ["bookId" => $course->id, "chapterId" => ":chapterId", "lessonId" => ":lessonId"]) }}'
             .replace(':chapterId', chapterId)
             .replace(':lessonId', lessonId);
-        
+
         showBootstrapModal('editLessonModal');
     } catch (error) {
         console.error('Error in editLesson:', error);
@@ -566,62 +572,254 @@ function editTopic(topicId, title, description, isFree, order, type, videoHost, 
         const isFreeCheckbox = document.getElementById('edit_topic_is_free');
         const videoHostSelect = document.getElementById('edit_topic_video_host');
         const form = document.getElementById('editTopicForm');
-        
+
         if (!titleInput || !descInput || !orderInput || !typeSelect || !isFreeCheckbox || !videoHostSelect || !form) {
             console.error('Required elements not found');
             alert('Error: Edit form elements not found. Please refresh the page.');
             return;
         }
-        
+
         titleInput.value = title || '';
         descInput.value = description || '';
         orderInput.value = order || 0;
-        typeSelect.value = type || '';
+        typeSelect.value = ['lecture','quiz','mcq'].includes(String(type)) ? type : 'lecture';
         isFreeCheckbox.checked = isFree === true || isFree === 'true' || isFree === 1 || isFree === '1';
+
+        // Set video host first
         videoHostSelect.value = videoHost || '';
-        
-        if (videoHost === 'youtube' || videoHost === 'bunny') {
-            const videoIdInput = document.getElementById('edit_topic_video_id');
-            if (videoIdInput) {
-                videoIdInput.value = videoId || '';
-            }
-            if (videoHost === 'bunny') {
-                const bunnyVideoIdInput = document.getElementById('edit_topic_bunny_video_id');
-                if (bunnyVideoIdInput) {
-                    bunnyVideoIdInput.value = videoId || '';
-                }
-            }
-        }
-        
+
+        // Set form action URL (must be set before submit so the form posts to the correct update route)
         form.action = '{{ route("teacher.courses.chapters.lessons.topics.update", ["bookId" => $course->id, "chapterId" => ":chapterId", "lessonId" => ":lessonId", "topicId" => ":topicId"]) }}'
-            .replace(':chapterId', chapterId)
-            .replace(':lessonId', lessonId)
-            .replace(':topicId', topicId);
-        
-        toggleVideoInputs('edit');
-        showBootstrapModal('editTopicModal');
+            .replace(':chapterId', String(chapterId))
+            .replace(':lessonId', String(lessonId))
+            .replace(':topicId', String(topicId));
+
+        // Show modal first
+        const modalElement = document.getElementById('editTopicModal');
+        const modal = new bootstrap.Modal(modalElement);
+
+        // Store video data for later use
+        const videoData = { videoHost, videoId };
+        console.log('Stored video data for edit:', videoData);
+
+        // Wait for modal to be fully shown before setting values
+        modalElement.addEventListener('shown.bs.modal', function onModalShown() {
+            // Remove listener after first use
+            modalElement.removeEventListener('shown.bs.modal', onModalShown);
+
+            console.log('Modal shown, setting video data:', videoData);
+
+            // Toggle video inputs to show the correct input field
+            toggleVideoInputs('edit');
+
+            // Function to set video ID with retries
+            const setVideoId = (retryCount = 0) => {
+                const maxRetries = 5;
+
+                if (videoData.videoHost === 'youtube') {
+                    const videoIdInput = document.getElementById('edit_topic_video_id');
+                    const youtubeInputContainer = document.getElementById('edit_topic_youtube_input');
+
+                    // Check if input is visible
+                    const isVisible = youtubeInputContainer &&
+                        window.getComputedStyle(youtubeInputContainer).display !== 'none';
+
+                    if (videoIdInput && isVisible) {
+                        // Set the video ID value (could be just ID or full URL)
+                        videoIdInput.value = videoData.videoId || '';
+                        console.log('✓ Set YouTube video ID/URL:', videoData.videoId);
+                        console.log('✓ Video ID input value:', videoIdInput.value);
+
+                        // Trigger input event to show preview
+                        if (videoData.videoId) {
+                            videoIdInput.dispatchEvent(new Event('input', { bubbles: true }));
+                            setTimeout(() => {
+                                showYouTubePreview('edit', videoData.videoId);
+                            }, 200);
+                        }
+                    } else if (retryCount < maxRetries) {
+                        console.log('YouTube input not ready, retrying...', retryCount + 1);
+                        setTimeout(() => setVideoId(retryCount + 1), 200);
+                    } else {
+                        console.error('Failed to set YouTube video ID after', maxRetries, 'attempts');
+                        if (videoIdInput) {
+                            videoIdInput.value = videoData.videoId || '';
+                            console.log('Force set video ID:', videoData.videoId);
+                        }
+                    }
+                } else if (videoData.videoHost === 'bunny') {
+                    const bunnyVideoIdInput = document.getElementById('edit_topic_bunny_video_id');
+                    const bunnyInputContainer = document.getElementById('edit_topic_bunny_input');
+
+                    const isVisible = bunnyInputContainer &&
+                        window.getComputedStyle(bunnyInputContainer).display !== 'none';
+
+                    if (bunnyVideoIdInput && isVisible) {
+                        bunnyVideoIdInput.value = videoData.videoId || '';
+                        console.log('✓ Set Bunny video ID:', videoData.videoId);
+                    } else if (retryCount < maxRetries) {
+                        setTimeout(() => setVideoId(retryCount + 1), 200);
+                    } else if (bunnyVideoIdInput) {
+                        bunnyVideoIdInput.value = videoData.videoId || '';
+                        console.log('Force set Bunny video ID:', videoData.videoId);
+                    }
+                } else {
+                    console.log('No video host selected or video host is:', videoData.videoHost);
+                }
+            };
+
+            // Start setting video ID after a short delay
+            setTimeout(() => {
+                setVideoId();
+            }, 300);
+        }, { once: true });
+
+        modal.show();
     } catch (error) {
         console.error('Error in editTopic:', error);
         alert('An error occurred while opening the edit form. Please check the console for details.');
     }
 }
 
+function extractYouTubeId(input) {
+    if (!input || input.trim() === '') {
+        return null;
+    }
+
+    const trimmed = input.trim();
+
+    // If it's already just an ID (11 characters, alphanumeric, dashes, underscores)
+    if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+        return trimmed;
+    }
+
+    // Try to extract from various YouTube URL formats
+    const patterns = [
+        /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+        /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/.*[?&]v=([a-zA-Z0-9_-]{11})/,
+    ];
+
+    for (const pattern of patterns) {
+        const match = trimmed.match(pattern);
+        if (match && match[1]) {
+            return match[1];
+        }
+    }
+
+    return null;
+}
+
+function showYouTubePreview(mode, inputValue, retryCount = 0) {
+    try {
+        const prefix = mode === 'add' ? 'add_topic' : 'edit_topic';
+        const maxRetries = 10; // Maximum number of retries
+
+        // Try to get elements
+        let previewContainer = document.getElementById(prefix + '_youtube_preview');
+        let previewIframe = document.getElementById(prefix + '_youtube_preview_iframe');
+        let youtubeInput = document.getElementById(prefix + '_youtube_input');
+
+        // If elements not found and we haven't exceeded max retries, wait and retry
+        if ((!previewContainer || !previewIframe) && retryCount < maxRetries) {
+            console.log('Elements not found yet, waiting... (attempt ' + (retryCount + 1) + '/' + maxRetries + ')', { prefix });
+            setTimeout(() => {
+                showYouTubePreview(mode, inputValue, retryCount + 1);
+            }, 200);
+            return;
+        }
+
+        // If still not found after retries, log error and return
+        if (!previewContainer || !previewIframe) {
+            console.error('Preview elements not found after ' + maxRetries + ' attempts:', {
+                previewContainer: prefix + '_youtube_preview',
+                previewIframe: prefix + '_youtube_preview_iframe',
+                mode: mode
+            });
+            return;
+        }
+
+        console.log('showYouTubePreview called:', { mode, inputValue, prefix, retryCount });
+        console.log('Elements found:', {
+            previewContainer: !!previewContainer,
+            previewIframe: !!previewIframe,
+            youtubeInput: !!youtubeInput,
+            youtubeInputDisplay: youtubeInput ? window.getComputedStyle(youtubeInput).display : 'N/A'
+        });
+
+        // Check if parent container is visible
+        if (youtubeInput) {
+            const isVisible = window.getComputedStyle(youtubeInput).display !== 'none';
+            if (!isVisible) {
+                console.log('Parent YouTube input container is hidden, waiting...');
+                // If parent is hidden, wait a bit more and retry
+                if (retryCount < maxRetries) {
+                    setTimeout(() => {
+                        showYouTubePreview(mode, inputValue, retryCount + 1);
+                    }, 200);
+                    return;
+                }
+                if (previewContainer) {
+                    previewContainer.style.display = 'none';
+                }
+                return;
+            }
+        }
+
+        const videoId = extractYouTubeId(inputValue);
+        console.log('Extracted video ID:', videoId);
+
+        if (videoId && videoId.length === 11) {
+            // Valid YouTube video ID found
+            const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            console.log('Setting embed URL:', embedUrl);
+            previewIframe.src = embedUrl;
+            previewContainer.style.display = 'block';
+            console.log('Preview container display set to block');
+        } else {
+            // Invalid or empty - hide preview
+            console.log('Invalid or empty video ID, hiding preview');
+            previewIframe.src = '';
+            previewContainer.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error in showYouTubePreview:', error);
+    }
+}
+
 function toggleVideoInputs(mode) {
     const prefix = mode === 'add' ? 'add_topic' : 'edit_topic';
-    const videoHost = document.getElementById(prefix + '_video_host').value;
+    const videoHostEl = document.getElementById(prefix + '_video_host');
+    if (!videoHostEl) return;
+    const videoHost = videoHostEl.value;
 
-    // Hide all video inputs
+    // Container divs
     const youtubeInput = document.getElementById(prefix + '_youtube_input');
     const bunnyInput = document.getElementById(prefix + '_bunny_input');
     const uploadInput = document.getElementById(prefix + '_upload_input');
+    const youtubePreview = document.getElementById(prefix + '_youtube_preview');
+    // Actual inputs with name="video_id" (only the active one should be submitted)
+    const youtubeIdInput = document.getElementById(prefix + '_video_id');
+    const bunnyIdInput = document.getElementById(prefix + '_bunny_video_id');
 
+    // Hide all video input containers
     if (youtubeInput) youtubeInput.style.display = 'none';
     if (bunnyInput) bunnyInput.style.display = 'none';
     if (uploadInput) uploadInput.style.display = 'none';
+    if (youtubePreview) youtubePreview.style.display = 'none';
+
+    // Disable inactive video_id inputs so only one is submitted (avoids duplicate name="video_id")
+    if (youtubeIdInput) youtubeIdInput.disabled = (videoHost !== 'youtube');
+    if (bunnyIdInput) bunnyIdInput.disabled = (videoHost !== 'bunny');
 
     // Show relevant input
     if (videoHost === 'youtube' && youtubeInput) {
         youtubeInput.style.display = 'block';
+        if (youtubeIdInput && youtubeIdInput.value) {
+            setTimeout(() => showYouTubePreview(mode, youtubeIdInput.value), 200);
+        }
     } else if (videoHost === 'bunny' && bunnyInput) {
         bunnyInput.style.display = 'block';
     } else if (videoHost === 'upload' && uploadInput) {
@@ -629,7 +827,20 @@ function toggleVideoInputs(mode) {
     }
 }
 
+// Make functions globally accessible
+window.showYouTubePreview = showYouTubePreview;
+window.extractYouTubeId = extractYouTubeId;
+window.toggleVideoInputs = toggleVideoInputs;
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Use event delegation for YouTube preview inputs (since modals are loaded dynamically)
+    document.addEventListener('input', function(e) {
+        if (e.target && (e.target.id === 'add_topic_video_id' || e.target.id === 'edit_topic_video_id')) {
+            const mode = e.target.id.startsWith('add_') ? 'add' : 'edit';
+            showYouTubePreview(mode, e.target.value);
+        }
+    });
+
     // Handle edit chapter buttons with data attributes - use event delegation
     document.addEventListener('click', function(e) {
         const chapterButton = e.target.closest('.edit-chapter-btn');
@@ -641,9 +852,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const description = chapterButton.getAttribute('data-chapter-description');
             const isFree = chapterButton.getAttribute('data-chapter-is-free') === '1';
             const order = parseInt(chapterButton.getAttribute('data-chapter-order')) || 0;
-            
+
             console.log('Edit chapter button clicked:', {chapterId, title, description, isFree, order});
-            
+
             if (chapterId) {
                 editChapter(chapterId, title, description, isFree, order);
             } else {
@@ -651,7 +862,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return;
         }
-        
+
         // Handle edit lesson buttons with data attributes
         const lessonButton = e.target.closest('.edit-lesson-btn');
         if (lessonButton) {
@@ -664,9 +875,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const order = parseInt(lessonButton.getAttribute('data-lesson-order')) || 0;
             const status = lessonButton.getAttribute('data-lesson-status') || 'draft';
             const chapterId = lessonButton.getAttribute('data-chapter-id');
-            
+
             console.log('Edit lesson button clicked:', {lessonId, title, description, isFree, order, status, chapterId});
-            
+
             if (lessonId && chapterId) {
                 editLesson(lessonId, title, description, isFree, order, status, chapterId);
             } else {
@@ -674,7 +885,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return;
         }
-        
+
         // Handle edit topic buttons with data attributes
         const topicButton = e.target.closest('.edit-topic-btn');
         if (topicButton) {
@@ -690,9 +901,31 @@ document.addEventListener('DOMContentLoaded', function() {
             const videoId = topicButton.getAttribute('data-topic-video-id') || '';
             const lessonId = topicButton.getAttribute('data-lesson-id');
             const chapterId = topicButton.getAttribute('data-chapter-id');
-            
-            console.log('Edit topic button clicked:', {topicId, title, description, isFree, order, type, videoHost, videoId, lessonId, chapterId});
-            
+
+            console.log('=== Edit Topic Button Clicked ===');
+            console.log('Topic ID:', topicId);
+            console.log('Video Host:', videoHost);
+            console.log('Video ID from data attribute:', videoId);
+            console.log('Video ID length:', videoId ? videoId.length : 0);
+            console.log('Video ID type:', typeof videoId);
+            console.log('All data:', {
+                topicId,
+                title,
+                description,
+                isFree,
+                order,
+                type,
+                videoHost,
+                videoId,
+                lessonId,
+                chapterId
+            });
+
+            // Check if video_id is actually in the HTML attribute
+            const rawVideoId = topicButton.getAttribute('data-topic-video-id');
+            console.log('Raw video ID from attribute:', rawVideoId);
+            console.log('Is video ID empty?', !videoId || videoId === '');
+
             if (topicId && lessonId && chapterId) {
                 editTopic(topicId, title, description, isFree, order, type, videoHost, videoId, lessonId, chapterId);
             } else {

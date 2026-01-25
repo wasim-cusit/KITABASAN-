@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Grade;
 use App\Models\Subject;
+use App\Services\AdminNotificationService;
+use App\Services\CourseNotificationService;
+use App\Services\StudentNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -221,6 +224,8 @@ class CourseController extends Controller
 
         $course = Book::create($data);
 
+        AdminNotificationService::notifyNewCourse($course, 'admin');
+
         // Assign multiple teachers (co-teachers)
         if ($request->has('teacher_ids') && is_array($request->teacher_ids)) {
             $teacherIds = array_unique($request->teacher_ids);
@@ -302,6 +307,10 @@ class CourseController extends Controller
         }
 
         $course->update($data);
+
+        CourseNotificationService::notifyCourseUpdate($course, 'Course updated by administrator.');
+        StudentNotificationService::notifyCourseUpdate($course, 'Course updated by administrator.');
+        AdminNotificationService::notifyCourseUpdate($course, 'Course updated by administrator.');
 
         return redirect()->route('admin.courses.index')
             ->with('success', 'Course updated successfully.');

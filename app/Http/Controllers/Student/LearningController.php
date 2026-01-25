@@ -45,7 +45,11 @@ class LearningController extends Controller
         // If course is not free and user is not enrolled (with paid status), they can only see free chapters
         $chapters = $book->chapters()
             ->with(['lessons' => function($query) use ($enrollment, $book) {
-                $query->orderBy('order');
+                $query->orderBy('order')
+                      ->with(['topics' => function($q) use ($enrollment, $book) {
+                          // Show ALL topics, but access will be controlled in the view
+                          $q->orderBy('order');
+                      }]);
                 if (!$book->is_free && !$enrollment) {
                     // Only show free lessons if not enrolled
                     $query->where('is_free', true);
@@ -89,19 +93,20 @@ class LearningController extends Controller
                 ->with('error', 'You need to purchase this course to access this lesson.');
         }
 
-        // Filter topics - only show free topics if not enrolled
-        if (!$isFreeCourse && !$enrollment) {
-            $lesson->topics = $lesson->topics->filter(function($topic) {
-                return $topic->is_free;
-            });
-        }
+        // Load all topics (don't filter - show all but control access in view)
+        $lesson->load(['topics' => function($query) {
+            $query->orderBy('order');
+        }]);
 
         // Load modules with chapters and lessons
         $modules = $book->modules()
             ->with(['chapters' => function($query) use ($enrollment, $book) {
                 $query->orderBy('order')
                       ->with(['lessons' => function($q) use ($enrollment, $book) {
-                          $q->orderBy('order');
+                          $q->orderBy('order')
+                            ->with(['topics' => function($topicQuery) {
+                                $topicQuery->orderBy('order');
+                            }]);
                           if (!$book->is_free && !$enrollment) {
                               $q->where('is_free', true);
                           }
@@ -110,10 +115,13 @@ class LearningController extends Controller
             ->orderBy('order_index')
             ->get();
 
-        // Load all chapters (with or without modules)
+        // Load all chapters (with or without modules) - include topics
         $chapters = $book->chapters()
             ->with(['lessons' => function($query) use ($enrollment, $book) {
-                $query->orderBy('order');
+                $query->orderBy('order')
+                      ->with(['topics' => function($topicQuery) {
+                          $topicQuery->orderBy('order');
+                      }]);
                 if (!$book->is_free && !$enrollment) {
                     $query->where('is_free', true);
                 }
@@ -130,8 +138,20 @@ class LearningController extends Controller
             }
         }
 
-        // Calculate progress
+        // Calculate progress - get all lessons
         $allLessons = $chapters->flatMap->lessons;
+
+        // Get all lessons for navigation (previous/next) - sorted by chapter and lesson order
+        $allLessonsSorted = $allLessons->sortBy(function($l) {
+            return ($l->chapter ? $l->chapter->order : 0) * 1000 + $l->order;
+        })->values();
+
+        $currentLessonIndex = $allLessonsSorted->search(function($l) use ($lessonId) {
+            return $l->id == $lessonId;
+        });
+
+        $previousLesson = $currentLessonIndex !== false && $currentLessonIndex > 0 ? $allLessonsSorted[$currentLessonIndex - 1] : null;
+        $nextLesson = $currentLessonIndex !== false && $currentLessonIndex < $allLessonsSorted->count() - 1 ? $allLessonsSorted[$currentLessonIndex + 1] : null;
         $totalLessons = $allLessons->count();
         $completedLessons = LessonProgress::where('user_id', $user->id)
             ->whereIn('lesson_id', $allLessons->pluck('id'))
@@ -158,7 +178,9 @@ class LearningController extends Controller
             'totalLessons',
             'completedLessons',
             'progressPercentage',
-            'lessonProgresses'
+            'lessonProgresses',
+            'previousLesson',
+            'nextLesson'
         ));
     }
 
@@ -195,11 +217,28 @@ class LearningController extends Controller
                 ->with('error', 'You need to purchase this course to access this topic.');
         }
 
-        $chapters = $book->chapters()->with(['lessons'])->orderBy('order')->get();
+        $chapters = $book->chapters()
+            ->with(['lessons' => function($query) {
+                $query->orderBy('order')
+                      ->with(['topics' => function($topicQuery) {
+                          $topicQuery->orderBy('order');
+                      }]);
+            }])
+            ->orderBy('order')
+            ->get();
+
+        // Get all topics for navigation (previous/next)
+        $allTopics = $lesson->topics()->orderBy('order')->get();
+        $currentTopicIndex = $allTopics->search(function($t) use ($topicId) {
+            return $t->id == $topicId;
+        });
+
+        $previousTopic = $currentTopicIndex > 0 ? $allTopics[$currentTopicIndex - 1] : null;
+        $nextTopic = $currentTopicIndex < $allTopics->count() - 1 ? $allTopics[$currentTopicIndex + 1] : null;
 
         $videoService = $this->videoService;
 
-        return view('student.learning.topic', compact('book', 'lesson', 'topic', 'chapters', 'enrollment', 'videoService'));
+        return view('student.learning.topic', compact('book', 'lesson', 'topic', 'chapters', 'enrollment', 'videoService', 'previousTopic', 'nextTopic'));
     }
 
     public function updateProgress(Request $request)

@@ -27,18 +27,46 @@
                 z-index: 40;
             }
         }
+        .student-layout-root {
+            min-height: 100vh;
+            display: flex;
+            --student-header-height: 6rem;
+            overflow-x: hidden;
+        }
+        .student-layout-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            background-color: #ffffff;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+        @media (min-width: 1024px) {
+            .student-layout-header {
+                left: 16rem;
+                right: 0;
+            }
+            .student-layout-main {
+                margin-left: 16rem;
+                max-width: calc(100% - 16rem);
+            }
+        }
+        .student-layout-content {
+            padding-top: var(--student-header-height);
+        }
     </style>
 
     @stack('styles')
 </head>
 <body class="bg-gray-100" x-data="{ sidebarOpen: false, profileMenuOpen: false }">
-    <div class="min-h-screen flex">
+    <div class="student-layout-root min-h-screen flex">
         <!-- Mobile Overlay -->
         <div x-show="sidebarOpen" @click="sidebarOpen = false" class="sidebar-overlay lg:hidden" x-cloak></div>
 
         <!-- Sidebar -->
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-               class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gray-800 text-white min-h-screen transform transition-transform duration-300 ease-in-out lg:translate-x-0">
+               class="student-layout-sidebar fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 text-white h-screen overflow-y-auto transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0">
             <div class="p-4">
                 <div class="mb-8">
                     <!-- Close button (Mobile only) -->
@@ -106,9 +134,9 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col lg:ml-0">
+        <div class="student-layout-main flex-1 flex flex-col min-w-0 w-full lg:ml-64 lg:max-w-[calc(100%-16rem)]">
             <!-- Top Bar -->
-            <header class="bg-white shadow-sm">
+            <header class="student-layout-header">
                 <div class="flex items-center justify-between px-4 lg:px-6 py-4">
                     <div class="flex items-center space-x-4">
                         <!-- Mobile Menu Button -->
@@ -195,13 +223,60 @@
             </header>
 
             <!-- Content -->
-            <main class="flex-1 p-4 lg:p-6">
+            <main class="student-layout-content flex-1 px-4 pb-4 lg:px-6 lg:pb-6">
                 @yield('content')
             </main>
         </div>
     </div>
 
     @stack('scripts')
+
+    <!-- Global Error Handler - Suppress External Script Errors -->
+    <script>
+    (function() {
+        'use strict';
+
+        // Suppress errors from external scripts (ab.js, sd.js, etc.)
+        const originalError = window.console.error;
+        window.console.error = function(...args) {
+            // Check if error is from external scripts
+            const errorString = args.join(' ');
+            if (errorString.includes('ab.js') ||
+                errorString.includes('sd.js') ||
+                errorString.includes('runtime.lastError') ||
+                errorString.includes('charAt')) {
+                // Suppress external script errors
+                return;
+            }
+            // Log other errors normally
+            originalError.apply(console, args);
+        };
+
+        // Suppress uncaught errors from external scripts
+        window.addEventListener('error', function(event) {
+            if (event.filename && (
+                event.filename.includes('ab.js') ||
+                event.filename.includes('sd.js') ||
+                event.filename.includes('chrome-extension://') ||
+                event.filename.includes('moz-extension://')
+            )) {
+                event.preventDefault();
+                return false;
+            }
+        }, true);
+
+        // Suppress unhandled promise rejections from external scripts
+        window.addEventListener('unhandledrejection', function(event) {
+            const reason = event.reason ? event.reason.toString() : '';
+            if (reason.includes('ab.js') ||
+                reason.includes('sd.js') ||
+                reason.includes('runtime.lastError')) {
+                event.preventDefault();
+                return false;
+            }
+        });
+    })();
+    </script>
 
     <!-- Toast Notifications -->
     @include('components.notification-toast')
