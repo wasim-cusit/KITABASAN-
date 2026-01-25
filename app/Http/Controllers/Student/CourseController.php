@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\NewEnrollmentMail;
 use App\Models\Book;
 use App\Models\CourseEnrollment;
+use App\Models\LessonProgress;
 use App\Models\TeacherProfile;
 use App\Services\EmailConfigService;
 use App\Services\StudentNotificationService;
@@ -18,12 +19,66 @@ class CourseController extends Controller
 {
     public function index()
     {
+        CourseEnrollment::expireForUser(Auth::id());
         $courses = Book::where('status', 'published')
             ->with(['subject.grade', 'teacher'])
             ->latest()
             ->paginate(12);
 
         return view('student.courses.index', compact('courses'));
+    }
+
+    public function myCourses()
+    {
+        $user = Auth::user();
+        CourseEnrollment::expireForUser($user->id);
+
+        $enrollments = CourseEnrollment::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                      ->orWhere('expires_at', '>', now());
+            })
+            ->with([
+                'book.subject',
+                'book.teacher.teacherProfile',
+                'book.chapters.lessons' => function ($query) {
+                    $query->orderBy('order');
+                }
+            ])
+            ->latest()
+            ->get()
+            ->filter(function ($enrollment) {
+                $book = $enrollment->book;
+                if (!$book) {
+                    return false;
+                }
+
+                if ($book->is_free) {
+                    return in_array($enrollment->payment_status, ['free', 'paid'], true);
+                }
+
+                return $enrollment->payment_status === 'paid';
+            })
+            ->values();
+
+        $courseIds = $enrollments->pluck('book_id');
+        $lessonProgress = LessonProgress::where('user_id', $user->id)
+            ->whereHas('lesson.chapter', function ($query) use ($courseIds) {
+                $query->whereIn('book_id', $courseIds);
+            })
+            ->with(['lesson.chapter'])
+            ->get();
+
+        foreach ($enrollments as $enrollment) {
+            $enrollment->lessonProgress = $lessonProgress->filter(function ($progress) use ($enrollment) {
+                return $progress->lesson &&
+                    $progress->lesson->chapter &&
+                    $progress->lesson->chapter->book_id == $enrollment->book_id;
+            });
+        }
+
+        return view('student.courses.my', compact('enrollments'));
     }
 
     public function show($id)

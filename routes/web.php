@@ -188,13 +188,20 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'role:student', 
 
     // Course routes
     Route::get('/courses', [\App\Http\Controllers\Student\CourseController::class, 'index'])->name('courses.index');
+    Route::get('/courses/my', [\App\Http\Controllers\Student\CourseController::class, 'myCourses'])->name('courses.my');
     Route::get('/courses/{id}', [\App\Http\Controllers\Student\CourseController::class, 'show'])->name('courses.show');
     Route::post('/courses/{id}/enroll', [\App\Http\Controllers\Student\CourseController::class, 'enroll'])->name('courses.enroll');
 
     // Learning routes
-    Route::get('/learning/{bookId}', [\App\Http\Controllers\Student\LearningController::class, 'index'])->name('learning.index');
-    Route::get('/learning/{bookId}/lesson/{lessonId}', [\App\Http\Controllers\Student\LearningController::class, 'show'])->name('learning.lesson');
-    Route::get('/learning/{bookId}/lesson/{lessonId}/topic/{topicId}', [\App\Http\Controllers\Student\LearningController::class, 'showTopic'])->name('learning.topic');
+    Route::get('/learning/{bookId}', [\App\Http\Controllers\Student\LearningController::class, 'index'])
+        ->middleware('content.access')
+        ->name('learning.index');
+    Route::get('/learning/{bookId}/lesson/{lessonId}', [\App\Http\Controllers\Student\LearningController::class, 'show'])
+        ->middleware('content.access')
+        ->name('learning.lesson');
+    Route::get('/learning/{bookId}/lesson/{lessonId}/topic/{topicId}', [\App\Http\Controllers\Student\LearningController::class, 'showTopic'])
+        ->middleware('content.access')
+        ->name('learning.topic');
     Route::post('/learning/progress', [\App\Http\Controllers\Student\LearningController::class, 'updateProgress'])->name('learning.progress');
 
     // Payment routes
@@ -202,6 +209,7 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'role:student', 
     Route::post('/payments', [\App\Http\Controllers\Student\PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments/status', [\App\Http\Controllers\Student\PaymentController::class, 'status'])->name('payments.status');
     Route::get('/payments/callback', [\App\Http\Controllers\Student\PaymentController::class, 'callback'])->name('payments.callback');
+    Route::get('/payments/invoice/{paymentId}', [\App\Http\Controllers\Student\PaymentController::class, 'invoice'])->name('payments.invoice');
 
     // Chatbot routes
     Route::get('/chatbot', [\App\Http\Controllers\Student\ChatbotController::class, 'index'])->name('chatbot.index');

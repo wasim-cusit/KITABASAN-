@@ -75,13 +75,6 @@ class Lesson extends Model
             return true;
         }
 
-        // Check parent chapter
-        if ($this->chapter) {
-            if ($this->chapter->is_preview || $this->chapter->is_free) {
-                return true;
-            }
-        }
-
         // If course is free, accessible
         if ($this->chapter && $this->chapter->book && $this->chapter->book->is_free) {
             return true;

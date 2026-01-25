@@ -42,7 +42,10 @@
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
                     <div class="bg-black" style="aspect-ratio: 16/9; position: relative; width: 100%; padding-bottom: 56.25%;">
                         @php
-                            $canAccess = $book->is_free || $enrollment || $lesson->is_free || ($lesson->chapter && $lesson->chapter->is_free);
+                            $canAccess = $book->is_free
+                                || $enrollment
+                                || $lesson->is_free
+                                || $lesson->is_preview;
                             // Check if lesson has video
                             $hasLessonVideo = ($lesson->video_host === 'youtube' && !empty($lesson->video_id))
                                            || ($lesson->video_host === 'bunny' && !empty($lesson->video_id))
@@ -168,6 +171,7 @@
                         @else
                             <div class="flex items-center justify-center h-full text-white bg-gray-800">
                                 <div class="text-center">
+                                <div class="text-center">
                                     <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                     </svg>
@@ -204,9 +208,23 @@
                             <div class="space-y-3">
                                 @foreach($lesson->topics as $topic)
                                     @php
-                                        $topicCanAccess = $book->is_free || $enrollment || $topic->is_free || $lesson->is_free || ($lesson->chapter && $lesson->chapter->is_free);
+                                        $topicCanAccess = $book->is_free
+                                            || $enrollment
+                                            || $topic->is_free
+                                            || $topic->is_preview;
                                     @endphp
-                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                                    <div class="relative flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                                        @if(!$topicCanAccess)
+                                            <div class="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg">
+                                                <div class="text-center text-gray-700">
+                                                    <svg class="w-8 h-8 mx-auto mb-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                                    </svg>
+                                                    <p class="text-xs font-semibold">Premium Topic</p>
+                                                    <a href="{{ route('student.courses.show', $book->id) }}" class="text-xs underline">Purchase course</a>
+                                                </div>
+                                            </div>
+                                        @endif
                                         <div class="flex items-center gap-3 flex-1">
                                             <div class="flex-shrink-0">
                                                 @if($topic->type)
@@ -225,8 +243,13 @@
                                                 <div class="flex items-center gap-2 mt-2">
                                                     @if($topic->is_free)
                                                         <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">FREE</span>
+                                                    @elseif($topic->is_preview)
+                                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">PREVIEW</span>
                                                     @elseif(!$enrollment && !$book->is_free)
-                                                        <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">PAID</span>
+                                                        <a href="{{ route('student.courses.show', $book->id) }}"
+                                                           class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded hover:bg-yellow-200">
+                                                            Unlock
+                                                        </a>
                                                     @endif
                                                     @if(($topic->video_host === 'youtube' && !empty($topic->video_id)) ||
                                                         ($topic->video_host === 'bunny' && !empty($topic->video_id)) ||
@@ -241,10 +264,17 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="{{ route('student.learning.topic', ['bookId' => $book->id, 'lessonId' => $lesson->id, 'topicId' => $topic->id]) }}"
-                                           class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap {{ !$topicCanAccess ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' }}">
-                                            View Topic
-                                        </a>
+                                        @if($topicCanAccess)
+                                            <a href="{{ route('student.learning.topic', ['bookId' => $book->id, 'lessonId' => $lesson->id, 'topicId' => $topic->id]) }}"
+                                               class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap">
+                                                View Topic
+                                            </a>
+                                        @else
+                                            <a href="{{ route('student.courses.show', $book->id) }}"
+                                               class="ml-4 px-4 py-2 bg-gray-200 text-gray-600 rounded-lg text-sm font-medium whitespace-nowrap text-center hover:bg-gray-300">
+                                                Unlock
+                                            </a>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -325,7 +355,7 @@
                                     <button onclick="toggleModule({{ $module->id }})"
                                             class="w-full flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
                                         <span class="font-semibold text-sm text-gray-900">{{ $module->title }}</span>
-                                        <svg id="icon-{{ $module->id }}" class="w-4 h-4 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg id="icon-{{ $module->id }}" class="w-4 h-4 text-gray-500 transition-transform duration-300 ease-in-out transform-gpu" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </button>
@@ -333,11 +363,14 @@
                                         @foreach($module->chapters as $chapter)
                                             @foreach($chapter->lessons as $chapLesson)
                                                 @php
-                                                    $canAccess = $book->is_free || $enrollment || $chapLesson->is_free || ($chapter && $chapter->is_free);
+                                                    $canAccess = $book->is_free || $enrollment || $chapLesson->is_free || $chapLesson->is_preview;
                                                     $isCompleted = isset($lessonProgresses[$chapLesson->id]) && $lessonProgresses[$chapLesson->id]->is_completed;
                                                     $isCurrent = $chapLesson->id === $lesson->id;
+                                                    $lessonUrl = $canAccess
+                                                        ? route('student.learning.lesson', ['bookId' => $book->id, 'lessonId' => $chapLesson->id])
+                                                        : route('student.courses.show', $book->id);
                                                 @endphp
-                                                <a href="{{ route('student.learning.lesson', ['bookId' => $book->id, 'lessonId' => $chapLesson->id]) }}"
+                                                <a href="{{ $lessonUrl }}"
                                                    class="flex items-center gap-2 p-2 rounded-lg transition-colors {{ $isCurrent ? 'bg-blue-50 text-blue-700' : ($canAccess ? 'text-gray-700 hover:bg-gray-50' : 'text-gray-400') }}">
                                                     @if($isCompleted)
                                                         <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -351,9 +384,14 @@
                                                     @else
                                                         <div class="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0"></div>
                                                     @endif
-                                                    <span class="text-sm flex-1 truncate">{{ $chapLesson->title }}</span>
+                                                    <span class="text-sm flex-1 min-w-0">
+                                                        <span class="block text-[11px] text-gray-500 truncate">{{ $chapter->title }}</span>
+                                                        <span class="block font-medium truncate">{{ $chapLesson->title }}</span>
+                                                    </span>
                                                     @if($chapLesson->duration)
                                                         <span class="text-xs text-gray-500 flex-shrink-0">({{ gmdate('i:s', $chapLesson->duration) }})</span>
+                                                    @elseif(!$canAccess)
+                                                        <span class="text-xs text-gray-400 flex-shrink-0">Locked</span>
                                                     @endif
                                                 </a>
                                             @endforeach
@@ -366,11 +404,14 @@
                             @foreach($chapters as $chapter)
                                 @foreach($chapter->lessons as $chapLesson)
                                     @php
-                                        $canAccess = $book->is_free || $enrollment || $chapLesson->is_free || ($chapter && $chapter->is_free);
+                                        $canAccess = $book->is_free || $enrollment || $chapLesson->is_free || $chapLesson->is_preview;
                                         $isCompleted = isset($lessonProgresses[$chapLesson->id]) && $lessonProgresses[$chapLesson->id]->is_completed;
                                         $isCurrent = $chapLesson->id === $lesson->id;
+                                        $lessonUrl = $canAccess
+                                            ? route('student.learning.lesson', ['bookId' => $book->id, 'lessonId' => $chapLesson->id])
+                                            : route('student.courses.show', $book->id);
                                     @endphp
-                                    <a href="{{ route('student.learning.lesson', ['bookId' => $book->id, 'lessonId' => $chapLesson->id]) }}"
+                                    <a href="{{ $lessonUrl }}"
                                        class="flex items-center gap-2 p-2 rounded-lg transition-colors {{ $isCurrent ? 'bg-blue-50 text-blue-700' : ($canAccess ? 'text-gray-700 hover:bg-gray-50' : 'text-gray-400') }}">
                                         @if($isCompleted)
                                             <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -384,9 +425,14 @@
                                         @else
                                             <div class="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0"></div>
                                         @endif
-                                        <span class="text-sm flex-1 truncate">{{ $chapLesson->title }}</span>
+                                        <span class="text-sm flex-1 min-w-0">
+                                            <span class="block text-[11px] text-gray-500 truncate">{{ $chapter->title }}</span>
+                                            <span class="block font-medium truncate">{{ $chapLesson->title }}</span>
+                                        </span>
                                         @if($chapLesson->duration)
                                             <span class="text-xs text-gray-500 flex-shrink-0">({{ gmdate('i:s', $chapLesson->duration) }})</span>
+                                        @elseif(!$canAccess)
+                                            <span class="text-xs text-gray-400 flex-shrink-0">Locked</span>
                                         @endif
                                     </a>
                                 @endforeach
@@ -403,7 +449,7 @@
 <script>
 (function() {
     'use strict';
-    
+
     // Error handling wrapper
     function safeExecute(fn) {
         try {
@@ -418,7 +464,7 @@
         safeExecute(function() {
             const content = document.getElementById('module-' + moduleId);
             const icon = document.getElementById('icon-' + moduleId);
-            
+
             if (content && icon) {
                 if (content.classList.contains('hidden')) {
                     content.classList.remove('hidden');
@@ -488,13 +534,13 @@
         safeExecute(function() {
             const videoPlayer = document.getElementById('videoPlayer');
             if (!videoPlayer) return;
-            
+
             let lastUpdateTime = 0;
-            
+
             videoPlayer.addEventListener('timeupdate', function() {
                 safeExecute(function() {
                     if (!videoPlayer.duration || videoPlayer.duration === 0) return;
-                    
+
                     const currentTime = Math.floor(videoPlayer.currentTime);
                     const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
 

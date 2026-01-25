@@ -25,6 +25,7 @@ class LearningController extends Controller
     {
         $book = Book::with(['chapters.lessons.topics'])->findOrFail($bookId);
         $user = Auth::user();
+        CourseEnrollment::expireForUser($user->id);
 
         // Check enrollment - must have payment_status = 'paid' for paid courses
         $enrollment = CourseEnrollment::where('user_id', $user->id)
@@ -42,8 +43,21 @@ class LearningController extends Controller
             })
             ->first();
 
-        // If course is not free and user is not enrolled (with paid status), they can only see free chapters
-        $chapters = $book->chapters()
+        // If course is not free and user is not enrolled (with paid status), they can only see free chapters/lessons
+        $chaptersQuery = $book->chapters();
+
+        if (!$book->is_free && !$enrollment) {
+            $chaptersQuery->where(function ($query) {
+                $query->where('is_free', true)
+                    ->orWhere('is_preview', true)
+                    ->orWhereHas('lessons', function ($lessonQuery) {
+                        $lessonQuery->where('is_free', true)
+                            ->orWhere('is_preview', true);
+                    });
+            });
+        }
+
+        $chapters = $chaptersQuery
             ->with(['lessons' => function($query) use ($enrollment, $book) {
                 $query->orderBy('order')
                       ->with(['topics' => function($q) use ($enrollment, $book) {
@@ -51,8 +65,11 @@ class LearningController extends Controller
                           $q->orderBy('order');
                       }]);
                 if (!$book->is_free && !$enrollment) {
-                    // Only show free lessons if not enrolled
-                    $query->where('is_free', true);
+                    // Only show free/preview lessons if not enrolled
+                    $query->where(function ($lessonQuery) {
+                        $lessonQuery->where('is_free', true)
+                            ->orWhere('is_preview', true);
+                    });
                 }
             }])
             ->orderBy('order')
@@ -66,6 +83,7 @@ class LearningController extends Controller
         $book = Book::with(['modules.chapters.lessons', 'chapters.lessons'])->findOrFail($bookId);
         $lesson = Lesson::with(['chapter.module', 'chapter', 'topics', 'quizzes'])->findOrFail($lessonId);
         $user = Auth::user();
+        CourseEnrollment::expireForUser($user->id);
 
         // Check enrollment - must have payment_status = 'paid' for paid courses
         $enrollment = CourseEnrollment::where('user_id', $user->id)
@@ -84,7 +102,7 @@ class LearningController extends Controller
             ->first();
 
         // Check if lesson is accessible
-        $isFreeLesson = $lesson->is_free || ($lesson->chapter && $lesson->chapter->is_free);
+        $isFreeLesson = $lesson->is_free || $lesson->is_preview;
         $isFreeCourse = $book->is_free;
 
         // Allow access if: course is free OR user is enrolled OR lesson/chapter is free
@@ -108,7 +126,10 @@ class LearningController extends Controller
                                 $topicQuery->orderBy('order');
                             }]);
                           if (!$book->is_free && !$enrollment) {
-                              $q->where('is_free', true);
+                              $q->where(function ($lessonQuery) {
+                                  $lessonQuery->where('is_free', true)
+                                      ->orWhere('is_preview', true);
+                              });
                           }
                       }]);
             }])
@@ -123,7 +144,10 @@ class LearningController extends Controller
                           $topicQuery->orderBy('order');
                       }]);
                 if (!$book->is_free && !$enrollment) {
-                    $query->where('is_free', true);
+                    $query->where(function ($lessonQuery) {
+                        $lessonQuery->where('is_free', true)
+                            ->orWhere('is_preview', true);
+                    });
                 }
             }])
             ->orderBy('order')
@@ -190,6 +214,7 @@ class LearningController extends Controller
         $lesson = Lesson::findOrFail($lessonId);
         $topic = Topic::findOrFail($topicId);
         $user = Auth::user();
+        CourseEnrollment::expireForUser($user->id);
 
         // Check enrollment - must have payment_status = 'paid' for paid courses
         $enrollment = CourseEnrollment::where('user_id', $user->id)
@@ -208,10 +233,10 @@ class LearningController extends Controller
             ->first();
 
         // Check if topic is accessible
-        $isFreeTopic = $topic->is_free || $lesson->is_free || $lesson->chapter->is_free;
+        $isFreeTopic = $topic->is_free || $topic->is_preview;
         $isFreeCourse = $book->is_free;
 
-        // Allow access if: course is free OR user is enrolled OR topic/lesson/chapter is free
+        // Allow access if: course is free OR user is enrolled OR topic is free/preview
         if (!$isFreeCourse && !$enrollment && !$isFreeTopic) {
             return redirect()->route('student.learning.lesson', ['bookId' => $bookId, 'lessonId' => $lessonId])
                 ->with('error', 'You need to purchase this course to access this topic.');
@@ -229,6 +254,11 @@ class LearningController extends Controller
 
         // Get all topics for navigation (previous/next)
         $allTopics = $lesson->topics()->orderBy('order')->get();
+        if (!$book->is_free && !$enrollment) {
+            $allTopics = $allTopics->filter(function ($topicItem) {
+                return $topicItem->is_free || $topicItem->is_preview;
+            })->values();
+        }
         $currentTopicIndex = $allTopics->search(function($t) use ($topicId) {
             return $t->id == $topicId;
         });
@@ -275,17 +305,30 @@ class LearningController extends Controller
             return response()->json(['error' => 'Not enrolled'], 403);
         }
 
+        $existingProgress = LessonProgress::where('user_id', $user->id)
+            ->where('lesson_id', $lesson->id)
+            ->first();
+
+        $incomingWatch = $request->watch_percentage ?? ($existingProgress->watch_percentage ?? 0);
+        $watchPercentage = max($incomingWatch, $existingProgress->watch_percentage ?? 0);
+        $markCompleted = $request->boolean('is_completed') || $watchPercentage >= 95;
+        $isCompleted = ($existingProgress->is_completed ?? false) || $markCompleted;
+        $completedAt = $existingProgress->completed_at;
+        if ($isCompleted && !$completedAt) {
+            $completedAt = now();
+        }
+
         $progress = LessonProgress::updateOrCreate(
             [
                 'user_id' => $user->id,
                 'lesson_id' => $lesson->id,
             ],
             [
-                'watch_percentage' => $request->watch_percentage ?? 0,
+                'watch_percentage' => $watchPercentage,
                 'last_watched_position' => $request->last_watched_position ?? 0,
                 'last_watched_at' => now(),
-                'is_completed' => $request->is_completed ?? false,
-                'completed_at' => $request->is_completed ? now() : null,
+                'is_completed' => $isCompleted,
+                'completed_at' => $completedAt,
             ]
         );
 

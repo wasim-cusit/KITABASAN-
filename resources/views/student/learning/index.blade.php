@@ -82,7 +82,7 @@
                 <div class="space-y-4">
                     @foreach($chapters as $chapterIndex => $chapter)
                         @php
-                            $chapterCanAccess = $book->is_free || $enrollment || $chapter->is_free;
+                            $chapterCanAccess = $book->is_free || $enrollment || $chapter->is_free || $chapter->is_preview;
                         @endphp
                         <div class="border border-gray-200 rounded-lg overflow-hidden">
                             <!-- Chapter Header -->
@@ -116,7 +116,10 @@
                                             ->first();
                                         $isCompleted = $progress && $progress->is_completed;
                                         $watchPercentage = $progress ? $progress->watch_percentage : 0;
-                                            $lessonCanAccess = $book->is_free || $enrollment || $lesson->is_free || $chapter->is_free;
+                                            $lessonCanAccess = $book->is_free
+                                                || $enrollment
+                                                || $lesson->is_free
+                                                || $lesson->is_preview;
 
                                             // Check if lesson has video
                                             $hasLessonVideo = ($lesson->video_host === 'youtube' && !empty($lesson->video_id))
@@ -159,10 +162,17 @@
                                                     </div>
                                                 </div>
                                                 <div class="flex-shrink-0 ml-2">
-                                                    <a href="{{ route('student.learning.lesson', ['bookId' => $book->id, 'lessonId' => $lesson->id]) }}"
-                                                       class="text-xs text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap">
-                                                        View Full Lesson →
-                                                    </a>
+                                                    @if($lessonCanAccess)
+                                                        <a href="{{ route('student.learning.lesson', ['bookId' => $book->id, 'lessonId' => $lesson->id]) }}"
+                                                           class="text-xs text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap">
+                                                            View Full Lesson →
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ route('student.courses.show', $book->id) }}"
+                                                           class="text-xs text-gray-400 hover:text-gray-600 font-medium whitespace-nowrap underline">
+                                                            Unlock
+                                                        </a>
+                                                    @endif
                                                 </div>
                                             </button>
 
@@ -222,7 +232,10 @@
                                                             <div class="space-y-3">
                                                                 @foreach($lesson->topics as $topicIndex => $topic)
                                                                     @php
-                                                                        $topicCanAccess = $book->is_free || $enrollment || $topic->is_free || $lesson->is_free || $chapter->is_free;
+                                                                        $topicCanAccess = $book->is_free
+                                                                            || $enrollment
+                                                                            || $topic->is_free
+                                                                            || $topic->is_preview;
                                                                         $hasTopicVideo = ($topic->video_host === 'youtube' && !empty($topic->video_id))
                                                                                        || ($topic->video_host === 'bunny' && !empty($topic->video_id))
                                                                                        || ($topic->video_host === 'upload' && !empty($topic->video_file));
@@ -244,8 +257,13 @@
                                                                                         @endif
                                                                                         @if($topic->is_free)
                                                                                             <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">FREE</span>
+                                                                                        @elseif($topic->is_preview)
+                                                                                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">PREVIEW</span>
                                                                                         @elseif(!$enrollment && !$book->is_free)
-                                                                                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">PAID</span>
+                                                                                            <a href="{{ route('student.courses.show', $book->id) }}"
+                                                                                               class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded hover:bg-yellow-200">
+                                                                                                Unlock
+                                                                                            </a>
                                                                                         @endif
                                                                                     </div>
                                                                                     @if($topic->description)
@@ -260,7 +278,15 @@
                                                                             <div class="p-4 bg-white">
                                                                                 @if($hasTopicVideo)
                                                                                     <div class="mb-3">
-                                                                                        <h5 class="text-xs font-semibold text-gray-900 mb-2">Topic Video</h5>
+                                                                                        <div class="flex items-center justify-between mb-2">
+                                                                                            <h5 class="text-xs font-semibold text-gray-900">Topic Video</h5>
+                                                                                            @if(!$topicCanAccess)
+                                                                                                <a href="{{ route('student.courses.show', $book->id) }}"
+                                                                                                   class="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                                                                                                    Unlock
+                                                                                                </a>
+                                                                                            @endif
+                                                                                        </div>
                                                                                         <div class="video-container rounded-lg overflow-hidden {{ !$topicCanAccess ? 'locked-content' : '' }}">
                                                                                             @if($topicCanAccess)
                                                                                                 @if($topic->video_host === 'youtube' && $topic->video_id)
@@ -293,6 +319,18 @@
                                                                                             @endif
                                                                                         </div>
                                                                                     </div>
+                                                                                @else
+                                                                                    @if(!$topicCanAccess)
+                                                                                        <div class="relative rounded-lg border border-gray-200 bg-gray-100 p-6">
+                                                                                            <div class="flex flex-col items-center justify-center text-center text-gray-700">
+                                                                                                <svg class="w-10 h-10 mb-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                                                                                </svg>
+                                                                                                <p class="font-semibold">Premium Content</p>
+                                                                                                <a href="{{ route('student.courses.show', $book->id) }}" class="text-sm underline mt-1">Purchase to unlock</a>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    @endif
                                                                                 @endif
                                                                                 @if($topic->description)
                                                                                     <div>

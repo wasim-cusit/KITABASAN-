@@ -83,6 +83,10 @@
                    class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold text-center transition-colors">
                     Start Learning
                 </a>
+                <a href="{{ route('student.payments.invoice', $payment->id) }}"
+                   class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold text-center transition-colors">
+                    View Invoice
+                </a>
             @elseif($payment->status === 'pending')
                 <a href="{{ route('student.payments.status', ['transaction_id' => $payment->transaction_id]) }}"
                    class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold text-center transition-colors">

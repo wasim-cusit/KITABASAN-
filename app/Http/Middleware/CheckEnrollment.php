@@ -3,6 +3,10 @@
 namespace App\Http\Middleware;
 
 use App\Models\Book;
+use App\Models\Chapter;
+use App\Models\Lesson;
+use App\Models\Topic;
+use App\Models\ContentItem;
 use App\Models\CourseEnrollment;
 use Closure;
 use Illuminate\Http\Request;
@@ -22,6 +26,7 @@ class CheckEnrollment
         }
 
         $user = auth()->user();
+        CourseEnrollment::expireForUser($user->id);
         $bookId = $request->route('book') ?? $request->route('course');
         
         if ($bookId) {
@@ -30,6 +35,40 @@ class CheckEnrollment
             // Check if course is free
             if ($book->is_free) {
                 return $next($request);
+            }
+
+            // Allow access to free/preview content without enrollment
+            $chapterId = $request->route('chapter');
+            $lessonId = $request->route('lesson');
+            $topicId = $request->route('topic');
+            $contentItemId = $request->route('contentItem') ?? $request->route('content_item');
+
+            if ($chapterId) {
+                $chapter = Chapter::find($chapterId);
+                if ($chapter && ($chapter->is_free || $chapter->is_preview)) {
+                    return $next($request);
+                }
+            }
+
+            if ($lessonId) {
+                $lesson = Lesson::find($lessonId);
+                if ($lesson && ($lesson->is_free || $lesson->is_preview)) {
+                    return $next($request);
+                }
+            }
+
+            if ($topicId) {
+                $topic = Topic::with('lesson')->find($topicId);
+                if ($topic && ($topic->is_free || ($topic->lesson && ($topic->lesson->is_free || $topic->lesson->is_preview)))) {
+                    return $next($request);
+                }
+            }
+
+            if ($contentItemId) {
+                $contentItem = ContentItem::with('lesson')->find($contentItemId);
+                if ($contentItem && ($contentItem->is_preview || ($contentItem->lesson && ($contentItem->lesson->is_free || $contentItem->lesson->is_preview)))) {
+                    return $next($request);
+                }
             }
 
             // Check if user is enrolled and enrollment is active with paid status

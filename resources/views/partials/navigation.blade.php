@@ -29,10 +29,23 @@
                 </a>
 
                 @auth
-                    <a href="{{ route('student.dashboard') }}"
+                    @php
+                        $user = auth()->user();
+                        $dashboardRoute = $user->isTeacher()
+                            ? route('teacher.dashboard')
+                            : ($user->isAdmin() ? route('admin.dashboard') : route('student.dashboard'));
+                    @endphp
+                    <a href="{{ $dashboardRoute }}"
                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium">
                         Dashboard
                     </a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                                class="text-red-600 hover:text-red-700 font-medium transition">
+                            Logout
+                        </button>
+                    </form>
                 @else
                     <a href="{{ route('login') }}"
                        class="text-gray-700 hover:text-blue-600 font-medium transition {{ request()->routeIs('login') ? 'text-blue-600 font-semibold' : '' }}">
@@ -105,7 +118,13 @@
                 </a>
 
                 @auth
-                    <a href="{{ route('student.dashboard') }}" role="menuitem"
+                    @php
+                        $user = auth()->user();
+                        $dashboardRoute = $user->isTeacher()
+                            ? route('teacher.dashboard')
+                            : ($user->isAdmin() ? route('admin.dashboard') : route('student.dashboard'));
+                    @endphp
+                    <a href="{{ $dashboardRoute }}" role="menuitem"
                        class="block px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-center transition mt-3 shadow-md">
                         <span class="flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,6 +133,18 @@
                             Dashboard
                         </span>
                     </a>
+                    <form action="{{ route('logout') }}" method="POST" class="mt-2">
+                        @csrf
+                        <button type="submit" role="menuitem"
+                                class="w-full px-4 py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 font-medium text-center transition">
+                            <span class="flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                Logout
+                            </span>
+                        </button>
+                    </form>
                 @else
                     <a href="{{ route('login') }}" role="menuitem"
                        class="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg font-medium transition {{ request()->routeIs('login') ? 'bg-blue-50 text-blue-600 font-semibold' : '' }}">

@@ -39,4 +39,13 @@ class CourseEnrollment extends Model
     {
         return $this->belongsTo(Payment::class);
     }
+
+    public static function expireForUser(int $userId): int
+    {
+        return static::where('user_id', $userId)
+            ->where('status', 'active')
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '<=', now())
+            ->update(['status' => 'expired']);
+    }
 }

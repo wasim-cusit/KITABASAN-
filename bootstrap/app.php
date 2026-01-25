@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'device' => \App\Http\Middleware\DeviceBinding::class,
             'enrollment' => \App\Http\Middleware\CheckEnrollment::class,
+            'content.access' => \App\Http\Middleware\CheckContentAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

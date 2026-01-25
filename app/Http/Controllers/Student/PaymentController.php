@@ -7,6 +7,7 @@ use App\Models\Book;
 use App\Models\Payment;
 use App\Models\Transaction;
 use App\Services\PaymentService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -27,10 +28,14 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         $courseId = $request->get('course_id');
-        
+
         if (!$courseId) {
-            return redirect()->route('student.courses.index')
-                ->with('error', 'Please select a course to purchase.');
+            $payments = Payment::where('user_id', Auth::id())
+                ->with(['book', 'paymentMethod'])
+                ->orderByDesc('created_at')
+                ->paginate(10);
+
+            return view('student.payments.history', compact('payments'));
         }
 
         try {
@@ -64,7 +69,7 @@ class PaymentController extends Controller
             $paymentMethods = \App\Models\PaymentMethod::getActive();
 
             return view('student.payments.index', compact('course', 'paymentMethods'));
-            
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->route('student.courses.index')
                 ->with('error', 'Course not found.');
@@ -73,6 +78,32 @@ class PaymentController extends Controller
             return redirect()->route('student.courses.index')
                 ->with('error', 'An error occurred while loading the payment page. Please try again.');
         }
+    }
+
+    public function invoice(Request $request, $paymentId)
+    {
+        $payment = Payment::where('id', $paymentId)
+            ->where('user_id', Auth::id())
+            ->with(['book', 'paymentMethod'])
+            ->firstOrFail();
+
+        $course = $payment->book;
+        $feeAmount = 0;
+        if ($course && $course->price && $payment->amount > $course->price) {
+            $feeAmount = $payment->amount - $course->price;
+        }
+
+        $viewData = compact('payment', 'course', 'feeAmount');
+
+        if ($request->boolean('download')) {
+            $filename = 'invoice-' . $payment->transaction_id . '.pdf';
+
+            return Pdf::loadView('student.payments.invoice_pdf', $viewData)
+                ->setPaper('a4')
+                ->download($filename);
+        }
+
+        return view('student.payments.invoice', $viewData);
     }
 
     /**

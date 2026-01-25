@@ -116,7 +116,9 @@
                         </div>
                         <div class="text-center sm:text-left w-full">
                             <p class="text-xs font-medium text-gray-500 mb-0.5">Lessons</p>
-                            <p class="text-xs sm:text-sm font-bold text-gray-900">{{ $totalLessons ?? 0 }}</p>
+                            <p class="text-xs sm:text-sm font-bold text-gray-900">
+                                {{ $course->chapters->sum(function ($chapter) { return $chapter->lessons->count(); }) ?? 0 }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -242,13 +244,17 @@
                     </p>
                 @else
                     @if($course->is_free)
-                        <form action="{{ route('student.courses.enroll', $course->id) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="w-full bg-green-600 text-white px-4 py-2.5 sm:py-3 rounded-lg hover:bg-green-700 font-semibold mb-3 text-sm sm:text-base transition-colors">
-                                Enroll for Free
-                            </button>
-                        </form>
+                        <a href="{{ route('student.learning.index', $course->id) }}"
+                           class="block w-full bg-green-600 text-white text-center px-4 py-2.5 sm:py-3 rounded-lg hover:bg-green-700 font-semibold mb-3 text-sm sm:text-base transition-colors">
+                            Start Free Course
+                        </a>
                     @else
+                        @if(($freeChapters + $freeLessons + $previewChapters + $previewLessons) > 0)
+                            <a href="{{ route('student.learning.index', $course->id) }}"
+                               class="block w-full bg-green-600 text-white text-center px-4 py-2.5 sm:py-3 rounded-lg hover:bg-green-700 font-semibold mb-3 text-sm sm:text-base transition-colors">
+                                View Free Content
+                            </a>
+                        @endif
                         <form action="{{ route('student.courses.enroll', $course->id) }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2.5 sm:py-3 rounded-lg hover:bg-blue-700 font-semibold mb-3 text-sm sm:text-base transition-colors">
@@ -257,11 +263,11 @@
                         </form>
                     @endif
 
-                    @if($freeChapters > 0 || $freeLessons > 0)
+                    @if(($freeChapters + $freeLessons + $previewChapters + $previewLessons) > 0)
                         <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
                             <p class="text-xs sm:text-sm text-green-800 font-semibold mb-1">Free Preview Available!</p>
                             <p class="text-xs text-green-700">
-                                {{ $freeChapters }} free chapters and {{ $freeLessons }} free lessons available.
+                                {{ $freeChapters + $previewChapters }} free chapters and {{ $freeLessons + $previewLessons }} free lessons available.
                             </p>
                         </div>
                     @endif

@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Chapter;
 use App\Models\Lesson;
 use App\Models\ContentItem;
+use App\Models\Topic;
 use App\Models\CourseEnrollment;
 use Closure;
 use Illuminate\Http\Request;
@@ -30,11 +31,10 @@ class CheckContentAccess
         
         // Try to get the content item from route
         $contentItemId = $request->route('contentItem') ?? $request->route('content_item');
-        $lessonId = $request->route('lesson');
-        $chapterId = $request->route('chapter');
-        $bookId = $request->route('book') ?? $request->route('course');
-
-        $hasAccess = false;
+        $lessonId = $request->route('lesson') ?? $request->route('lessonId');
+        $topicId = $request->route('topic') ?? $request->route('topicId');
+        $chapterId = $request->route('chapter') ?? $request->route('chapterId');
+        $bookId = $request->route('book') ?? $request->route('bookId') ?? $request->route('course');
         $course = null;
 
         // Check content item access
@@ -46,6 +46,16 @@ class CheckContentAccess
             }
             
             $course = $contentItem->lesson->chapter->book ?? null;
+        }
+        // Check topic access
+        elseif ($topicId) {
+            $topic = Topic::with(['lesson.chapter.book'])->findOrFail($topicId);
+            
+            if ($topic->isAccessible($user)) {
+                return $next($request);
+            }
+            
+            $course = $topic->lesson->chapter->book ?? null;
         }
         // Check lesson access
         elseif ($lessonId) {
@@ -74,11 +84,19 @@ class CheckContentAccess
             if ($course->is_free) {
                 return $next($request);
             }
+
+            if ($request->route() && $request->route()->getName() === 'student.learning.index') {
+                return $next($request);
+            }
             
             $enrollment = CourseEnrollment::where('user_id', $user->id)
                 ->where('book_id', $course->id)
                 ->where('status', 'active')
-                ->where('payment_status', 'paid')
+                ->where(function ($query) use ($course) {
+                    if (!$course->is_free) {
+                        $query->where('payment_status', 'paid');
+                    }
+                })
                 ->where(function ($query) {
                     $query->where('expires_at', '>', now())
                         ->orWhereNull('expires_at');
@@ -126,7 +144,11 @@ class CheckContentAccess
             $enrollment = CourseEnrollment::where('user_id', $user->id)
                 ->where('book_id', $course->id)
                 ->where('status', 'active')
-                ->where('payment_status', 'paid')
+                ->where(function ($query) use ($course) {
+                    if (!$course->is_free) {
+                        $query->where('payment_status', 'paid');
+                    }
+                })
                 ->where(function ($query) {
                     $query->where('expires_at', '>', now())
                         ->orWhereNull('expires_at');

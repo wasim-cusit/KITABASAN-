@@ -73,10 +73,14 @@
 
     <!-- Course Progress Cards -->
     @if($enrollments->count() > 0)
-        <div class="mb-6 flex items-center justify-between">
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <h2 class="text-xl lg:text-2xl font-bold text-gray-900">My Learning Journey</h2>
-            <a href="{{ route('student.courses.index') }}" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                Browse More Courses →
+            <a href="{{ route('student.courses.index') }}"
+               class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
+                Browse More Courses
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
             </a>
         </div>
 
@@ -121,31 +125,44 @@
                     $upcomingSteps = collect($steps)->where('is_completed', false);
                 @endphp
 
-                <div class="course-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="course-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-shadow hover:shadow-md flex flex-col h-full" x-data="{ openUpcoming: false }">
                     <!-- Course Header -->
-                    <div class="p-6 pb-4 border-b border-gray-100">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex-1">
-                                <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{{ $course->title }}</h3>
-                                <p class="text-sm text-gray-500">{{ $course->subject->name ?? 'Course' }}</p>
+                    <div class="p-5 sm:p-6 pb-4 border-b border-gray-100 space-y-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-2 line-clamp-2">{{ $course->title }}</h3>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 whitespace-nowrap max-w-[12rem] truncate leading-none">
+                                        {{ $course->subject->name ?? 'Course' }}
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        </svg>
+                                        {{ $course->enrollments->count() }} {{ Str::plural('student', $course->enrollments->count()) }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Progress Bar -->
-                        <div class="mb-4">
+                        <div>
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-semibold text-gray-700">Progress</span>
+                                <span class="text-xs font-semibold uppercase tracking-wide text-gray-500">Progress</span>
                                 <span class="text-sm font-bold text-blue-600">{{ round($progressPercentage) }}%</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                                 <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2.5 rounded-full transition-all duration-500"
                                      style="width: {{ $progressPercentage }}%"></div>
                             </div>
+                            <div class="mt-2 text-xs text-gray-500">
+                                {{ $completedLessons }} of {{ $totalLessons }} lessons completed
+                            </div>
                         </div>
 
                         <!-- Teacher Profile -->
                         @if($teacher)
-                            <div class="flex items-center space-x-3 pt-4 border-t border-gray-100">
+                            <div class="flex items-center space-x-3 pt-4 border-t border-gray-100 bg-gray-50 rounded-lg p-3">
                                 @if($teacherProfile && $teacherProfile->profile_image)
                                     <img src="{{ \Storage::url($teacherProfile->profile_image) }}"
                                          alt="{{ $teacher->name }}"
@@ -155,11 +172,11 @@
                                          alt="{{ $teacher->name }}"
                                          class="w-12 h-12 rounded-full object-cover border-2 border-blue-100">
                                 @else
-                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-2 border-blue-100">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-2 border-blue-100 mr-1">
                                         <span class="text-white font-semibold text-sm">{{ $teacher->getInitials() }}</span>
                                     </div>
                                 @endif
-                                <div class="flex-1 min-w-0">
+                                <div class="flex-1 min-w-0 ml-2">
                                     <p class="text-sm font-semibold text-gray-900 truncate">{{ $teacher->name }}</p>
                                     <p class="text-xs text-gray-500 truncate">
                                         @if($teacherProfile && $teacherProfile->specializations)
@@ -216,25 +233,23 @@
                     @endif
 
                     <!-- Steps Checklist -->
-                    <div class="p-6 pt-4">
+                    <div class="p-6 pt-4 flex-1 min-h-0">
                         <h4 class="text-sm font-semibold text-gray-700 mb-4">Learning Steps</h4>
 
-                        <div class="space-y-2 max-h-96 overflow-y-auto">
+                        <div class="space-y-2 max-h-96 overflow-y-auto pr-1">
                             <!-- Completed Steps -->
                             @foreach($completedSteps as $step)
-                                <div class="step-item flex items-start space-x-3 p-3 rounded-lg bg-green-50 border border-green-100">
-                                    <div class="flex-shrink-0 mt-0.5">
+                                <div class="step-item flex items-start gap-3 p-3.5 rounded-lg bg-green-50 border border-green-100">
+                                    <div class="flex-shrink-0 mt-2 ml-2">
                                         <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
                                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                             </svg>
                                         </div>
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center justify-between">
-                                            <p class="text-sm font-medium text-gray-900">Step {{ $step['number'] }}</p>
-                                        </div>
-                                        <p class="text-xs text-gray-600 mt-0.5">{{ $step['title'] }}</p>
+                                    <div class="flex-1 min-w-0 ml-1">
+                                        <p class="text-sm font-semibold text-gray-900">Step {{ $step['number'] }}</p>
+                                        <p class="text-xs text-gray-600 mt-0.5 line-clamp-2">{{ $step['title'] }}</p>
                                         @if($step['has_video'])
                                             <span class="inline-flex items-center mt-1 text-xs text-gray-500">
                                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -249,43 +264,50 @@
 
                             <!-- Upcoming Steps (Accordion) -->
                             @if($upcomingSteps->count() > 0)
-                                <div x-data="{ open: false }" class="border-t border-gray-200 pt-2 mt-2">
-                                    <button @click="open = !open"
+                                <div class="border-t border-gray-200 pt-2 mt-2">
+                                    <button @click="openUpcoming = !openUpcoming"
                                             class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
                                         <span class="text-sm font-semibold text-gray-700">
                                             Upcoming Steps ({{ $upcomingSteps->count() }})
                                         </span>
                                         <svg class="w-5 h-5 text-gray-500 transition-transform"
-                                             :class="{ 'rotate-180': open }"
+                                             :class="{ 'rotate-180': openUpcoming }"
                                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </button>
 
-                                    <div class="accordion-content" :class="{ 'open': open }">
+                                    <div class="accordion-content" :class="{ 'open': openUpcoming }">
                                         <div class="space-y-2 mt-2">
                                             @foreach($upcomingSteps->take(5) as $step)
-                                                <div class="step-item flex items-start space-x-3 p-3 rounded-lg border border-gray-200 hover:border-blue-200 hover:bg-blue-50 transition-colors">
-                                                    <div class="flex-shrink-0 mt-0.5">
-                                                        <div class="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold text-gray-600">
+                                                <div class="step-item flex items-start gap-3 p-3.5 rounded-lg border border-gray-200 hover:border-blue-200 hover:bg-blue-50 transition-colors">
+                                                    <div class="flex-shrink-0 mt-1">
+                                                        <div class="w-6 h-6 ml-1 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold text-gray-600">
                                                             {{ $step['number'] }}
                                                         </div>
                                                     </div>
                                                     <div class="flex-1 min-w-0">
-                                                        <p class="text-sm font-medium text-gray-900">{{ $step['title'] }}</p>
-                                                        <p class="text-xs text-gray-500 mt-0.5">{{ $step['description'] }}</p>
-                                                        @if($step['has_video'])
-                                                            <span class="inline-flex items-center mt-1 text-xs text-gray-500">
-                                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
+                                                        <div class="flex items-start justify-between gap-3">
+                                                            <div class="min-w-0">
+                                                                <p class="text-sm font-semibold text-gray-900 line-clamp-1">{{ $step['title'] }}</p>
+                                                                <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{ $step['description'] }}</p>
+                                                                @if($step['has_video'])
+                                                                    <span class="inline-flex items-center mt-1 text-xs text-gray-500">
+                                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
+                                                                        </svg>
+                                                                        Video Lesson
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                            <a href="{{ route('student.learning.lesson', ['bookId' => $course->id, 'lessonId' => $step['lesson_id']]) }}"
+                                                               class="inline-flex items-center gap-1.5 h-7 px-3 mt-2 ml-2 mr-1 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 whitespace-nowrap shrink-0">
+                                                                Continue
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                                                 </svg>
-                                                                Video Lesson
-                                                            </span>
-                                                        @endif
-                                                        <a href="{{ route('student.learning.lesson', ['bookId' => $course->id, 'lessonId' => $step['lesson_id']]) }}"
-                                                           class="inline-flex items-center mt-2 text-xs font-medium text-blue-600 hover:text-blue-700">
-                                                            Continue Learning →
-                                                        </a>
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -302,22 +324,31 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="px-6 pb-6 pt-4 border-t border-gray-100">
+                    <div class="px-6 pb-6 pt-4 border-t border-gray-100 mt-auto">
                         <div class="flex flex-col sm:flex-row gap-2">
                             @if($progressPercentage < 100)
                                 <a href="{{ route('student.learning.index', $course->id) }}"
-                                   class="flex-1 bg-blue-600 text-white text-center px-4 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
+                                   class="flex-1 inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium text-sm">
                                     Continue Learning
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
                                 </a>
                             @else
                                 <a href="{{ route('student.learning.index', $course->id) }}"
-                                   class="flex-1 bg-green-600 text-white text-center px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
+                                   class="flex-1 inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors font-medium text-sm">
                                     Review Course
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
                                 </a>
                             @endif
                             <a href="{{ route('student.courses.show', $course->id) }}"
-                               class="flex-1 bg-gray-100 text-gray-700 text-center px-4 py-2.5 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm">
+                               class="flex-1 inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors font-medium text-sm">
                                 Preview Course
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
                             </a>
                         </div>
                     </div>
@@ -345,25 +376,40 @@
     @if($recentProgress->count() > 0)
         <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 class="text-lg lg:text-xl font-bold mb-4 text-gray-900">Recent Activity</h2>
-            <div class="space-y-3">
+            <div class="divide-y divide-gray-100">
                 @foreach($recentProgress as $progress)
-                    <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                    <div class="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div class="flex-1 min-w-0">
-                            <p class="font-medium text-sm text-gray-900 truncate">{{ $progress->lesson->title }}</p>
-                            <p class="text-xs text-gray-600 mt-0.5 truncate">{{ $progress->lesson->chapter->book->title }}</p>
+                            <p class="font-semibold text-sm text-gray-900 truncate">
+                                {{ $progress->lesson->title ?? 'Lesson' }}
+                            </p>
+                            <p class="text-xs text-gray-600 mt-0.5 truncate">
+                                {{ $progress->lesson->chapter->book->title ?? 'Course' }}
+                            </p>
+                            @if(!empty($progress->lesson->description))
+                                <p class="text-xs text-gray-500 mt-1 line-clamp-2">
+                                    {{ $progress->lesson->description }}
+                                </p>
+                            @endif
                         </div>
-                        <div class="flex-shrink-0 ml-4 text-right">
-                            <p class="text-xs text-gray-500">{{ $progress->last_watched_at->diffForHumans() }}</p>
+                        <div class="flex items-center gap-3 sm:flex-col sm:items-end sm:gap-1">
+                            <p class="text-xs text-gray-500">
+                                {{ optional($progress->last_watched_at)->diffForHumans() ?? 'Recently' }}
+                            </p>
                             @if($progress->is_completed)
-                                <span class="inline-flex items-center mt-1 text-xs text-green-600">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700">
                                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                     </svg>
                                     Completed
                                 </span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
+                                    In Progress
+                                </span>
                             @endif
                         </div>
-                </div>
+                    </div>
                 @endforeach
             </div>
         </div>

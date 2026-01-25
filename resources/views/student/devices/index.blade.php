@@ -108,7 +108,7 @@
 </div>
 
 <!-- Reset Request Modal -->
-<div id="resetRequestModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div id="resetRequestModal" class="hidden fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h3 class="text-xl font-bold mb-4">Request Device Reset</h3>
         <p class="text-sm text-gray-600 mb-4">

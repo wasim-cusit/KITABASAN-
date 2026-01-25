@@ -13,6 +13,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        CourseEnrollment::expireForUser($user->id);
 
         $enrollments = CourseEnrollment::where('user_id', $user->id)
             ->where('status', 'active')
