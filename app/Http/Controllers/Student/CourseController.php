@@ -25,7 +25,23 @@ class CourseController extends Controller
             ->latest()
             ->paginate(12);
 
-        return view('student.courses.index', compact('courses'));
+        $user = Auth::user();
+        $purchasedCourseIds = collect();
+
+        if ($user) {
+            $purchasedCourseIds = CourseEnrollment::where('user_id', $user->id)
+                ->where('status', 'active')
+                ->where(function ($query) {
+                    $query->whereNull('expires_at')
+                          ->orWhere('expires_at', '>', now());
+                })
+                ->where(function ($query) {
+                    $query->whereIn('payment_status', ['free', 'paid']);
+                })
+                ->pluck('book_id');
+        }
+
+        return view('student.courses.index', compact('courses', 'purchasedCourseIds'));
     }
 
     public function myCourses()

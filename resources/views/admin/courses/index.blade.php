@@ -12,6 +12,50 @@
         </a>
     </div>
 
+    <!-- Status Summary -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6" data-testid="admin-courses-status-summary">
+        @php
+            $baseQuery = request()->except('page', 'status');
+            $activeStatus = request('status');
+        @endphp
+
+        <a href="{{ route('admin.courses.index', $baseQuery) }}"
+           class="p-3 rounded-lg border border-slate-200 bg-slate-50/70 hover:bg-slate-50 transition {{ empty($activeStatus) ? 'ring-2 ring-blue-300' : '' }}">
+            <div class="text-xs text-slate-600 font-semibold">All</div>
+            <div class="text-lg font-bold text-gray-900">{{ $statusSummary['total'] ?? 0 }}</div>
+        </a>
+
+        <a href="{{ route('admin.courses.index', array_merge($baseQuery, ['status' => 'draft'])) }}"
+           class="p-3 rounded-lg border border-amber-200 bg-amber-50/70 hover:bg-amber-50 transition {{ $activeStatus === 'draft' ? 'ring-2 ring-amber-300' : '' }}">
+            <div class="text-xs text-amber-700 font-semibold">Draft</div>
+            <div class="text-lg font-bold text-gray-900">{{ $statusSummary['draft'] ?? 0 }}</div>
+        </a>
+
+        <a href="{{ route('admin.courses.index', array_merge($baseQuery, ['status' => 'pending'])) }}"
+           class="p-3 rounded-lg border border-orange-200 bg-orange-50/70 hover:bg-orange-50 transition {{ $activeStatus === 'pending' ? 'ring-2 ring-orange-300' : '' }}">
+            <div class="text-xs text-orange-700 font-semibold">Pending</div>
+            <div class="text-lg font-bold text-gray-900">{{ $statusSummary['pending'] ?? 0 }}</div>
+        </a>
+
+        <a href="{{ route('admin.courses.index', array_merge($baseQuery, ['status' => 'published'])) }}"
+           class="p-3 rounded-lg border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-50 transition {{ $activeStatus === 'published' ? 'ring-2 ring-emerald-300' : '' }}">
+            <div class="text-xs text-emerald-700 font-semibold">Published</div>
+            <div class="text-lg font-bold text-gray-900">{{ $statusSummary['published'] ?? 0 }}</div>
+        </a>
+
+        <a href="{{ route('admin.courses.index', array_merge($baseQuery, ['status' => 'approved'])) }}"
+           class="p-3 rounded-lg border border-green-200 bg-green-50/70 hover:bg-green-50 transition {{ $activeStatus === 'approved' ? 'ring-2 ring-green-300' : '' }}">
+            <div class="text-xs text-green-700 font-semibold">Approved</div>
+            <div class="text-lg font-bold text-gray-900">{{ $statusSummary['approved'] ?? 0 }}</div>
+        </a>
+
+        <a href="{{ route('admin.courses.index', array_merge($baseQuery, ['status' => 'rejected'])) }}"
+           class="p-3 rounded-lg border border-rose-200 bg-rose-50/70 hover:bg-rose-50 transition {{ $activeStatus === 'rejected' ? 'ring-2 ring-rose-300' : '' }}">
+            <div class="text-xs text-rose-700 font-semibold">Rejected</div>
+            <div class="text-lg font-bold text-gray-900">{{ $statusSummary['rejected'] ?? 0 }}</div>
+        </a>
+    </div>
+
     <!-- Filters -->
     <form method="GET" action="{{ route('admin.courses.index') }}" class="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <input type="text" name="search" placeholder="Search courses..." value="{{ request('search') }}" 

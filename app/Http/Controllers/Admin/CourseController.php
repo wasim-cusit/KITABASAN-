@@ -17,26 +17,45 @@ class CourseController extends Controller
     public function index(Request $request)
     {
         $query = Book::with(['teacher', 'subject.grade']);
+        $summaryQuery = Book::query();
 
         // Search
         if ($request->has('search') && $request->search) {
             $query->where('title', 'like', '%' . $request->search . '%');
-        }
-
-        // Filter by status
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
+            $summaryQuery->where('title', 'like', '%' . $request->search . '%');
         }
 
         // Filter by subject
         if ($request->has('subject_id') && $request->subject_id) {
             $query->where('subject_id', $request->subject_id);
+            $summaryQuery->where('subject_id', $request->subject_id);
+        }
+
+        // Status summary (respects search/subject filters, not status filter)
+        $statusCounts = $summaryQuery
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->get()
+            ->pluck('total', 'status');
+
+        // Filter by status (table list only)
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
         }
 
         $courses = $query->latest()->paginate(15);
         $subjects = Subject::with('grade')->get();
 
-        return view('admin.courses.index', compact('courses', 'subjects'));
+        $statusSummary = [
+            'total' => (int) $statusCounts->sum(),
+            'draft' => (int) ($statusCounts['draft'] ?? 0),
+            'pending' => (int) ($statusCounts['pending'] ?? 0),
+            'published' => (int) ($statusCounts['published'] ?? 0),
+            'approved' => (int) ($statusCounts['approved'] ?? 0),
+            'rejected' => (int) ($statusCounts['rejected'] ?? 0),
+        ];
+
+        return view('admin.courses.index', compact('courses', 'subjects', 'statusSummary'));
     }
 
     public function create()

@@ -183,6 +183,7 @@ class PaymentService
             'status' => 'completed',
             'paid_at' => now(),
             'gateway_response' => $gatewayData,
+            'receipt_url' => route('student.payments.invoice', $payment->id),
         ]);
 
         // Automatically activate enrollment
@@ -260,8 +261,8 @@ class PaymentService
         }
 
         $gatewayCode = $paymentMethod->code;
-        $credentials = $paymentMethod->credentials ?? [];
-        $config = $paymentMethod->config ?? [];
+        $credentials = $this->normalizeGatewayPairs($paymentMethod->credentials ?? []);
+        $config = $this->normalizeGatewayPairs($paymentMethod->config ?? []);
         $isSandbox = $paymentMethod->is_sandbox ?? true;
 
         // Get base URL (sandbox or production)
@@ -280,11 +281,167 @@ class PaymentService
             
             case 'easypaisa':
                 return $this->prepareEasyPaisaRedirect($payment, $credentials, $baseUrl, $callbackUrl, $isSandbox);
+
+            case 'gopayfast':
+                return $this->prepareGenericRedirect($payment, $paymentMethod, $callbackUrl);
             
             default:
+                if (!empty($config['redirect_url']) || !empty($config['payment_url'])) {
+                    return $this->prepareGenericRedirect($payment, $paymentMethod, $callbackUrl);
+                }
+
                 Log::warning("Unknown payment gateway: {$gatewayCode}");
                 return null;
         }
+    }
+
+    private function normalizeGatewayPairs(array $pairs): array
+    {
+        if (empty($pairs)) {
+            return [];
+        }
+
+        $isDirect = collect($pairs)->every(function ($value, $key) {
+            return !preg_match('/^(key|value)\d+$/', (string) $key);
+        });
+
+        if ($isDirect) {
+            return $pairs;
+        }
+
+        $keys = [];
+        $values = [];
+
+        foreach ($pairs as $key => $value) {
+            if (preg_match('/^key(\d+)$/', (string) $key, $matches)) {
+                $keys[$matches[1]] = $value;
+            } elseif (preg_match('/^value(\d+)$/', (string) $key, $matches)) {
+                $values[$matches[1]] = $value;
+            }
+        }
+
+        $normalized = [];
+        foreach ($keys as $index => $pairKey) {
+            $pairValue = $values[$index] ?? null;
+            if (!empty($pairKey) && $pairValue !== null && $pairValue !== '') {
+                $normalized[$pairKey] = $pairValue;
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Prepare custom gateway redirect data based on settings.
+     */
+    private function prepareGenericRedirect(Payment $payment, $paymentMethod, string $callbackUrl)
+    {
+        $payment->loadMissing(['book', 'user']);
+
+        $config = $paymentMethod->config ?? [];
+        $credentials = $paymentMethod->credentials ?? [];
+
+        $redirectUrl = $config['redirect_url'] ?? $config['payment_url'] ?? null;
+        if (!$redirectUrl) {
+            Log::error('GoPayFast redirect URL not configured');
+            return null;
+        }
+
+        $amount = number_format((float) $payment->amount, 2, '.', '');
+        $currency = $payment->currency ?? 'PKR';
+
+        $defaultFields = [
+            'merchant_id' => $credentials['merchant_id'] ?? '',
+            'transaction_id' => $payment->transaction_id,
+            'amount' => $amount,
+            'currency' => $currency,
+            'callback_url' => $callbackUrl,
+            'customer_name' => $payment->user?->name ?? '',
+            'customer_email' => $payment->user?->email ?? '',
+            'course_title' => $payment->book?->title ?? '',
+        ];
+
+        $fields = is_array($config['fields'] ?? null) ? $config['fields'] : $defaultFields;
+
+        $replacements = [
+            'transaction_id' => $payment->transaction_id,
+            'amount' => $amount,
+            'currency' => $currency,
+            'callback_url' => $callbackUrl,
+            'course_id' => $payment->book_id,
+            'course_title' => $payment->book?->title ?? '',
+            'user_id' => $payment->user_id,
+            'user_name' => $payment->user?->name ?? '',
+            'user_email' => $payment->user?->email ?? '',
+        ];
+
+        $fields = $this->applyGatewayReplacements($fields, $replacements, $credentials);
+        $fields = $this->applyGatewaySignature($fields, $config, $credentials);
+
+        return [
+            'url' => $redirectUrl,
+            'method' => strtoupper($config['method'] ?? 'POST'),
+            'fields' => $fields,
+        ];
+    }
+
+    /**
+     * Replace placeholders in gateway fields.
+     */
+    private function applyGatewayReplacements(array $fields, array $replacements, array $credentials = []): array
+    {
+        $merged = array_merge($replacements, $credentials);
+
+        foreach ($fields as $key => $value) {
+            if (!is_string($value)) {
+                continue;
+            }
+
+            $fields[$key] = preg_replace_callback('/\{([a-zA-Z0-9_]+)\}/', function ($matches) use ($merged) {
+                $token = $matches[1];
+                return array_key_exists($token, $merged) ? (string) $merged[$token] : $matches[0];
+            }, $value);
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Add optional gateway signature field using config.
+     */
+    private function applyGatewaySignature(array $fields, array $config, array $credentials): array
+    {
+        if (empty($config['signature']) || !is_array($config['signature'])) {
+            return $fields;
+        }
+
+        $signatureConfig = $config['signature'];
+        $signatureField = $signatureConfig['field'] ?? 'signature';
+        $signatureType = strtolower($signatureConfig['type'] ?? 'hmac_sha256');
+        $signatureKeyName = $signatureConfig['key'] ?? 'secret_key';
+        $signatureKey = $credentials[$signatureKeyName] ?? $signatureKeyName;
+        $signatureFields = $signatureConfig['fields'] ?? array_keys($fields);
+
+        $data = [];
+        foreach ($signatureFields as $field) {
+            if (array_key_exists($field, $fields)) {
+                $data[$field] = (string) $fields[$field];
+            }
+        }
+
+        $payload = collect($data)->map(function ($value, $key) {
+            return $key . '=' . $value;
+        })->implode('&');
+
+        if ($signatureType === 'md5') {
+            $signature = md5($payload . $signatureKey);
+        } else {
+            $signature = hash_hmac('sha256', $payload, $signatureKey);
+        }
+
+        $fields[$signatureField] = $signature;
+
+        return $fields;
     }
 
     /**
@@ -313,10 +470,12 @@ class PaymentService
                      $merchantId . '&' . $password . '&' . $ppReturnUrl;
         $ppSecureHash = hash_hmac('sha256', $hashString, $integritySalt);
 
-        // JazzCash payment URL
-        $paymentUrl = $isSandbox 
-            ? 'https://sandbox.jazzcash.com.pk/CustomerPortal/transactionmanagement/merchantform/'
-            : 'https://payments.jazzcash.com.pk/CustomerPortal/transactionmanagement/merchantform/';
+        // JazzCash payment URL (allow override via config sandbox/production URL)
+        $paymentUrl = $baseUrl;
+        $defaultPath = '/CustomerPortal/transactionmanagement/merchantform/';
+        if (!str_contains($paymentUrl, 'transactionmanagement/merchantform')) {
+            $paymentUrl = rtrim($paymentUrl, '/') . $defaultPath;
+        }
 
         return [
             'url' => $paymentUrl,
@@ -362,10 +521,12 @@ class PaymentService
             return null;
         }
 
-        // EasyPaisa payment URL
-        $paymentUrl = $isSandbox 
-            ? 'https://easypay.easypaisa.com.pk/easypay/Index.jsf'
-            : 'https://easypay.easypaisa.com.pk/easypay/Index.jsf';
+        // EasyPaisa payment URL (allow override via config sandbox/production URL)
+        $paymentUrl = $baseUrl;
+        $defaultPath = '/easypay/Index.jsf';
+        if (!str_contains($paymentUrl, 'Index.jsf')) {
+            $paymentUrl = rtrim($paymentUrl, '/') . $defaultPath;
+        }
 
         $amount = number_format($payment->amount, 2, '.', '');
         $orderRefNum = $payment->transaction_id;

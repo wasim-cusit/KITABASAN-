@@ -19,6 +19,38 @@
 @endif
 
 <div class="bg-white rounded-lg shadow p-4 lg:p-6">
+    <!-- Status Summary -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" data-testid="admin-devices-status-summary">
+        @php
+            $baseQuery = request()->except('page', 'status');
+            $activeStatus = request('status');
+        @endphp
+
+        <a href="{{ route('admin.devices.index', $baseQuery) }}"
+           class="p-3 rounded-lg border border-slate-200 bg-slate-50/70 hover:bg-slate-50 transition {{ empty($activeStatus) ? 'ring-2 ring-blue-300' : '' }}">
+            <div class="text-xs text-slate-600 font-semibold">All</div>
+            <div class="text-lg font-bold text-gray-900">{{ $deviceSummary['total'] ?? 0 }}</div>
+        </a>
+
+        <a href="{{ route('admin.devices.index', array_merge($baseQuery, ['status' => 'active'])) }}"
+           class="p-3 rounded-lg border border-green-200 bg-green-50/70 hover:bg-green-50 transition {{ $activeStatus === 'active' ? 'ring-2 ring-green-300' : '' }}">
+            <div class="text-xs text-green-700 font-semibold">Active</div>
+            <div class="text-lg font-bold text-gray-900">{{ $deviceSummary['active'] ?? 0 }}</div>
+        </a>
+
+        <a href="{{ route('admin.devices.index', array_merge($baseQuery, ['status' => 'pending_reset'])) }}"
+           class="p-3 rounded-lg border border-amber-200 bg-amber-50/70 hover:bg-amber-50 transition {{ $activeStatus === 'pending_reset' ? 'ring-2 ring-amber-300' : '' }}">
+            <div class="text-xs text-amber-700 font-semibold">Pending Reset</div>
+            <div class="text-lg font-bold text-gray-900">{{ $deviceSummary['pending_reset'] ?? 0 }}</div>
+        </a>
+
+        <a href="{{ route('admin.devices.index', array_merge($baseQuery, ['status' => 'blocked'])) }}"
+           class="p-3 rounded-lg border border-rose-200 bg-rose-50/70 hover:bg-rose-50 transition {{ $activeStatus === 'blocked' ? 'ring-2 ring-rose-300' : '' }}">
+            <div class="text-xs text-rose-700 font-semibold">Blocked</div>
+            <div class="text-lg font-bold text-gray-900">{{ $deviceSummary['blocked'] ?? 0 }}</div>
+        </a>
+    </div>
+
     <!-- Filters -->
     <form method="GET" action="{{ route('admin.devices.index') }}" class="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <input type="text" name="search" placeholder="Search users..." value="{{ request('search') }}"
@@ -43,11 +75,7 @@
     </form>
 
     <!-- Pending Reset Requests -->
-    @php
-        $pendingResets = $devices->where('status', 'pending_reset');
-    @endphp
-
-    @if($pendingResets->count() > 0)
+    @if(($pendingResets ?? collect())->count() > 0 && (empty(request('status')) || request('status') === 'pending_reset'))
         <div id="pending-resets" class="mb-6">
             <h3 class="text-lg font-bold mb-4 text-yellow-800">Pending Reset Requests ({{ $pendingResets->count() }})</h3>
             <div class="space-y-4">

@@ -578,6 +578,60 @@ https://yourdomain.com/payments/webhook
 
 ---
 
+### GoPayFast (Custom Redirect Integration)
+
+#### Required Credentials (example)
+- Merchant ID
+- Secret Key (for signature)
+
+#### Configuration in Admin Panel
+
+**Credentials JSON:**
+```json
+{
+  "merchant_id": "your_merchant_id",
+  "secret_key": "your_secret_key"
+}
+```
+
+**Config JSON (redirect + fields):**
+```json
+{
+  "redirect_url": "https://sandbox.gopayfast.com/checkout",
+  "method": "POST",
+  "fields": {
+    "merchant_id": "{merchant_id}",
+    "transaction_id": "{transaction_id}",
+    "amount": "{amount}",
+    "currency": "{currency}",
+    "callback_url": "{callback_url}",
+    "customer_name": "{user_name}",
+    "customer_email": "{user_email}",
+    "course_title": "{course_title}"
+  },
+  "signature": {
+    "field": "signature",
+    "type": "hmac_sha256",
+    "key": "secret_key",
+    "fields": ["merchant_id","transaction_id","amount","currency","callback_url"]
+  }
+}
+```
+
+#### URLs to Provide to GoPayFast
+
+**Return URL (Callback):**
+```
+https://yourdomain.com/student/payments/callback?transaction_id={transaction_id}&status={status}
+```
+
+**Webhook URL (IPN):**
+```
+https://yourdomain.com/payments/webhook
+```
+
+---
+
 ## Testing Payment Integration
 
 ### Test Payment Flow

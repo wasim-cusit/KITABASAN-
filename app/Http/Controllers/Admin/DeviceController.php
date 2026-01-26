@@ -12,6 +12,7 @@ class DeviceController extends Controller
     public function index(Request $request)
     {
         $query = DeviceBinding::with('user');
+        $summaryQuery = DeviceBinding::query();
 
         // Search
         if ($request->has('search') && $request->search) {
@@ -19,16 +20,35 @@ class DeviceController extends Controller
                 $q->where('name', 'like', '%' . $request->search . '%')
                   ->orWhere('email', 'like', '%' . $request->search . '%');
             });
-        }
-
-        // Filter by status
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
+            $summaryQuery->whereHas('user', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
         }
 
         // Filter by user
         if ($request->has('user_id') && $request->user_id) {
             $query->where('user_id', $request->user_id);
+            $summaryQuery->where('user_id', $request->user_id);
+        }
+
+        // Summary (respects search/user filters, not status filter)
+        $statusCounts = $summaryQuery
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->get()
+            ->pluck('total', 'status');
+
+        $deviceSummary = [
+            'total' => (int) $statusCounts->sum(),
+            'active' => (int) ($statusCounts['active'] ?? 0),
+            'pending_reset' => (int) ($statusCounts['pending_reset'] ?? 0),
+            'blocked' => (int) ($statusCounts['blocked'] ?? 0),
+        ];
+
+        // Filter by status (table list only)
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
         }
 
         // Show pending reset requests first
@@ -44,7 +64,14 @@ class DeviceController extends Controller
         // Count pending reset requests
         $pendingResetCount = DeviceBinding::where('status', 'pending_reset')->count();
 
-        return view('admin.devices.index', compact('devices', 'users', 'pendingResetCount'));
+        // Pending reset list (for the section on top)
+        $pendingResets = DeviceBinding::with('user')
+            ->where('status', 'pending_reset')
+            ->latest()
+            ->limit(20)
+            ->get();
+
+        return view('admin.devices.index', compact('devices', 'users', 'pendingResetCount', 'deviceSummary', 'pendingResets'));
     }
 
     public function resetDevice($id)

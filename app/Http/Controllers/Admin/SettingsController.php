@@ -9,6 +9,7 @@ use App\Models\SystemSetting;
 use App\Models\PaymentMethod;
 use App\Models\Language;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
@@ -20,8 +21,15 @@ class SettingsController extends Controller
         $paymentMethods = PaymentMethod::orderBy('order')->get();
         $languages = Language::orderBy('order')->get();
         $adminNotification = AdminNotificationSetting::firstOrCreate(
-            ['user_id' => auth()->id()],
-            ['email_new_students' => true, 'email_new_teachers' => true, 'email_new_courses' => true, 'email_course_updates' => true]
+            ['user_id' => Auth::id()],
+            [
+                'email_new_students' => true,
+                'email_new_teachers' => true,
+                'email_new_courses' => true,
+                'email_course_updates' => true,
+                'email_device_bindings' => true,
+                'email_device_reset_requests' => true,
+            ]
         );
 
         return view('admin.settings.index', compact('themeSettings', 'systemSettings', 'paymentMethods', 'languages', 'adminNotification'));
@@ -177,13 +185,22 @@ class SettingsController extends Controller
         // Update admin notification preferences
         if ($request->has('notification_settings')) {
             $an = AdminNotificationSetting::firstOrCreate(
-                ['user_id' => auth()->id()],
-                ['email_new_students' => true, 'email_new_teachers' => true, 'email_new_courses' => true, 'email_course_updates' => true]
+                ['user_id' => Auth::id()],
+                [
+                    'email_new_students' => true,
+                    'email_new_teachers' => true,
+                    'email_new_courses' => true,
+                    'email_course_updates' => true,
+                    'email_device_bindings' => true,
+                    'email_device_reset_requests' => true,
+                ]
             );
             $an->email_new_students = $request->boolean('notification_settings.email_new_students');
             $an->email_new_teachers = $request->boolean('notification_settings.email_new_teachers');
             $an->email_new_courses = $request->boolean('notification_settings.email_new_courses');
             $an->email_course_updates = $request->boolean('notification_settings.email_course_updates');
+            $an->email_device_bindings = $request->boolean('notification_settings.email_device_bindings');
+            $an->email_device_reset_requests = $request->boolean('notification_settings.email_device_reset_requests');
             $an->save();
         }
 

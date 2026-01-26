@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class VideoService
 {
@@ -36,7 +38,7 @@ class VideoService
                 }
             }
         } catch (\Exception $e) {
-            \Log::error('YouTube API Error: ' . $e->getMessage());
+            Log::error('YouTube API Error: ' . $e->getMessage());
         }
 
         return [];
@@ -49,13 +51,13 @@ class VideoService
     public function isYouTubeVideoAccessible(string $videoId): bool
     {
         $details = $this->getYouTubeVideoDetails($videoId, true);
-        
+
         if (empty($details)) {
             return false;
         }
 
         $privacyStatus = $details['status']['privacyStatus'] ?? 'private';
-        
+
         // Public and unlisted videos are accessible
         return in_array($privacyStatus, ['public', 'unlisted']);
     }
@@ -100,9 +102,9 @@ class VideoService
     {
         // Extract video ID if a full URL was provided
         $cleanVideoId = $this->extractYouTubeId($videoId);
-        
+
         $embedUrl = "https://www.youtube.com/embed/{$cleanVideoId}";
-        
+
         $params = array_merge([
             'enablejsapi' => 1,
             'origin' => request()->getHost(),
@@ -125,7 +127,7 @@ class VideoService
     public function validateYouTubeVideo(string $videoId, string $expectedPrivacy = null): array
     {
         $details = $this->getYouTubeVideoDetails($videoId, true);
-        
+
         if (empty($details)) {
             return [
                 'valid' => false,
@@ -165,7 +167,7 @@ class VideoService
     protected function parseYouTubeDuration(string $duration): int
     {
         preg_match('/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/', $duration, $matches);
-        
+
         $hours = isset($matches[1]) ? (int) $matches[1] : 0;
         $minutes = isset($matches[2]) ? (int) $matches[2] : 0;
         $seconds = isset($matches[3]) ? (int) $matches[3] : 0;
@@ -180,15 +182,18 @@ class VideoService
     {
         try {
             $path = 'videos/' . date('Y/m') . '/' . uniqid() . '_' . $file->getClientOriginalName();
-            
-            $uploadedPath = \Storage::disk($disk)->putFileAs(
+
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $diskInstance */
+            $diskInstance = Storage::disk($disk);
+
+            $uploadedPath = $diskInstance->putFileAs(
                 dirname($path),
                 $file,
                 basename($path),
                 'public'
             );
 
-            $url = \Storage::disk($disk)->url($uploadedPath);
+            $url = $diskInstance->url($uploadedPath);
 
             return [
                 'success' => true,
@@ -198,8 +203,8 @@ class VideoService
                 'mime_type' => $file->getMimeType(),
             ];
         } catch (\Exception $e) {
-            \Log::error('Video upload error: ' . $e->getMessage());
-            
+            Log::error('Video upload error: ' . $e->getMessage());
+
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
@@ -226,7 +231,10 @@ class VideoService
      */
     public function getUploadedVideoUrl(string $videoPath): string
     {
-        return \Storage::disk('public')->url($videoPath);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $diskInstance */
+        $diskInstance = Storage::disk('public');
+
+        return $diskInstance->url($videoPath);
     }
 
     /**

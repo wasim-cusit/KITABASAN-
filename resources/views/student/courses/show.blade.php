@@ -236,7 +236,7 @@
 
                 @if($enrollment)
                     <a href="{{ route('student.learning.index', $course->id) }}"
-                       class="block w-full bg-blue-600 text-white text-center px-4 py-2.5 sm:py-3 rounded-lg hover:bg-blue-700 font-semibold mb-3 text-sm sm:text-base transition-colors">
+                       class="block w-full bg-blue-600 text-white text-center px-4 py-2.5 sm:py-3 hover:bg-blue-700 font-semibold mb-3 text-sm sm:text-base transition-colors">
                         Continue Learning
                     </a>
                     <p class="text-xs text-gray-500 text-center">

@@ -36,6 +36,7 @@
                         </svg>
                         <span class="text-white font-bold tracking-wide" style="color: #ffffff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Send Email Offer</span>
                     </button>
+                    {{--
                     <button type="button" onclick="openSMSModal()"
                             class="bg-purple-600 hover:bg-purple-700 px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 shadow-md hover:shadow-lg transition-all">
                         <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
@@ -43,6 +44,7 @@
                         </svg>
                         <span class="text-black font-bold tracking-wide" style="color: #000000 !important;">Send SMS Offer</span>
                     </button>
+                    --}}
                     <button type="button" onclick="clearSelection()"
                             class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 text-sm font-semibold shadow hover:shadow-md transition-all">
                         <span class="text-white">Clear Selection</span>

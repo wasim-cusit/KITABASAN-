@@ -87,6 +87,8 @@
                         @endif
                         @if($course->is_free)
                             <span class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">FREE</span>
+                        @else
+                            <span class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">PAID</span>
                         @endif
                     </div>
                     <div class="p-6">

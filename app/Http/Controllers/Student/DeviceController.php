@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\DeviceBinding;
+use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,6 +49,8 @@ class DeviceController extends Controller
             'reset_requested_at' => now(),
             'reset_request_reason' => $request->reason,
         ]);
+
+        AdminNotificationService::notifyDeviceResetRequest($activeDevice);
 
         return redirect()->back()
             ->with('success', 'Device reset request submitted successfully. Please wait for admin approval.');

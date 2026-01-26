@@ -59,20 +59,31 @@
                                         || ($topic->video_host === 'upload' && !empty($topic->video_file));
                                 });
                             }
+                            $youtubeId = null;
+                            $youtubeTitle = null;
+                            $youtubeSource = null;
+                            if ($canAccess) {
+                                if ($hasLessonVideo && $lesson->video_host === 'youtube' && $lesson->video_id) {
+                                    $youtubeId = $videoService->extractYouTubeId($lesson->video_id);
+                                    $youtubeTitle = $lesson->title;
+                                    $youtubeSource = 'Lesson';
+                                } elseif (!$hasLessonVideo && $videoTopic && $videoTopic->video_host === 'youtube' && $videoTopic->video_id) {
+                                    $youtubeId = $videoService->extractYouTubeId($videoTopic->video_id);
+                                    $youtubeTitle = $videoTopic->title;
+                                    $youtubeSource = 'Topic';
+                                }
+                            }
+                            $youtubeUrl = $youtubeId ? 'https://www.youtube.com/watch?v=' . $youtubeId : null;
+                            $youtubeEmbedUrl = $youtubeId ? $videoService->getYouTubeEmbedUrl($youtubeId) : null;
                         @endphp
                         @if($canAccess)
                             @if($hasLessonVideo)
                                 {{-- Lesson has video --}}
                                 @if($lesson->video_host === 'youtube' && $lesson->video_id)
-                                    @php
-                                        // Extract clean video ID (handles both URLs and IDs)
-                                        $cleanVideoId = $videoService->extractYouTubeId($lesson->video_id);
-                                        $embedUrl = $videoService->getYouTubeEmbedUrl($cleanVideoId);
-                                    @endphp
-                                    @if(!empty($cleanVideoId) && strlen($cleanVideoId) >= 11)
+                                    @if(!empty($youtubeId) && strlen($youtubeId) >= 11)
                                         <iframe
                                             id="youtube-player-{{ $lesson->id }}"
-                                            src="{{ $embedUrl }}"
+                                            src="{{ $youtubeEmbedUrl }}"
                                             frameborder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowfullscreen
@@ -83,8 +94,8 @@
                                                 lessonId: {{ $lesson->id }},
                                                 videoHost: '{{ $lesson->video_host }}',
                                                 original: '{{ $lesson->video_id }}',
-                                                extracted: '{{ $cleanVideoId }}',
-                                                embedUrl: '{{ $embedUrl }}',
+                                                extracted: '{{ $youtubeId }}',
+                                                embedUrl: '{{ $youtubeEmbedUrl }}',
                                                 canAccess: {{ $canAccess ? 'true' : 'false' }}
                                             });
                                         </script>
@@ -93,18 +104,18 @@
                                             <div class="text-center">
                                                 <p class="text-gray-400">Invalid YouTube video ID</p>
                                                 <p class="text-gray-500 text-sm mt-2">Original: {{ $lesson->video_id }}</p>
-                                                <p class="text-gray-500 text-sm">Extracted: {{ $cleanVideoId }}</p>
+                                                <p class="text-gray-500 text-sm">Extracted: {{ $youtubeId }}</p>
                                                 <p class="text-gray-500 text-sm mt-2">Please check the video ID in the lesson settings</p>
                                             </div>
                                         </div>
                                     @endif
                                 @elseif($lesson->video_host === 'bunny' && $lesson->video_id)
-                                    <video controls class="w-full h-full" id="videoPlayer">
+                                    <video controls class="w-full h-full" id="videoPlayer" controlsList="nodownload noplaybackrate" disablePictureInPicture oncontextmenu="return false;">
                                         <source src="{{ $videoService->getBunnyStreamUrl($lesson->video_id, $book->bunny_library_id ?? '') }}" type="video/mp4">
                                         Your browser does not support the video tag.
                                     </video>
                                 @elseif($lesson->video_host === 'upload' && $lesson->video_file)
-                                    <video controls class="w-full h-full" id="videoPlayer">
+                                    <video controls class="w-full h-full" id="videoPlayer" controlsList="nodownload noplaybackrate" disablePictureInPicture oncontextmenu="return false;">
                                         <source src="{{ asset('storage/' . $lesson->video_file) }}" type="{{ $lesson->video_mime_type ?? 'video/mp4' }}">
                                         Your browser does not support the video tag.
                                     </video>
@@ -112,15 +123,10 @@
                             @elseif($videoTopic)
                                 {{-- Use first topic video if lesson doesn't have one --}}
                                 @if($videoTopic->video_host === 'youtube' && $videoTopic->video_id)
-                                    @php
-                                        // Extract clean video ID (handles both URLs and IDs)
-                                        $cleanVideoId = $videoService->extractYouTubeId($videoTopic->video_id);
-                                        $embedUrl = $videoService->getYouTubeEmbedUrl($cleanVideoId);
-                                    @endphp
-                                    @if(!empty($cleanVideoId) && strlen($cleanVideoId) >= 11)
+                                    @if(!empty($youtubeId) && strlen($youtubeId) >= 11)
                                         <iframe
                                             id="youtube-player-topic-{{ $videoTopic->id }}"
-                                            src="{{ $embedUrl }}"
+                                            src="{{ $youtubeEmbedUrl }}"
                                             frameborder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowfullscreen
@@ -131,8 +137,8 @@
                                                 topicId: {{ $videoTopic->id }},
                                                 videoHost: '{{ $videoTopic->video_host }}',
                                                 original: '{{ $videoTopic->video_id }}',
-                                                extracted: '{{ $cleanVideoId }}',
-                                                embedUrl: '{{ $embedUrl }}'
+                                                extracted: '{{ $youtubeId }}',
+                                                embedUrl: '{{ $youtubeEmbedUrl }}'
                                             });
                                         </script>
                                     @else
@@ -144,12 +150,12 @@
                                         </div>
                                     @endif
                                 @elseif($videoTopic->video_host === 'bunny' && $videoTopic->video_id)
-                                    <video controls class="w-full h-full" id="videoPlayer">
+                                    <video controls class="w-full h-full" id="videoPlayer" controlsList="nodownload noplaybackrate" disablePictureInPicture oncontextmenu="return false;">
                                         <source src="{{ $videoService->getBunnyStreamUrl($videoTopic->video_id, $book->bunny_library_id ?? '') }}" type="video/mp4">
                                         Your browser does not support the video tag.
                                     </video>
                                 @elseif($videoTopic->video_host === 'upload' && $videoTopic->video_file)
-                                    <video controls class="w-full h-full" id="videoPlayer">
+                                    <video controls class="w-full h-full" id="videoPlayer" controlsList="nodownload noplaybackrate" disablePictureInPicture oncontextmenu="return false;">
                                         <source src="{{ asset('storage/' . $videoTopic->video_file) }}" type="{{ $videoTopic->video_mime_type ?? 'video/mp4' }}">
                                         Your browser does not support the video tag.
                                     </video>
@@ -182,6 +188,13 @@
                                     </a>
                                 </div>
                             </div>
+                        @endif
+
+                        @if(!empty($youtubeId))
+                            <!-- Mask YouTube UI overlays (title/share/logo) -->
+                            <div class="absolute top-0 left-0 right-0 h-[60px] bg-black pointer-events-none z-10"></div>
+                            <div class="absolute bottom-0 left-0 h-12 w-40 bg-black pointer-events-none z-10"></div>
+                            <div class="absolute bottom-0 right-0 h-12 w-40 bg-black pointer-events-none z-10"></div>
                         @endif
                     </div>
                 </div>

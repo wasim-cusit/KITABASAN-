@@ -18,6 +18,11 @@ Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 Route::get('/sitemap.xml', [\App\Http\Controllers\Public\SitemapController::class, 'index'])->name('sitemap');
+Route::view('/privacy-policy', 'public.privacy')->name('privacy');
+Route::view('/return-refund-policy', 'public.refund')->name('refund');
+Route::view('/shipping-service-policy', 'public.shipping')->name('shipping');
+Route::view('/terms-conditions', 'public.terms')->name('terms');
+Route::view('/faqs', 'public.faqs')->name('faqs');
 
 // Public Chatbot Routes
 Route::post('/chatbot/send', [PublicChatbotController::class, 'sendMessage'])->name('public.chatbot.send');

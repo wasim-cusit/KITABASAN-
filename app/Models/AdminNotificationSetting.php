@@ -13,6 +13,8 @@ class AdminNotificationSetting extends Model
         'email_new_teachers',
         'email_new_courses',
         'email_course_updates',
+        'email_device_bindings',
+        'email_device_reset_requests',
     ];
 
     protected $casts = [
@@ -20,6 +22,8 @@ class AdminNotificationSetting extends Model
         'email_new_teachers' => 'boolean',
         'email_new_courses' => 'boolean',
         'email_course_updates' => 'boolean',
+        'email_device_bindings' => 'boolean',
+        'email_device_reset_requests' => 'boolean',
     ];
 
     public function user(): BelongsTo

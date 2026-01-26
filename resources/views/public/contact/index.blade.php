@@ -112,8 +112,7 @@
                                 </div>
                                 <div>
                                     <h3 class="font-semibold text-gray-900 mb-1">Phone</h3>
-                                    <p class="text-gray-600">+92 300 1234567</p>
-                                    <p class="text-gray-600">+92 300 1234568</p>
+                                    <p class="text-gray-600">0315 9427588</p>
                                 </div>
                             </div>
 
@@ -126,9 +125,9 @@
                                 </div>
                                 <div>
                                     <h3 class="font-semibold text-gray-900 mb-1">Address</h3>
-                                    <p class="text-gray-600">123 Education Street</p>
-                                    <p class="text-gray-600">Lahore, Punjab 54000</p>
-                                    <p class="text-gray-600">Pakistan</p>
+                                    <p class="text-gray-600">House No. 12, opposite Masjid Abu Ayub Ansari</p>
+                                    <p class="text-gray-600">Near Abpara Market, University Town</p>
+                                    <p class="text-gray-600">Peshawar, Pakistan</p>
                                 </div>
                             </div>
                         </div>

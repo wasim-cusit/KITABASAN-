@@ -60,7 +60,7 @@
     @stack('styles')
 </head>
 <body class="bg-gray-100" x-data="{ sidebarOpen: false, profileMenuOpen: false }">
-    <div class="admin-layout-root min-h-screen flex">
+    <div class="admin-layout-root min-h-screen flex" data-testid="admin-layout-root">
         <!-- Mobile Overlay -->
         <div x-show="sidebarOpen" @click="sidebarOpen = false" class="sidebar-overlay lg:hidden" x-cloak></div>
 
@@ -161,7 +161,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="admin-layout-main flex-1 flex flex-col min-w-0 w-full lg:ml-64 lg:max-w-[calc(100%-16rem)]">
+        <div class="admin-layout-main flex-1 flex flex-col min-w-0 w-full lg:ml-64 lg:max-w-[calc(100%-16rem)]" data-testid="admin-layout-main">
             <!-- Top Bar -->
             <header class="admin-layout-header">
                 <div class="flex items-center justify-between px-4 lg:px-6 py-4">
@@ -250,7 +250,7 @@
             </header>
 
             <!-- Content -->
-            <main class="admin-layout-content flex-1 px-4 pb-4 lg:px-6 lg:pb-6">
+            <main class="admin-layout-content flex-1 px-4 pb-4 lg:px-6 lg:pb-6" data-testid="admin-layout-content">
                 @yield('content')
             </main>
         </div>

@@ -93,8 +93,10 @@ class TeacherController extends Controller
             ->with('success', 'Teacher created successfully.');
     }
 
-    public function show(User $user)
+    public function show(User $teacher)
     {
+        $user = $teacher;
+
         // Ensure this is a teacher
         if (!$user->hasRole('teacher')) {
             abort(404, 'User is not a teacher.');
@@ -104,8 +106,10 @@ class TeacherController extends Controller
         return view('admin.teachers.show', compact('user'));
     }
 
-    public function edit(User $user)
+    public function edit(User $teacher)
     {
+        $user = $teacher;
+
         // Ensure this is a teacher
         if (!$user->hasRole('teacher')) {
             abort(404, 'User is not a teacher.');
@@ -115,8 +119,10 @@ class TeacherController extends Controller
         return view('admin.teachers.edit', compact('user'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $teacher)
     {
+        $user = $teacher;
+
         // Ensure this is a teacher
         if (!$user->hasRole('teacher')) {
             abort(404, 'User is not a teacher.');
@@ -150,8 +156,10 @@ class TeacherController extends Controller
             ->with('success', 'Teacher updated successfully.');
     }
 
-    public function destroy(User $user)
+    public function destroy(User $teacher)
     {
+        $user = $teacher;
+
         // Ensure this is a teacher
         if (!$user->hasRole('teacher')) {
             abort(404, 'User is not a teacher.');

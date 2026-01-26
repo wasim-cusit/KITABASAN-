@@ -266,6 +266,21 @@ class PaymentController extends Controller
             ->where('payment_status', 'paid')
             ->first();
 
+        if ($payment->status === 'completed') {
+            if (!$enrollment) {
+                $this->paymentService->activateEnrollment($payment);
+                $enrollment = \App\Models\CourseEnrollment::where('user_id', Auth::id())
+                    ->where('book_id', $course->id)
+                    ->where('payment_status', 'paid')
+                    ->first();
+            }
+
+            if ($enrollment) {
+                return redirect()->route('student.learning.index', $course->id)
+                    ->with('success', 'Payment successful! Your course is now active.');
+            }
+        }
+
         return view('student.payments.status', compact('payment', 'course', 'enrollment'));
     }
 
@@ -275,10 +290,15 @@ class PaymentController extends Controller
     public function callback(Request $request)
     {
         // Handle different gateway response formats
-        $transactionId = $request->input('transaction_id') 
-            ?? $request->input('pp_BillReference') 
+        $transactionId = $request->input('transaction_id')
+            ?? $request->input('pp_BillReference')
             ?? $request->input('orderRefNum')
-            ?? $request->input('PP_TRAN_REF');
+            ?? $request->input('PP_TRAN_REF')
+            ?? $request->input('transactionId')
+            ?? $request->input('transaction_ref')
+            ?? $request->input('txn_ref')
+            ?? $request->input('reference')
+            ?? $request->input('order_id');
         
         // Determine status from gateway response
         $status = $this->determinePaymentStatus($request);
@@ -312,8 +332,15 @@ class PaymentController extends Controller
             // Update transaction record
             $transaction = Transaction::where('payment_id', $payment->id)->first();
             if ($transaction) {
+                $transactionStatus = 'pending';
+                if ($status === 'success') {
+                    $transactionStatus = 'completed';
+                } elseif (in_array($status, ['failed', 'cancelled'], true)) {
+                    $transactionStatus = 'failed';
+                }
+
                 $transaction->update([
-                    'status' => $status === 'success' ? 'completed' : 'failed',
+                    'status' => $transactionStatus,
                     'notes' => ($transaction->notes ?? '') . "\nCallback received: " . now()->toDateTimeString(),
                 ]);
             }
@@ -331,8 +358,21 @@ class PaymentController extends Controller
 
                 return redirect()->route('student.learning.index', $payment->book_id)
                     ->with('success', 'Payment successful! Your course is now active.');
-            } else {
-                // Handle failed/cancelled payment
+            } elseif ($status === 'cancelled') {
+                $gatewayData = [
+                    'callback_received_at' => now()->toDateTimeString(),
+                    'status' => $status,
+                    'callback_data' => $request->except(['transaction_id', 'status']),
+                ];
+
+                $this->paymentService->handleRefund($transactionId, $gatewayData);
+
+                DB::commit();
+
+                return redirect()->route('student.courses.show', $payment->book_id)
+                    ->with('error', 'Payment cancelled. Please try again.');
+            } elseif ($status === 'failed') {
+                // Handle failed payment
                 $gatewayData = [
                     'callback_received_at' => now()->toDateTimeString(),
                     'status' => $status,
@@ -345,6 +385,21 @@ class PaymentController extends Controller
 
                 return redirect()->route('student.courses.show', $payment->book_id)
                     ->with('error', 'Payment ' . $status . '. Please try again.');
+            } else {
+                $payment->update([
+                    'status' => 'pending',
+                    'gateway_response' => [
+                        'callback_received_at' => now()->toDateTimeString(),
+                        'status' => $status,
+                        'callback_data' => $request->except(['transaction_id', 'status']),
+                    ],
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('student.payments.status', [
+                    'transaction_id' => $payment->transaction_id,
+                ])->with('info', 'Payment is still pending. Please wait for confirmation.');
             }
 
         } catch (\Exception $e) {
@@ -368,10 +423,16 @@ class PaymentController extends Controller
         // TODO: Implement webhook signature verification for security
         // TODO: Implement gateway-specific webhook handling
 
-        $transactionId = $request->input('transaction_id') ?? $request->input('txn_id');
-        $status = $request->input('status') ?? $request->input('payment_status');
+        $transactionId = $request->input('transaction_id')
+            ?? $request->input('txn_id')
+            ?? $request->input('transactionId')
+            ?? $request->input('transaction_ref')
+            ?? $request->input('txn_ref')
+            ?? $request->input('reference')
+            ?? $request->input('order_id');
+        $status = $this->determinePaymentStatus($request);
 
-        if (!$transactionId || !$status) {
+        if (!$transactionId) {
             Log::error('Payment webhook: Missing required fields', $request->all());
             return response()->json(['error' => 'Missing required fields'], 400);
         }
@@ -396,8 +457,15 @@ class PaymentController extends Controller
             // Update transaction record
             $transaction = Transaction::where('payment_id', $payment->id)->first();
             if ($transaction) {
+                $transactionStatus = 'pending';
+                if ($status === 'success' || $status === 'completed') {
+                    $transactionStatus = 'completed';
+                } elseif (in_array($status, ['failed', 'cancelled', 'refunded'], true)) {
+                    $transactionStatus = 'failed';
+                }
+
                 $transaction->update([
-                    'status' => $status === 'success' ? 'completed' : 'failed',
+                    'status' => $transactionStatus,
                     'notes' => ($transaction->notes ?? '') . "\nWebhook received: " . now()->toDateTimeString(),
                 ]);
             }
@@ -414,6 +482,11 @@ class PaymentController extends Controller
                 $this->paymentService->handleRefund($transactionId, $gatewayData);
             } elseif ($status === 'failed') {
                 $this->paymentService->handlePaymentFailure($transactionId, $gatewayData);
+            } else {
+                $payment->update([
+                    'status' => 'pending',
+                    'gateway_response' => $gatewayData,
+                ]);
             }
 
             DB::commit();
@@ -438,10 +511,20 @@ class PaymentController extends Controller
     private function determinePaymentStatus(Request $request): string
     {
         // Check if status is explicitly provided
-        if ($request->has('status')) {
-            $status = strtolower($request->input('status'));
-            if (in_array($status, ['success', 'failed', 'cancelled', 'completed'])) {
-                return $status === 'completed' ? 'success' : $status;
+        $rawStatus = $request->input('status')
+            ?? $request->input('payment_status')
+            ?? $request->input('status_code');
+
+        if ($rawStatus !== null) {
+            $normalized = strtolower((string) $rawStatus);
+            if (in_array($normalized, ['success', 'completed', 'paid', 'approved', '1', 'true'], true)) {
+                return 'success';
+            }
+            if (in_array($normalized, ['failed', 'declined', '0', 'false'], true)) {
+                return 'failed';
+            }
+            if (in_array($normalized, ['cancelled', 'canceled', 'refunded'], true)) {
+                return 'cancelled';
             }
         }
 
@@ -466,7 +549,7 @@ class PaymentController extends Controller
             }
         }
 
-        // Default to failed if no clear indication
-        return 'failed';
+        // Default to pending if no clear indication
+        return 'pending';
     }
 }

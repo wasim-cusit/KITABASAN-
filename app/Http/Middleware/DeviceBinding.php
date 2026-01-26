@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\AdminNotificationService;
 use App\Models\DeviceBinding as DeviceBindingModel;
 use Closure;
 use Illuminate\Http\Request;
@@ -65,7 +66,7 @@ class DeviceBinding
                 }
 
                 // First device - auto bind
-                DeviceBindingModel::create([
+                $binding = DeviceBindingModel::create([
                     'user_id' => $user->id,
                     'device_fingerprint' => $deviceFingerprint,
                     'device_name' => $this->getDeviceName($request),
@@ -74,6 +75,7 @@ class DeviceBinding
                     'status' => 'active',
                     'last_used_at' => now(),
                 ]);
+                AdminNotificationService::notifyDeviceBinding($binding);
             }
         } else {
             // Update last used time

@@ -6,7 +6,7 @@
 @section('content')
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- User Info -->
-    <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
+    <div class="lg:col-span-3 bg-white rounded-lg shadow p-6">
         <div class="flex items-center space-x-4 mb-6">
             <img src="{{ $user->profile_image ? \Storage::url($user->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) }}" 
                  alt="{{ $user->name }}" class="h-20 w-20 rounded-full">
@@ -51,55 +51,6 @@
             <a href="{{ route('admin.users.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
                 Back to Admins
             </a>
-        </div>
-    </div>
-
-    <!-- Sidebar -->
-    <div class="space-y-6">
-        <!-- Enrollments -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-bold mb-4">Course Enrollments</h3>
-            <div class="space-y-2">
-                @forelse($user->enrollments as $enrollment)
-                    <div class="border-b pb-2">
-                        <p class="font-medium">{{ $enrollment->book->title }}</p>
-                        <p class="text-sm text-gray-600">{{ $enrollment->status }} - {{ $enrollment->created_at->format('M d, Y') }}</p>
-                    </div>
-                @empty
-                    <p class="text-gray-500 text-sm">No enrollments</p>
-                @endforelse
-            </div>
-        </div>
-
-        <!-- Payments -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-bold mb-4">Payments</h3>
-            <div class="space-y-2">
-                @forelse($user->payments->take(5) as $payment)
-                    <div class="border-b pb-2">
-                        <p class="font-medium">Rs. {{ number_format($payment->amount, 2) }}</p>
-                        <p class="text-sm text-gray-600">{{ $payment->book->title }}</p>
-                        <p class="text-xs text-gray-500">{{ $payment->status }} - {{ $payment->created_at->format('M d, Y') }}</p>
-                    </div>
-                @empty
-                    <p class="text-gray-500 text-sm">No payments</p>
-                @endforelse
-            </div>
-        </div>
-
-        <!-- Devices -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-bold mb-4">Device Bindings</h3>
-            <div class="space-y-2">
-                @forelse($user->deviceBindings as $device)
-                    <div class="border-b pb-2">
-                        <p class="text-sm font-medium">{{ $device->device_name ?? 'Unknown Device' }}</p>
-                        <p class="text-xs text-gray-500">{{ $device->status }} - {{ $device->last_used_at ? $device->last_used_at->format('M d, Y') : 'Never' }}</p>
-                    </div>
-                @empty
-                    <p class="text-gray-500 text-sm">No devices</p>
-                @endforelse
-            </div>
         </div>
     </div>
 </div>

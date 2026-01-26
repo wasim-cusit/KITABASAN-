@@ -485,6 +485,16 @@
                     <input type="checkbox" name="notification_settings[email_course_updates]" value="1" @checked($adminNotification->email_course_updates ?? true) class="mr-2 rounded border-gray-300">
                     <span>Email when a course is updated (chapters, lessons, details)</span>
                 </label>
+                <label class="flex items-center">
+                    <input type="hidden" name="notification_settings[email_device_bindings]" value="0">
+                    <input type="checkbox" name="notification_settings[email_device_bindings]" value="1" @checked($adminNotification->email_device_bindings ?? true) class="mr-2 rounded border-gray-300">
+                    <span>Email when a student binds a new device</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="hidden" name="notification_settings[email_device_reset_requests]" value="0">
+                    <input type="checkbox" name="notification_settings[email_device_reset_requests]" value="1" @checked($adminNotification->email_device_reset_requests ?? true) class="mr-2 rounded border-gray-300">
+                    <span>Email when a device reset request is submitted</span>
+                </label>
             </div>
         </div>
 

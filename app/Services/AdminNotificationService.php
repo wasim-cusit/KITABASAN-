@@ -4,10 +4,13 @@ namespace App\Services;
 
 use App\Mail\AdminCourseUpdateMail;
 use App\Mail\AdminNewCourseMail;
+use App\Mail\AdminDeviceBindingMail;
+use App\Mail\AdminDeviceResetRequestMail;
 use App\Mail\AdminNewStudentMail;
 use App\Mail\AdminNewTeacherMail;
 use App\Models\AdminNotificationSetting;
 use App\Models\Book;
+use App\Models\DeviceBinding;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -99,6 +102,42 @@ class AdminNotificationService
             }
         } catch (\Throwable $e) {
             Log::warning('AdminCourseUpdateMail not sent: ' . $e->getMessage());
+        }
+    }
+
+    public static function notifyDeviceBinding(DeviceBinding $binding): void
+    {
+        try {
+            $binding->loadMissing('user');
+            $admins = self::adminsWithSetting('email_device_bindings');
+            foreach ($admins as $admin) {
+                if ($admin->email) {
+                    EmailConfigService::apply();
+                    if (EmailConfigService::isConfigured()) {
+                        Mail::to($admin->email)->send(new AdminDeviceBindingMail($binding));
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('AdminDeviceBindingMail not sent: ' . $e->getMessage());
+        }
+    }
+
+    public static function notifyDeviceResetRequest(DeviceBinding $binding): void
+    {
+        try {
+            $binding->loadMissing('user');
+            $admins = self::adminsWithSetting('email_device_reset_requests');
+            foreach ($admins as $admin) {
+                if ($admin->email) {
+                    EmailConfigService::apply();
+                    if (EmailConfigService::isConfigured()) {
+                        Mail::to($admin->email)->send(new AdminDeviceResetRequestMail($binding));
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('AdminDeviceResetRequestMail not sent: ' . $e->getMessage());
         }
     }
 }

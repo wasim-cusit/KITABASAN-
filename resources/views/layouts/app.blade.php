@@ -90,7 +90,9 @@
         @yield('content')
 
         <!-- Public Chatbot -->
-        @include('components.public-chatbot')
+        @if(!in_array($routeName, ['login', 'register']))
+            @include('components.public-chatbot')
+        @endif
     </div>
 
     <!-- Scripts -->

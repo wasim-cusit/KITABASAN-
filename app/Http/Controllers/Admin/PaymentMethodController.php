@@ -10,6 +10,50 @@ use Illuminate\Support\Str;
 
 class PaymentMethodController extends Controller
 {
+    private function normalizeKeyValuePairs(?array $pairs): array
+    {
+        if (!$pairs) {
+            return [];
+        }
+
+        $normalized = [];
+
+        // Handle associative array already in key => value format.
+        $isDirect = collect($pairs)->every(function ($value, $key) {
+            return !preg_match('/^(key|value)\d+$/', (string) $key);
+        });
+
+        if ($isDirect) {
+            foreach ($pairs as $key => $value) {
+                if (!empty($key) && $value !== null && $value !== '') {
+                    $normalized[$key] = $value;
+                }
+            }
+
+            return $normalized;
+        }
+
+        $keys = [];
+        $values = [];
+
+        foreach ($pairs as $key => $value) {
+            if (preg_match('/^key(\d+)$/', (string) $key, $matches)) {
+                $keys[$matches[1]] = $value;
+            } elseif (preg_match('/^value(\d+)$/', (string) $key, $matches)) {
+                $values[$matches[1]] = $value;
+            }
+        }
+
+        foreach ($keys as $index => $pairKey) {
+            $pairValue = $values[$index] ?? null;
+            if (!empty($pairKey) && $pairValue !== null && $pairValue !== '') {
+                $normalized[$pairKey] = $pairValue;
+            }
+        }
+
+        return $normalized;
+    }
+
     public function index()
     {
         $paymentMethods = PaymentMethod::orderBy('order')->get();
@@ -50,23 +94,13 @@ class PaymentMethodController extends Controller
 
         // Handle credentials (JSON)
         if ($request->has('credentials')) {
-            $credentials = [];
-            foreach ($request->credentials as $key => $value) {
-                if (!empty($key) && !empty($value)) {
-                    $credentials[$key] = $value;
-                }
-            }
+            $credentials = $this->normalizeKeyValuePairs($request->credentials);
             $data['credentials'] = !empty($credentials) ? $credentials : null;
         }
 
         // Handle config (JSON)
         if ($request->has('config')) {
-            $config = [];
-            foreach ($request->config as $key => $value) {
-                if (!empty($key) && !empty($value)) {
-                    $config[$key] = $value;
-                }
-            }
+            $config = $this->normalizeKeyValuePairs($request->config);
             $data['config'] = !empty($config) ? $config : null;
         }
 
@@ -117,23 +151,13 @@ class PaymentMethodController extends Controller
 
         // Handle credentials
         if ($request->has('credentials')) {
-            $credentials = [];
-            foreach ($request->credentials as $key => $value) {
-                if (!empty($key) && !empty($value)) {
-                    $credentials[$key] = $value;
-                }
-            }
+            $credentials = $this->normalizeKeyValuePairs($request->credentials);
             $data['credentials'] = !empty($credentials) ? $credentials : null;
         }
 
         // Handle config
         if ($request->has('config')) {
-            $config = [];
-            foreach ($request->config as $key => $value) {
-                if (!empty($key) && !empty($value)) {
-                    $config[$key] = $value;
-                }
-            }
+            $config = $this->normalizeKeyValuePairs($request->config);
             $data['config'] = !empty($config) ? $config : null;
         }
 

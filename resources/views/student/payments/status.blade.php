@@ -6,6 +6,9 @@
 @section('content')
 <div class="container mx-auto px-0 lg:px-4">
     <div class="max-w-3xl mx-auto">
+        @if($payment->status === 'pending')
+            <meta http-equiv="refresh" content="5">
+        @endif
         <!-- Payment Status Card -->
         <div class="bg-white rounded-lg shadow p-4 lg:p-6 mb-6">
             <div class="text-center mb-6">
