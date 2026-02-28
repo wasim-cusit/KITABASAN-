@@ -57,10 +57,13 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
-                @if($course->cover_image)
+                @if($course->hasValidCoverImage())
                     <div class="mb-2">
-                        <img src="{{ Storage::url($course->cover_image) }}" alt="Current cover" class="h-32 rounded">
+                        <img src="{{ $course->getCoverImageUrl() }}" alt="Current cover" class="h-32 rounded object-cover" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="hidden h-32 rounded flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-2xl font-bold">{{ $course->getTitleInitial() }}</div>
                     </div>
+                @elseif($course->title)
+                    <div class="mb-2 h-32 rounded flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-2xl font-bold">{{ $course->getTitleInitial() }}</div>
                 @endif
                 <input type="file" name="cover_image" accept="image/*" class="w-full px-4 py-2 border rounded-lg">
                 <p class="text-xs text-gray-500 mt-1">Recommended: 1200x675px, max 10MB</p>

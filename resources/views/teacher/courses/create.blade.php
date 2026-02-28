@@ -182,11 +182,14 @@
                     </div>
 
                     <!-- Form Actions -->
-                    <div class="flex gap-4 pt-4">
-                        <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
-                            Create Course
+                    <div class="flex flex-row gap-3 md:gap-4 pt-4">
+                        <button type="submit"
+                                class="flex-1 bg-blue-600 text-white h-11 md:h-12 px-4 hover:bg-blue-700 font-semibold text-sm md:text-base flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                            Create course
                         </button>
-                        <a href="{{ route('teacher.courses.index') }}" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 text-center font-semibold focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                        <a href="{{ route('teacher.courses.index') }}"
+                           class="flex-1 bg-gray-200 text-gray-700 h-11 md:h-12 px-4 hover:bg-gray-300 font-semibold text-sm md:text-base flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition"
+                           style="text-decoration: none;">
                             Cancel
                         </a>
                     </div>

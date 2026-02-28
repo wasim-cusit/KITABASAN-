@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Storage;
 
 class Book extends Model
 {
@@ -75,6 +76,59 @@ class Book extends Model
         'start_date' => 'date',
         'end_date' => 'date',
     ];
+
+    /**
+     * Check if cover image exists on disk.
+     */
+    public function hasValidCoverImage(): bool
+    {
+        if (!$this->cover_image) {
+            return false;
+        }
+        $path = str_replace('\\', '/', $this->cover_image);
+        return Storage::disk('public')->exists($path);
+    }
+
+    /**
+     * Check if thumbnail exists on disk.
+     */
+    public function hasValidThumbnail(): bool
+    {
+        return $this->thumbnail && Storage::disk('public')->exists($this->thumbnail);
+    }
+
+    /**
+     * Get cover image URL when cover_image is set. Uses storage.serve route (/files/...)
+     * so the request always hits Laravel and images work on admin and everywhere.
+     */
+    public function getCoverImageUrl(): ?string
+    {
+        if (!$this->cover_image) {
+            return null;
+        }
+        $path = ltrim(str_replace('\\', '/', $this->cover_image), '/');
+        return route('storage.serve', ['path' => $path]);
+    }
+
+    /**
+     * Get thumbnail URL when thumbnail path is set. Uses storage.serve route so Laravel always serves it.
+     */
+    public function getThumbnailUrl(): ?string
+    {
+        if (empty($this->thumbnail)) {
+            return null;
+        }
+        $path = ltrim(str_replace('\\', '/', $this->thumbnail), '/');
+        return route('storage.serve', ['path' => $path]);
+    }
+
+    /**
+     * Get first letter of course title for placeholder.
+     */
+    public function getTitleInitial(): string
+    {
+        return $this->title ? strtoupper(substr($this->title, 0, 1)) : 'C';
+    }
 
     public function subject(): BelongsTo
     {

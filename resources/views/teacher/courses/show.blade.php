@@ -44,16 +44,18 @@
                     <span>{{ $course->subject->name ?? 'N/A' }}</span>
                 </div>
             </div>
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0 w-full sm:w-auto">
+            <div class="flex flex-row sm:flex-row sm:items-center gap-2 shrink-0 w-full sm:w-auto">
                 <a href="{{ route('teacher.courses.index') }}"
-                   class="flex items-center justify-center h-11 w-full sm:w-auto min-w-0 px-3 sm:px-4 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap">
+                   class="flex items-center justify-center h-11 w-full sm:w-auto min-w-0 px-3 sm:px-4 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap"
+                   style="text-decoration: none;">
                     <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                     Back to Courses
                 </a>
                 <a href="{{ route('teacher.courses.edit', $course->id) }}"
-                   class="flex items-center justify-center h-11 w-full sm:w-auto min-w-0 px-3 sm:px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap">
+                   class="flex items-center justify-center h-11 w-full sm:w-auto min-w-0 px-3 sm:px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap"
+                   style="text-decoration: none;">
                     <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
@@ -283,28 +285,29 @@
                             @else
                                 <span class="inline-flex items-center px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 shrink-0">PAID</span>
                             @endif
-                            <div class="flex items-center gap-2 shrink-0">
+                            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                                 <button type="button"
-                                        class="edit-chapter-btn inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors whitespace-nowrap"
+                                        class="edit-chapter-btn inline-flex items-center justify-center h-8 w-8 rounded-lg text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
                                         data-chapter-id="{{ $chapter->id }}"
                                         data-chapter-title="{{ htmlspecialchars($chapter->title ?? '', ENT_QUOTES, 'UTF-8') }}"
                                         data-chapter-description="{{ htmlspecialchars($chapter->description ?? '', ENT_QUOTES, 'UTF-8') }}"
                                         data-chapter-is-free="{{ $chapter->is_free ? '1' : '0' }}"
-                                        data-chapter-order="{{ $chapter->order ?? 0 }}">
-                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        data-chapter-order="{{ $chapter->order ?? 0 }}"
+                                        title="Edit chapter" aria-label="Edit chapter">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
-                                    Edit
                                 </button>
                                 <form action="{{ route('teacher.courses.chapters.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id]) }}"
                                       method="POST" onsubmit="return confirm('Are you sure? This will delete all lessons and topics in this chapter.')" class="inline m-0">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors whitespace-nowrap">
-                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <button type="submit"
+                                            class="inline-flex items-center justify-center h-8 w-8 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                                            title="Delete chapter" aria-label="Delete chapter">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
-                                        Delete
                                     </button>
                                 </form>
                             </div>
@@ -315,9 +318,9 @@
                     </div>
 
                     <!-- Lessons in Chapter -->
-                    <div class="space-y-3 mt-3">
+                    <div class="space-y-2 mt-2">
                         @forelse($chapter->lessons as $lesson)
-                            <div class="lesson-item bg-white rounded-lg p-2 sm:p-3 border border-gray-200">
+                            <div class="lesson-item bg-white rounded-lg p-2 border border-gray-200">
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                                     <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
                                         <div class="flex-none flex items-center justify-center w-6 h-6 min-w-6 min-h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold tabular-nums shrink-0">
@@ -337,30 +340,31 @@
                                             {{ ucfirst($lesson->status) }}
                                         </span>
                                     </div>
-                                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
                                         <button type="button"
-                                                class="edit-lesson-btn inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors whitespace-nowrap"
+                                            class="edit-lesson-btn inline-flex items-center justify-center h-8 w-8 rounded-lg text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
                                                 data-lesson-id="{{ $lesson->id }}"
                                                 data-lesson-title="{{ htmlspecialchars($lesson->title ?? '', ENT_QUOTES, 'UTF-8') }}"
                                                 data-lesson-description="{{ htmlspecialchars($lesson->description ?? '', ENT_QUOTES, 'UTF-8') }}"
                                                 data-lesson-is-free="{{ $lesson->is_free ? '1' : '0' }}"
                                                 data-lesson-order="{{ $lesson->order ?? 0 }}"
                                                 data-lesson-status="{{ htmlspecialchars($lesson->status ?? 'draft', ENT_QUOTES, 'UTF-8') }}"
-                                                data-chapter-id="{{ $chapter->id }}">
-                                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                data-chapter-id="{{ $chapter->id }}"
+                                                title="Edit lesson" aria-label="Edit lesson">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                             </svg>
-                                            Edit
                                         </button>
                                         <form action="{{ route('teacher.courses.chapters.lessons.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id, 'lessonId' => $lesson->id]) }}"
-                                              method="POST" onsubmit="return confirm('Are you sure? This will delete all topics in this lesson.');" class="inline">
+                                            method="POST" onsubmit="return confirm('Are you sure? This will delete all topics in this lesson.');" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center justify-center gap-1.5 h-9 min-h-9 px-3 rounded-lg text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors whitespace-nowrap">
-                                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <button type="submit"
+                                                    class="inline-flex items-center justify-center h-8 w-8 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                                                    title="Delete lesson" aria-label="Delete lesson">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                 </svg>
-                                                Delete
                                             </button>
                                         </form>
                                     </div>
@@ -368,22 +372,24 @@
 
                                 <!-- Topics in Lesson -->
                                 @if($lesson->topics && $lesson->topics->count() > 0)
-                                    <div class="space-y-2 mt-2 pl-4 sm:pl-6">
+                                    <div class="space-y-1.5 mt-1.5 pl-4 sm:pl-6">
                                         @foreach($lesson->topics as $topic)
-                                            <div class="topic-item bg-gray-50 rounded p-2 border border-gray-200">
-                                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                                    <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
-                                                        <span class="text-gray-400 shrink-0">•</span>
-                                                        <span class="text-xs text-gray-700 font-medium break-words flex-1 min-w-0">{{ $topic->title }}</span>
+                                            <div class="topic-item bg-gray-50 rounded p-1.5 sm:p-2 border border-gray-200">
+                                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2">
+                                                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                                                        <span class="text-gray-400 shrink-0 leading-none">•</span>
+                                                        <span class="text-xs sm:text-sm text-gray-700 font-medium break-words flex-1 min-w-0">
+                                                            {{ $topic->title }}
+                                                        </span>
                                                         @if($topic->type)
-                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 shrink-0">
+                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium bg-purple-100 text-purple-800 shrink-0">
                                                                 {{ strtoupper($topic->type) }}
                                                             </span>
                                                         @endif
                                                     </div>
-                                                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                                                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
                                                         <button type="button"
-                                                                class="edit-topic-btn inline-flex items-center justify-center gap-1.5 h-8 min-h-8 px-2.5 rounded-lg text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors whitespace-nowrap"
+                                                                class="edit-topic-btn inline-flex items-center justify-center h-8 w-8 rounded-lg text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
                                                                 data-topic-id="{{ $topic->id }}"
                                                                 data-topic-title="{{ htmlspecialchars($topic->title ?? '', ENT_QUOTES, 'UTF-8') }}"
                                                                 data-topic-description="{{ htmlspecialchars($topic->description ?? '', ENT_QUOTES, 'UTF-8') }}"
@@ -393,21 +399,22 @@
                                                                 data-topic-video-host="{{ htmlspecialchars($topic->video_host ?? '', ENT_QUOTES, 'UTF-8') }}"
                                                                 data-topic-video-id="{{ htmlspecialchars($topic->video_id ?? '', ENT_QUOTES, 'UTF-8') }}"
                                                                 data-lesson-id="{{ $lesson->id }}"
-                                                                data-chapter-id="{{ $chapter->id }}">
-                                                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                data-chapter-id="{{ $chapter->id }}"
+                                                                title="Edit topic" aria-label="Edit topic">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                             </svg>
-                                                            Edit
                                                         </button>
                                                         <form action="{{ route('teacher.courses.chapters.lessons.topics.destroy', ['bookId' => $course->id, 'chapterId' => $chapter->id, 'lessonId' => $lesson->id, 'topicId' => $topic->id]) }}"
                                                               method="POST" onsubmit="return confirm('Are you sure?')" class="inline">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="inline-flex items-center justify-center gap-1.5 h-8 min-h-8 px-2.5 rounded-lg text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors whitespace-nowrap">
-                                                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <button type="submit"
+                                                                    class="inline-flex items-center justify-center h-8 w-8 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                                                                    title="Delete topic" aria-label="Delete topic">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                                 </svg>
-                                                                Delete
                                                             </button>
                                                         </form>
                                                     </div>

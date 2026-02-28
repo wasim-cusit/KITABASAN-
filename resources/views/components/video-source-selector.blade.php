@@ -56,7 +56,7 @@
                         class="w-full h-64 rounded" frameborder="0" allowfullscreen></iframe>
             @elseif($lesson->video_host === 'upload' && $lesson->video_file)
                 <video controls class="w-full h-64 rounded">
-                    <source src="{{ Storage::url($lesson->video_file) }}" type="{{ $lesson->video_mime_type }}">
+                    <source src="{{ route('storage.serve', ['path' => ltrim(str_replace('\\', '/', $lesson->video_file), '/')]) }}" type="{{ $lesson->video_mime_type }}">
                 </video>
             @endif
         </div>

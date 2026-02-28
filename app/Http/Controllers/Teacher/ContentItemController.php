@@ -91,7 +91,9 @@ class ContentItemController extends Controller
             $file = $request->file('document_file');
             $path = $file->store('documents', 'public');
             $data['document_file'] = $path;
-            $data['document_cloud_url'] = Storage::url($path);
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk('public');
+            $data['document_cloud_url'] = $disk->url($path);
             $data['document_type'] = $request->document_type ?? $file->getClientOriginalExtension();
         }
 

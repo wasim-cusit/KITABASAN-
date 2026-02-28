@@ -17,8 +17,11 @@
             @foreach($courses as $course)
                 <div class="teacher-courses-card">
                     <div class="teacher-courses-card-cover">
-                        @if($course->cover_image)
-                            <img src="{{ \Storage::url($course->cover_image) }}" alt="{{ $course->title }}">
+                        @if($course->hasValidCoverImage())
+                            <img src="{{ $course->getCoverImageUrl() }}" alt="{{ $course->title }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="hidden w-full h-full absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-4xl font-bold">{{ $course->getTitleInitial() }}</div>
+                        @else
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-4xl font-bold">{{ $course->getTitleInitial() }}</div>
                         @endif
                         <span class="teacher-courses-card-status {{ in_array($course->status, ['published', 'approved']) ? 'teacher-courses-card-status--published' : 'teacher-courses-card-status--draft' }}">
                             {{ ucfirst($course->status) }}

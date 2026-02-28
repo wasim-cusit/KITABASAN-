@@ -27,8 +27,11 @@
             </div>
         </div>
 
-        @if($course->cover_image)
-            <img src="{{ Storage::url($course->cover_image) }}" alt="{{ $course->title }}" class="w-full h-64 object-cover rounded-lg mb-6">
+        @if($course->hasValidCoverImage())
+            <img src="{{ $course->getCoverImageUrl() }}" alt="{{ $course->title }}" class="w-full h-64 object-cover rounded-lg mb-6" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden w-full h-64 flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-5xl font-bold rounded-lg mb-6">{{ $course->getTitleInitial() }}</div>
+        @else
+            <div class="w-full h-64 flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-5xl font-bold rounded-lg mb-6">{{ $course->getTitleInitial() }}</div>
         @endif
 
         <div class="grid grid-cols-3 gap-4 mb-6">

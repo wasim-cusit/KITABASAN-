@@ -6,9 +6,9 @@
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full">
         <!-- Logo and Header -->
-        <div class="text-center mb-8">
-            <a href="{{ route('home') }}" class="inline-block mb-4">
-                <img src="{{ asset('logo.jpeg') }}" alt="KITAB ASAN Logo" class="h-20 mx-auto">
+        <div class="text-center mb-8 md:mb-10">
+            <a href="{{ route('home') }}" class="inline-block mb-3 md:mb-4" aria-label="Back to KITAB ASAN home">
+                <img src="{{ asset('logo.jpeg') }}" alt="KITAB ASAN Logo" class="h-16 sm:h-20 md:h-28 mx-auto rounded-lg shadow-md object-contain">
             </a>
             <h2 class="text-3xl font-bold text-gray-900">
                 Welcome Back

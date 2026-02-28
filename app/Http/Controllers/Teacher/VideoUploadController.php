@@ -70,10 +70,13 @@ class VideoUploadController extends Controller
                 'video_id' => null, // Clear external video ID
             ]);
 
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk('public');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Video uploaded successfully',
-                'video_path' => Storage::url($path),
+                'video_path' => $disk->url($path),
                 'duration' => $duration,
             ]);
         }
@@ -125,10 +128,13 @@ class VideoUploadController extends Controller
                 'video_id' => null, // Clear external video ID
             ]);
 
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk('public');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Video uploaded successfully',
-                'video_path' => Storage::url($path),
+                'video_path' => $disk->url($path),
                 'duration' => $duration,
             ]);
         }

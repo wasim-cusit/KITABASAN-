@@ -109,10 +109,13 @@
                             <!-- Thumbnail -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Course Thumbnail</label>
-                                @if($course->thumbnail)
+                                @if($course->hasValidThumbnail())
                                     <div class="mb-2">
-                                        <img src="{{ Storage::url($course->thumbnail) }}" alt="Current thumbnail" class="h-32 w-32 object-cover rounded-lg border">
+                                        <img src="{{ $course->getThumbnailUrl() }}" alt="Current thumbnail" class="h-32 w-32 object-cover rounded-lg border" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="hidden h-32 w-32 rounded-lg border flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-3xl font-bold">{{ $course->getTitleInitial() }}</div>
                                     </div>
+                                @elseif($course->title)
+                                    <div class="mb-2 h-32 w-32 rounded-lg border flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-3xl font-bold">{{ $course->getTitleInitial() }}</div>
                                 @endif
                                 <input type="file" name="thumbnail" accept="image/*"
                                        onchange="previewImage(this, 'thumbnail_preview')"
@@ -124,10 +127,13 @@
                             <!-- Cover Image -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
-                                @if($course->cover_image)
+                                @if($course->hasValidCoverImage())
                                     <div class="mb-2">
-                                        <img src="{{ Storage::url($course->cover_image) }}" alt="Current cover" class="h-32 w-32 object-cover rounded-lg border">
+                                        <img src="{{ $course->getCoverImageUrl() }}" alt="Current cover" class="h-32 w-32 object-cover rounded-lg border" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="hidden h-32 w-32 rounded-lg border flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-3xl font-bold">{{ $course->getTitleInitial() }}</div>
                                     </div>
+                                @elseif($course->title)
+                                    <div class="mb-2 h-32 w-32 rounded-lg border flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-3xl font-bold">{{ $course->getTitleInitial() }}</div>
                                 @endif
                                 <input type="file" name="cover_image" accept="image/*"
                                        onchange="previewImage(this, 'cover_preview')"

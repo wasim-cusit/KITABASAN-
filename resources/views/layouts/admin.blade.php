@@ -177,13 +177,7 @@
                     <!-- Profile Dropdown (All Screen Sizes) -->
                     <div class="relative" x-data="{ open: false }" @click.away="open = false">
                         <button @click="open = !open" class="flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1">
-                            @if(Auth::user()->profile_image)
-                                <img src="{{ Auth::user()->getProfileImageUrl() }}" alt="{{ Auth::user()->name }}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">
-                            @else
-                                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center border-2 border-gray-300">
-                                    <span class="text-white font-semibold text-sm">{{ Auth::user()->getInitials() }}</span>
-                                </div>
-                            @endif
+                            <x-user-avatar :user="Auth::user()" size="md" class="border-2 border-gray-300" />
                         </button>
 
                         <!-- Dropdown Menu -->

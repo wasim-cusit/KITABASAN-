@@ -137,7 +137,7 @@
         <template x-for="(message, index) in messages" :key="index">
             <div :class="'teacher-chatbot-msg teacher-chatbot-msg--' + message.type">
                 <div :class="'teacher-chatbot-bubble teacher-chatbot-bubble--' + message.type">
-                    <p x-text="message.text"></p>
+                    <p style="margin-bottom: 0;" class="text-sm" x-text="message.text"></p>
                     <span class="teacher-chatbot-bubble-time" x-text="message.time"></span>
                 </div>
             </div>

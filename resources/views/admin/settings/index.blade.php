@@ -134,7 +134,7 @@
                                                accept="image/*"
                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                                         @if($setting['value'])
-                                            <img src="{{ \Storage::url($setting['value']) }}" alt="{{ $setting['name'] }}" class="mt-2 h-16">
+                                            <img src="{{ route('storage.serve', ['path' => ltrim(str_replace('\\', '/', $setting['value']), '/')]) }}" alt="{{ $setting['name'] }}" class="mt-2 h-16">
                                         @endif
                                     @else
                                         <input type="text" name="theme_settings[{{ $setting['key'] }}]"
@@ -194,7 +194,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                 @if($method->icon)
-                                    <img src="{{ \Storage::url($method->icon) }}" alt="{{ $method->name }}" class="h-8 w-8 mr-2">
+                                    <img src="{{ route('storage.serve', ['path' => ltrim(str_replace('\\', '/', $method->icon), '/')]) }}" alt="{{ $method->name }}" class="h-8 w-8 mr-2">
                                 @endif
                                         <span class="font-medium">{{ $method->name }}</span>
                                     </div>

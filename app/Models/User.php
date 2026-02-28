@@ -89,16 +89,56 @@ class User extends Authenticatable
     }
 
     /**
-     * Get profile image URL or initials
+     * Check if user has a profile image that exists on disk.
+     */
+    public function hasValidProfileImage(): bool
+    {
+        if (!$this->profile_image) {
+            return false;
+        }
+        return Storage::disk('public')->exists($this->profile_image);
+    }
+
+    /**
+     * Get the effective profile image URL (for teachers checks TeacherProfile first).
+     * Uses storage.serve route (/files/...) so the request always hits Laravel.
+     */
+    public function getEffectiveProfileImageUrl(): ?string
+    {
+        $path = null;
+        if ($this->teacherProfile && ! empty($this->teacherProfile->profile_image)) {
+            $path = $this->teacherProfile->profile_image;
+        } elseif (! empty($this->profile_image)) {
+            $path = $this->profile_image;
+        }
+        if (! $path) {
+            return null;
+        }
+        $path = ltrim(str_replace('\\', '/', $path), '/');
+        return route('storage.serve', ['path' => $path]);
+    }
+
+    /**
+     * Whether we have any profile image path to display (user or teacher profile).
+     */
+    public function hasEffectiveProfileImage(): bool
+    {
+        if ($this->teacherProfile && ! empty($this->teacherProfile->profile_image)) {
+            return true;
+        }
+        return ! empty($this->profile_image);
+    }
+
+    /**
+     * Get profile image URL or external placeholder (for backward compatibility).
+     * Prefer using getEffectiveProfileImageUrl() + initials in UI.
      */
     public function getProfileImageUrl(): string
     {
-        if ($this->profile_image) {
-            return Storage::url($this->profile_image);
+        $url = $this->getEffectiveProfileImageUrl();
+        if ($url) {
+            return $url;
         }
-
-        // Return initials as a data URI or use a placeholder service
-        $initials = $this->getInitials();
         return "https://ui-avatars.com/api/?name=" . urlencode($this->name) . "&background=random&color=fff&size=200&bold=true&format=png";
     }
 

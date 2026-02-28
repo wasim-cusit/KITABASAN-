@@ -8,15 +8,7 @@
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 gap-4">
         <div class="flex items-center space-x-4">
             <!-- Profile Picture with Initials Fallback -->
-            @if($user->profile_image)
-                <img src="{{ \Storage::url($user->profile_image) }}" 
-                     alt="{{ $user->name }}" 
-                     class="h-24 w-24 rounded-full object-cover border-4 border-blue-100">
-            @else
-                <div class="h-24 w-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-blue-100">
-                    {{ $user->getInitials() }}
-                </div>
-            @endif
+            <x-user-avatar :user="$user" size="xl" class="border-4 border-blue-100" />
             <div>
                 <h1 class="text-xl lg:text-2xl font-bold text-gray-900">
                     {{ trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: $user->name }}
@@ -117,7 +109,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-                    <input type="password" name="current_password" required 
+                    <input type="password" name="current_password" required
                            class="w-full px-3 py-2 border rounded-lg @error('current_password') border-red-500 @enderror">
                     @error('current_password')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -125,7 +117,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                    <input type="password" name="password" required 
+                    <input type="password" name="password" required
                            class="w-full px-3 py-2 border rounded-lg @error('password') border-red-500 @enderror">
                     @error('password')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -133,7 +125,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                    <input type="password" name="password_confirmation" required 
+                    <input type="password" name="password_confirmation" required
                            class="w-full px-3 py-2 border rounded-lg">
                 </div>
             </div>

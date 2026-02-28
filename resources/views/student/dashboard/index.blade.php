@@ -163,19 +163,7 @@
                         <!-- Teacher Profile -->
                         @if($teacher)
                             <div class="flex items-center space-x-3 pt-4 border-t border-gray-100 bg-gray-50 rounded-lg p-3">
-                                @if($teacherProfile && $teacherProfile->profile_image)
-                                    <img src="{{ \Storage::url($teacherProfile->profile_image) }}"
-                                         alt="{{ $teacher->name }}"
-                                         class="w-12 h-12 rounded-full object-cover border-2 border-blue-100">
-                                @elseif($teacher->profile_image)
-                                    <img src="{{ \Storage::url($teacher->profile_image) }}"
-                                         alt="{{ $teacher->name }}"
-                                         class="w-12 h-12 rounded-full object-cover border-2 border-blue-100">
-                                @else
-                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-2 border-blue-100 mr-1">
-                                        <span class="text-white font-semibold text-sm">{{ $teacher->getInitials() }}</span>
-                                    </div>
-                                @endif
+                                <x-user-avatar :user="$teacher" size="lg" class="border-2 border-blue-100" />
                                 <div class="flex-1 min-w-0 ml-2">
                                     <p class="text-sm font-semibold text-gray-900 truncate">{{ $teacher->name }}</p>
                                     <p class="text-xs text-gray-500 truncate">

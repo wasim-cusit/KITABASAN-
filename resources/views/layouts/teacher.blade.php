@@ -241,12 +241,12 @@
                 font-size: 1.25rem;
             }
         }
-        /* Teacher dashboard: stats grid and cards - explicit grid/flex so layout is correct */
+        /* Teacher dashboard: stats grid and cards - responsive layout */
         .teacher-dashboard-stats {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr)); /* always 2 by 2 on mobile */
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
         }
         @media (min-width: 1024px) {
             .teacher-dashboard-stats {
@@ -256,14 +256,19 @@
             }
         }
         .teacher-dashboard-stat-card {
-            background-color: #ffffff;
             border-radius: 0.5rem;
             box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            border: 1px solid #f3f4f6;
-            padding: 1rem;
+            border: 1px solid transparent; /* let per-card Tailwind classes control color */
+            padding: 0.75rem;
             display: flex;
-            align-items: flex-start;
-            gap: 1rem;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        @media (min-width: 1024px) {
+            .teacher-dashboard-stat-card {
+                padding: 1.25rem;
+                gap: 1rem;
+            }
         }
         .teacher-dashboard-stat-label {
             color: #475569;
@@ -279,7 +284,6 @@
             color: #b45309;
         }
         .teacher-dashboard-welcome-title {
-            color: #0f172a;
             font-weight: 700;
         }
         .teacher-dashboard-welcome-subtitle {
@@ -413,17 +417,16 @@
         }
         .teacher-courses-header {
             display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
+            flex-direction: row;            /* title + button in one row on mobile */
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
             margin-bottom: 1.5rem;
-        }
-        @media (min-width: 640px) {
-            .teacher-courses-header {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }
+            flex-wrap: nowrap;
+            background-color: #f9fafb;      /* subtle header background */
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
         }
         .teacher-courses-header-title {
             font-size: 1.5rem;
@@ -591,6 +594,8 @@
             align-self: flex-end;
             font-size: 0.75rem;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
         }
         @media (min-width: 640px) {
             .teacher-courses-card-price {
@@ -603,22 +608,19 @@
             }
         }
         .teacher-courses-card-price--free {
-            color: #16a34a;
+            color: #166534;
+            background-color: #dcfce7;
+            padding: 0.125rem 0.5rem;
         }
         .teacher-courses-card-price--paid {
             color: #2563eb;
         }
         .teacher-courses-card-actions {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;      /* buttons side by side on mobile too */
             gap: 0.5rem;
             padding-top: 1rem;
             border-top: 1px solid #e5e7eb;
-        }
-        @media (min-width: 640px) {
-            .teacher-courses-card-actions {
-                flex-direction: row;
-            }
         }
         .teacher-courses-card-btn {
             flex: 1;
@@ -2197,7 +2199,7 @@
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
                class="teacher-layout-sidebar fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 text-white h-screen overflow-y-auto transform transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0">
             <div class="p-4">
-                <div class="mb-8">
+                <div class="mb-4">
                     <!-- Close button (Mobile only) -->
                     <div class="lg:hidden flex justify-end mb-4">
                         <button @click="sidebarOpen = false" class="text-white hover:text-gray-300 focus:outline-none">
@@ -2208,10 +2210,10 @@
                     </div>
 
                     <!-- Logo and Name with Role (All Screens) -->
-                    <div class="pb-4 border-b border-gray-700">
+                    <div class="pb-3 border-b border-gray-700">
                         <!-- Logo -->
                         <a href="{{ route('teacher.dashboard') }}" class="flex justify-center mb-3 hover:opacity-80 transition">
-                            <img src="{{ asset('logo.jpeg') }}" alt="Logo" class="h-12">
+                            <img src="{{ asset('logo.jpeg') }}" alt="Logo" class="h-14 sm:h-16">
                         </a>
                         <!-- Name and Role -->
                         <div class="text-center">
@@ -2240,10 +2242,10 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                         <span>Chatbot</span>
                     </a>
-                    <a href="{{ route('teacher.devices.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('teacher.devices.*') ? 'bg-gray-700' : '' }}">
+                    {{-- <a href="{{ route('teacher.devices.index') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('teacher.devices.*') ? 'bg-gray-700' : '' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
                         <span>Devices</span>
-                    </a>
+                    </a> --}}
                     <a href="{{ route('teacher.profile.show') }}" class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 {{ request()->routeIs('teacher.profile.*') ? 'bg-gray-700' : '' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         <span>Profile</span>
@@ -2285,13 +2287,7 @@
                     <!-- Profile Dropdown (All Screen Sizes) -->
                     <div class="relative" x-data="{ open: false }" @click.away="open = false">
                         <button @click="open = !open" class="flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1">
-                            @if(Auth::user()->profile_image)
-                                <img src="{{ Auth::user()->getProfileImageUrl() }}" alt="{{ Auth::user()->name }}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">
-                            @else
-                                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center border-2 border-gray-300">
-                                    <span class="text-white font-semibold text-sm">{{ Auth::user()->getInitials() }}</span>
-                                </div>
-                            @endif
+                            <x-user-avatar :user="Auth::user()" size="md" class="border-2 border-gray-300" />
                         </button>
 
                         <!-- Dropdown Menu -->
@@ -2358,7 +2354,7 @@
             </header>
 
             <!-- Content: pt-16 reserves space for the fixed header (64px) so content does not sit underneath -->
-            <main class="teacher-layout-content flex-1 px-4 pb-4 lg:px-6 lg:pb-6">
+            <main class="teacher-layout-content flex-1 px-2 pb-4 lg:px-6 lg:pb-6">
                 @yield('content')
             </main>
         </div>

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Book;
 use App\Models\SystemSetting;
-use Illuminate\Support\Facades\Storage;
 
 class SEOService
 {
@@ -60,7 +59,8 @@ class SEOService
         ];
 
         if ($course->cover_image) {
-            $schema['image'] = Storage::url($course->cover_image);
+            $path = ltrim(str_replace('\\', '/', $course->cover_image), '/');
+            $schema['image'] = route('storage.serve', ['path' => $path]);
         }
 
         if ($instructor) {

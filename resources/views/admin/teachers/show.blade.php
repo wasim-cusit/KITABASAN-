@@ -8,8 +8,7 @@
     <!-- Teacher Info -->
     <div class="lg:col-span-3 bg-white rounded-lg shadow p-6">
         <div class="flex items-center space-x-4 mb-6">
-            <img src="{{ $user->getProfileImageUrl() }}" 
-                 alt="{{ $user->name }}" class="h-20 w-20 rounded-full">
+            <x-user-avatar :user="$user" size="xl" class="!h-20 !w-20 !text-xl" />
             <div>
                 <h2 class="text-2xl font-bold">{{ $user->name }}</h2>
                 <p class="text-gray-600">{{ $user->email }}</p>

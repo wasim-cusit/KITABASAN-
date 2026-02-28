@@ -9,9 +9,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 items-stretch">
             @foreach($courses as $course)
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full self-stretch">
-                    <div class="h-40 lg:h-48 bg-gradient-to-br from-blue-400 to-indigo-600 relative">
-                        @if($course->cover_image)
-                            <img src="{{ \Storage::url($course->cover_image) }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
+                    <div class="h-40 lg:h-48 bg-gradient-to-br from-blue-400 to-indigo-600 relative overflow-hidden">
+                        @if($course->hasValidCoverImage())
+                            <img src="{{ $course->getCoverImageUrl() }}" alt="{{ $course->title }}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="hidden w-full h-full absolute inset-0 flex items-center justify-center text-white text-4xl font-bold">{{ $course->getTitleInitial() }}</div>
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-white text-4xl font-bold">{{ $course->getTitleInitial() }}</div>
                         @endif
                         @if(!empty($purchasedCourseIds) && $purchasedCourseIds->contains($course->id))
                             <span class="absolute top-2 left-2 lg:top-4 lg:left-4 bg-emerald-600 text-white px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm font-semibold inline-flex items-center gap-1">

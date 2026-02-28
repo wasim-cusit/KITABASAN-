@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class ContentItem extends Model
 {
@@ -62,7 +63,15 @@ class ContentItem extends Model
             case 'youtube':
                 return "https://www.youtube.com/embed/{$this->video_id}";
             case 'upload':
-                return $this->video_cloud_url ?: \Storage::url($this->video_file);
+                if ($this->video_cloud_url) {
+                    return $this->video_cloud_url;
+                }
+                if (!$this->video_file) {
+                    return null;
+                }
+                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+                $disk = Storage::disk('public');
+                return $disk->url($this->video_file);
             case 'bunny':
                 return $this->video_cloud_url;
             default:
@@ -79,6 +88,14 @@ class ContentItem extends Model
             return null;
         }
 
-        return $this->document_cloud_url ?: \Storage::url($this->document_file);
+        if ($this->document_cloud_url) {
+            return $this->document_cloud_url;
+        }
+        if (!$this->document_file) {
+            return null;
+        }
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        return $disk->url($this->document_file);
     }
 }

@@ -19,14 +19,15 @@ class CourseController extends Controller
         $query = Book::with(['teacher', 'subject.grade']);
         $summaryQuery = Book::query();
 
-        // Search
-        if ($request->has('search') && $request->search) {
-            $query->where('title', 'like', '%' . $request->search . '%');
-            $summaryQuery->where('title', 'like', '%' . $request->search . '%');
+        // Search (trimmed)
+        $search = $request->filled('search') ? trim($request->search) : null;
+        if ($search !== null && $search !== '') {
+            $query->where('title', 'like', '%' . $search . '%');
+            $summaryQuery->where('title', 'like', '%' . $search . '%');
         }
 
         // Filter by subject
-        if ($request->has('subject_id') && $request->subject_id) {
+        if ($request->filled('subject_id')) {
             $query->where('subject_id', $request->subject_id);
             $summaryQuery->where('subject_id', $request->subject_id);
         }
@@ -39,11 +40,11 @@ class CourseController extends Controller
             ->pluck('total', 'status');
 
         // Filter by status (table list only)
-        if ($request->has('status') && $request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        $courses = $query->latest()->paginate(15);
+        $courses = $query->orderByDesc('created_at')->orderByDesc('id')->paginate(15);
         $subjects = Subject::with('grade')->get();
 
         $statusSummary = [
@@ -79,7 +80,7 @@ class CourseController extends Controller
     private function calculateAccessDuration(Request $request)
     {
         $validityType = $request->input('validity_type', 'lifetime');
-        
+
         switch ($validityType) {
             case 'lifetime':
                 return null; // Lifetime access = null (no expiration)
@@ -141,14 +142,14 @@ class CourseController extends Controller
         // Try to find or create Grade and Subject by name
         $subject = null;
         $grade = null;
-        
+
         if ($request->grade_name) {
             $grade = \App\Models\Grade::firstOrCreate(
                 ['name' => $request->grade_name],
                 ['slug' => \Illuminate\Support\Str::slug($request->grade_name), 'is_active' => true]
             );
         }
-        
+
         if ($request->subject_name && $grade) {
             $subject = \App\Models\Subject::firstOrCreate(
                 [
@@ -233,7 +234,7 @@ class CourseController extends Controller
         // Handle intro video upload
         if ($request->has('intro_video_provider') && $request->intro_video_provider) {
             $data['intro_video_provider'] = $request->intro_video_provider;
-            
+
             if ($request->intro_video_provider === 'upload' && $request->hasFile('intro_video_file')) {
                 $data['intro_video_url'] = $request->file('intro_video_file')->store('courses/intro-videos', 'public');
             } elseif ($request->has('intro_video_url') && $request->intro_video_url) {
@@ -249,13 +250,13 @@ class CourseController extends Controller
         if ($request->has('teacher_ids') && is_array($request->teacher_ids)) {
             $teacherIds = array_unique($request->teacher_ids);
             $coTeacherCount = 0;
-            
+
             foreach ($teacherIds as $teacherId) {
                 // Skip main teacher (already assigned as teacher_id)
                 if ($teacherId == $course->teacher_id) {
                     continue;
                 }
-                
+
                 // Attach as co-teacher (avoid duplicates)
                 if (!$course->teachers()->where('users.id', $teacherId)->exists()) {
                     $course->teachers()->attach($teacherId, [
@@ -264,7 +265,7 @@ class CourseController extends Controller
                     $coTeacherCount++;
                 }
             }
-            
+
             $totalTeachers = 1 + $coTeacherCount; // 1 main teacher + co-teachers
             return redirect()->route('admin.courses.index')
                 ->with('success', "Course created successfully with {$totalTeachers} teacher(s).");
@@ -322,7 +323,7 @@ class CourseController extends Controller
             if ($course->cover_image) {
                 Storage::disk('public')->delete($course->cover_image);
             }
-            $data['cover_image'] = $request->file('cover_image')->store('courses', 'public');
+            $data['cover_image'] = $request->file('cover_image')->store('courses/covers', 'public');
         }
 
         $course->update($data);

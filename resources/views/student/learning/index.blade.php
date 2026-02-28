@@ -404,7 +404,7 @@
 <script>
 (function() {
     'use strict';
-    
+
     // Error handling wrapper
     function safeExecute(fn) {
         try {

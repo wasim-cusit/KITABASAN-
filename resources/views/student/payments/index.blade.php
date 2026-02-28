@@ -13,8 +13,11 @@
                     <h2 class="text-xl lg:text-2xl font-bold text-gray-900 mb-2">{{ $course->title }}</h2>
                     <p class="text-sm text-gray-600 line-clamp-2">{{ Str::limit($course->description, 120) }}</p>
                 </div>
-                @if($course->thumbnail)
-                    <img src="{{ \Storage::url($course->thumbnail) }}" alt="{{ $course->title }}" class="w-20 h-20 lg:w-24 lg:h-24 object-cover rounded-lg ml-4">
+                @if($course->hasValidThumbnail())
+                    <img src="{{ $course->getThumbnailUrl() }}" alt="{{ $course->title }}" class="w-20 h-20 lg:w-24 lg:h-24 object-cover rounded-lg ml-4" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="hidden w-20 h-20 lg:w-24 lg:h-24 rounded-lg ml-4 flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-2xl font-bold">{{ $course->getTitleInitial() }}</div>
+                @else
+                    <div class="w-20 h-20 lg:w-24 lg:h-24 rounded-lg ml-4 flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-2xl font-bold">{{ $course->getTitleInitial() }}</div>
                 @endif
             </div>
         </div>
@@ -70,7 +73,7 @@
                                                 @endif
                                             </div>
                                             @if($method->icon)
-                                                <img src="{{ \Storage::url($method->icon) }}" alt="{{ $method->name }}" class="w-12 h-12 object-contain">
+                                                <img src="{{ route('storage.serve', ['path' => ltrim(str_replace('\\', '/', $method->icon), '/')]) }}" alt="{{ $method->name }}" class="w-12 h-12 object-contain">
                                             @endif
                                         </div>
                                         @if(($method->transaction_fee_percentage ?? 0) > 0 || ($method->transaction_fee_fixed ?? 0) > 0)
@@ -204,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updatePaymentSummary(radio) {
         if (!radio) return;
-        
+
         const feePercentage = parseFloat(radio.dataset.feePercentage) || 0;
         const feeFixed = parseFloat(radio.dataset.feeFixed) || 0;
 

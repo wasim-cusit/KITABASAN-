@@ -8,8 +8,7 @@
     <!-- Student Info -->
     <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
         <div class="flex items-center space-x-4 mb-6">
-            <img src="{{ $student->profile_image ? \Storage::url($student->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode($student->name) }}" 
-                 alt="{{ $student->name }}" class="h-20 w-20 rounded-full border-4 border-blue-100">
+            <x-user-avatar :user="$student" size="xl" class="!h-20 !w-20 !text-xl border-4 border-blue-100" />
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">{{ $student->name }}</h2>
                 <p class="text-gray-600">{{ $student->email }}</p>

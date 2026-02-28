@@ -15,18 +15,11 @@
         <div class="mb-6 pb-6 border-b">
             <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
             <div class="flex items-center space-x-4">
-                @if($user->profile_image)
-                    <img src="{{ \Storage::url($user->profile_image) }}" 
-                         alt="{{ $user->name }}" 
-                         id="profilePreview"
-                         class="h-24 w-24 rounded-full object-cover border-4 border-blue-100">
-                @else
-                    <div id="profilePreview" class="h-24 w-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-blue-100">
-                        {{ $user->getInitials() }}
-                    </div>
-                @endif
+                <div id="profilePreview" class="flex-shrink-0">
+                    <x-user-avatar :user="$user" size="xl" class="border-4 border-blue-100" />
+                </div>
                 <div class="flex-1">
-                    <input type="file" name="profile_image" id="profile_image" accept="image/*" 
+                    <input type="file" name="profile_image" id="profile_image" accept="image/*"
                            class="w-full px-3 py-2 border rounded-lg @error('profile_image') border-red-500 @enderror"
                            onchange="previewProfileImage(this)">
                     <p class="text-xs text-gray-500 mt-1">Maximum file size: 5MB. JPG, PNG, GIF allowed.</p>

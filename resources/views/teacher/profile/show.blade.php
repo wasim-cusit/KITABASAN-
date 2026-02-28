@@ -8,11 +8,7 @@
 <div class="teacher-profile-card">
     <div class="teacher-profile-header">
         <div class="teacher-profile-hero">
-            @if($user->profile_image)
-                <img src="{{ \Storage::url($user->profile_image) }}" alt="{{ $user->name }}" class="teacher-profile-avatar">
-            @else
-                <div class="teacher-profile-avatar-placeholder">{{ $user->getInitials() }}</div>
-            @endif
+            <x-user-avatar :user="$user" size="xl" class="teacher-profile-avatar" />
             <div>
                 <h1 class="teacher-profile-name">
                     {{ trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: $user->name }}

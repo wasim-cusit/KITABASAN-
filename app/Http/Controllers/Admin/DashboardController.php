@@ -10,6 +10,8 @@ use App\Models\CourseEnrollment;
 use App\Models\DeviceBinding;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
 {
@@ -33,23 +35,31 @@ class DashboardController extends Controller
         $fromInput = $request->query('from');
         $toInput = $request->query('to');
 
-        try {
-            $from = $fromInput ? Carbon::parse($fromInput)->startOfDay() : Carbon::now()->subDays(29)->startOfDay();
-        } catch (\Throwable $e) {
-            $from = Carbon::now()->subDays(29)->startOfDay();
-        }
+        $useAllTimeDefault = ($fromInput === null && $toInput === null);
 
-        try {
-            $to = $toInput ? Carbon::parse($toInput)->endOfDay() : Carbon::now()->endOfDay();
-        } catch (\Throwable $e) {
+        if ($useAllTimeDefault) {
+            $earliest = Payment::query()->min('created_at');
+            $from = $earliest ? Carbon::parse($earliest)->startOfDay() : Carbon::create(2000, 1, 1)->startOfDay();
             $to = Carbon::now()->endOfDay();
+        } else {
+            try {
+                $from = $fromInput ? Carbon::parse($fromInput)->startOfDay() : Carbon::now()->subDays(29)->startOfDay();
+            } catch (\Throwable $e) {
+                $from = Carbon::now()->subDays(29)->startOfDay();
+            }
+
+            try {
+                $to = $toInput ? Carbon::parse($toInput)->endOfDay() : Carbon::now()->endOfDay();
+            } catch (\Throwable $e) {
+                $to = Carbon::now()->endOfDay();
+            }
         }
 
         if ($from->gt($to)) {
             [$from, $to] = [$to->copy()->startOfDay(), $from->copy()->endOfDay()];
         }
 
-        if ($from->diffInDays($to) > $rangeMaxDays) {
+        if (!$useAllTimeDefault && $from->diffInDays($to) > $rangeMaxDays) {
             $from = $to->copy()->subDays($rangeMaxDays)->startOfDay();
         }
 
@@ -62,6 +72,7 @@ class DashboardController extends Controller
             'to' => $to->toDateString(),
             'from_label' => $from->format('M d, Y'),
             'to_label' => $to->format('M d, Y'),
+            'all_time' => $useAllTimeDefault,
         ];
 
         $recentPayments = Payment::with(['user', 'book'])
@@ -81,24 +92,48 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Analytics
-        $dailyRevenueRows = Payment::query()
-            ->where('status', 'completed')
-            ->whereBetween('created_at', [$from, $to])
-            ->selectRaw('DATE(created_at) as day, COALESCE(SUM(amount), 0) as total')
-            ->groupBy('day')
-            ->orderBy('day')
-            ->get()
-            ->keyBy('day');
+        // Analytics: revenue chart (daily or monthly depending on range)
+        $rangeDays = $from->diffInDays($to) + 1;
+        $useMonthlyRevenue = $rangeDays > 366;
 
-        $revenueLabels = [];
-        $revenueTotals = [];
-        $cursor = $from->copy();
-        while ($cursor->lte($to)) {
-            $day = $cursor->toDateString();
-            $revenueLabels[] = $cursor->format('M d');
-            $revenueTotals[] = (float) (($dailyRevenueRows[$day]->total ?? 0));
-            $cursor->addDay();
+        if ($useMonthlyRevenue) {
+            $revenueRows = Payment::query()
+                ->where('status', 'completed')
+                ->whereBetween('created_at', [$from, $to])
+                ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COALESCE(SUM(amount), 0) as total')
+                ->groupBy('month')
+                ->orderBy('month')
+                ->get()
+                ->keyBy('month');
+
+            $revenueLabels = [];
+            $revenueTotals = [];
+            $cursor = $from->copy()->startOfMonth();
+            while ($cursor->lte($to)) {
+                $monthKey = $cursor->format('Y-m');
+                $revenueLabels[] = $cursor->format('M Y');
+                $revenueTotals[] = (float) (($revenueRows[$monthKey]->total ?? 0));
+                $cursor->addMonth();
+            }
+        } else {
+            $dailyRevenueRows = Payment::query()
+                ->where('status', 'completed')
+                ->whereBetween('created_at', [$from, $to])
+                ->selectRaw('DATE(created_at) as day, COALESCE(SUM(amount), 0) as total')
+                ->groupBy('day')
+                ->orderBy('day')
+                ->get()
+                ->keyBy('day');
+
+            $revenueLabels = [];
+            $revenueTotals = [];
+            $cursor = $from->copy();
+            while ($cursor->lte($to)) {
+                $day = $cursor->toDateString();
+                $revenueLabels[] = $cursor->format('M d');
+                $revenueTotals[] = (float) (($dailyRevenueRows[$day]->total ?? 0));
+                $cursor->addDay();
+            }
         }
 
         $paymentStatusRows = Payment::query()
@@ -186,6 +221,63 @@ class DashboardController extends Controller
             ],
         ];
 
-        return view('admin.dashboard.index', compact('stats', 'recentPayments', 'pendingCourses', 'pendingDeviceResets', 'analytics'));
+        $studentLoginLocations = $this->getStudentLoginLocations();
+
+        return view('admin.dashboard.index', compact('stats', 'recentPayments', 'pendingCourses', 'pendingDeviceResets', 'analytics', 'studentLoginLocations'));
+    }
+
+    /**
+     * Get student login locations from device bindings (IP geolocation, cached).
+     */
+    private function getStudentLoginLocations(): array
+    {
+        $bindings = DeviceBinding::query()
+            ->with('user')
+            ->whereHas('user', fn ($q) => $q->role('student'))
+            ->whereNotNull('ip_address')
+            ->where('ip_address', '!=', '')
+            ->latest('last_used_at')
+            ->limit(50)
+            ->get();
+
+        $byIp = [];
+        foreach ($bindings as $b) {
+            $ip = $b->ip_address;
+            if (in_array($ip, ['127.0.0.1', '::1'], true) || preg_match('/^10\.|^172\.(1[6-9]|2[0-9]|3[01])\.|^192\.168\./', $ip)) {
+                continue;
+            }
+            if (!isset($byIp[$ip])) {
+                $byIp[$ip] = ['name' => $b->user->name ?? 'Student', 'binding' => $b];
+            }
+        }
+
+        $locations = [];
+        foreach ($byIp as $ip => $info) {
+            $cacheKey = 'ip_geo_' . md5($ip);
+            $geo = Cache::remember($cacheKey, now()->addDay(), function () use ($ip) {
+                try {
+                    $r = Http::timeout(2)->get("http://ip-api.com/json/{$ip}", ['fields' => 'status,lat,lon,city,country']);
+                    $data = $r->json();
+                    if (($data['status'] ?? '') === 'success' && isset($data['lat'], $data['lon'])) {
+                        return ['lat' => (float) $data['lat'], 'lon' => (float) $data['lon'], 'city' => $data['city'] ?? '', 'country' => $data['country'] ?? ''];
+                    }
+                } catch (\Throwable $e) {
+                    return null;
+                }
+                return null;
+            });
+            if ($geo) {
+                $locations[] = [
+                    'lat' => $geo['lat'],
+                    'lng' => $geo['lon'],
+                    'name' => $info['name'],
+                    'city' => $geo['city'] ?? '',
+                    'country' => $geo['country'] ?? '',
+                    'ip' => $ip,
+                ];
+            }
+        }
+
+        return $locations;
     }
 }

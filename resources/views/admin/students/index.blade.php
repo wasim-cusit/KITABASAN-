@@ -139,9 +139,7 @@
                                     <td class="px-3 lg:px-6 py-4">
                                         <div class="flex items-center">
                                             <div class="shrink-0 h-8 w-8 lg:h-10 lg:w-10">
-                                                <img class="h-8 w-8 lg:h-10 lg:w-10 rounded-full"
-                                                     src="{{ $student->profile_image ? \Storage::url($student->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode($student->name) }}"
-                                                     alt="{{ $student->name }}">
+                                                <x-user-avatar :user="$student" size="sm" />
                                             </div>
                                             <div class="ml-2 lg:ml-4">
                                                 <div class="text-sm font-medium text-gray-900">{{ $student->name }}</div>

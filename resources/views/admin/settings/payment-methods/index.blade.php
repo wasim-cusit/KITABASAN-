@@ -8,7 +8,7 @@
     <div class="p-6">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold text-gray-800">Payment Methods</h2>
-            <a href="{{ route('admin.settings.payment-methods.create') }}" 
+            <a href="{{ route('admin.settings.payment-methods.create') }}"
                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 Add New Payment Method
             </a>
@@ -32,7 +32,7 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($method->icon)
-                                    <img src="{{ \Storage::url($method->icon) }}" alt="{{ $method->name }}" class="h-10 w-10 object-contain">
+                                    <img src="{{ route('storage.serve', ['path' => ltrim(str_replace('\\', '/', $method->icon), '/')]) }}" alt="{{ $method->name }}" class="h-10 w-10 object-contain">
                                 @else
                                     <div class="h-10 w-10 bg-gray-200 rounded flex items-center justify-center text-gray-400">
                                         💳
@@ -60,7 +60,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 @if($method->transaction_fee_percentage > 0 || $method->transaction_fee_fixed > 0)
-                                    {{ number_format($method->transaction_fee_percentage, 2) }}% 
+                                    {{ number_format($method->transaction_fee_percentage, 2) }}%
                                     @if($method->transaction_fee_fixed > 0)
                                         + {{ number_format($method->transaction_fee_fixed, 2) }}
                                     @endif
@@ -70,19 +70,19 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-2">
-                                    <a href="{{ route('admin.settings.payment-methods.edit', $method->id) }}" 
+                                    <a href="{{ route('admin.settings.payment-methods.edit', $method->id) }}"
                                        class="text-blue-600 hover:text-blue-900">Edit</a>
-                                    <form action="{{ route('admin.settings.payment-methods.toggle-status', $method->id) }}" 
+                                    <form action="{{ route('admin.settings.payment-methods.toggle-status', $method->id) }}"
                                           method="POST" class="inline">
                                         @csrf
                                         @method('POST')
-                                        <button type="submit" 
+                                        <button type="submit"
                                                 class="text-{{ $method->is_active ? 'yellow' : 'green' }}-600 hover:text-{{ $method->is_active ? 'yellow' : 'green' }}-900">
                                             {{ $method->is_active ? 'Deactivate' : 'Activate' }}
                                         </button>
                                     </form>
-                                    <form action="{{ route('admin.settings.payment-methods.destroy', $method->id) }}" 
-                                          method="POST" class="inline" 
+                                    <form action="{{ route('admin.settings.payment-methods.destroy', $method->id) }}"
+                                          method="POST" class="inline"
                                           onsubmit="return confirm('Are you sure you want to delete this payment method?');">
                                         @csrf
                                         @method('DELETE')

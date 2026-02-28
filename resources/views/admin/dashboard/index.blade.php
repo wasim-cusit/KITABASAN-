@@ -3,147 +3,157 @@
 @section('title', 'Admin Dashboard')
 @section('page-title', 'Dashboard')
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+@endpush
+
 @section('content')
-<div class="container mx-auto px-0 lg:px-4">
+<div class="max-w-7xl mx-auto px-4 lg:px-6">
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-6 lg:mb-8" data-testid="admin-dashboard-stats">
+    <!-- Stats -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" data-testid="admin-dashboard-stats">
         <a href="{{ route('admin.students.index') }}"
-           class="rounded-lg border border-blue-200 bg-blue-50/60 p-4 lg:p-6 block hover:shadow-md hover:bg-blue-50 transition"
+           class="bg-white border border-gray-200 rounded-lg p-5 block hover:border-blue-200 hover:shadow-sm transition-all duration-150 border-l-4 border-l-blue-500"
            data-testid="admin-dashboard-total-students">
-            <h3 class="text-blue-700 text-xs lg:text-sm font-semibold">Total Students</h3>
-            <p class="text-xl lg:text-3xl font-bold text-gray-900">{{ $stats['total_students'] }}</p>
-            <p class="text-[11px] text-gray-400 mt-1">All-time</p>
+            <p class="text-sm font-medium text-blue-600">Total Students</p>
+            <p class="mt-1 text-xl font-semibold text-gray-900 tabular-nums">{{ $stats['total_students'] }}</p>
         </a>
-
         <a href="{{ route('admin.courses.index') }}"
-           class="rounded-lg border border-indigo-200 bg-indigo-50/60 p-4 lg:p-6 block hover:shadow-md hover:bg-indigo-50 transition"
+           class="bg-white border border-gray-200 rounded-lg p-5 block hover:border-indigo-200 hover:shadow-sm transition-all duration-150 border-l-4 border-l-indigo-500"
            data-testid="admin-dashboard-total-courses">
-            <h3 class="text-indigo-700 text-xs lg:text-sm font-semibold">Total Courses</h3>
-            <p class="text-xl lg:text-3xl font-bold text-gray-900">{{ $stats['total_courses'] }}</p>
-            <p class="text-[11px] text-gray-400 mt-1">All-time</p>
+            <p class="text-sm font-medium text-indigo-600">Total Courses</p>
+            <p class="mt-1 text-xl font-semibold text-gray-900 tabular-nums">{{ $stats['total_courses'] }}</p>
         </a>
-
         <a href="{{ route('admin.payments.index', ['from' => $analytics['range']['from'] ?? null, 'to' => $analytics['range']['to'] ?? null]) }}"
-           class="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 lg:p-6 block hover:shadow-md hover:bg-emerald-50 transition"
+           class="bg-white border border-gray-200 rounded-lg p-5 block hover:border-emerald-200 hover:shadow-sm transition-all duration-150 border-l-4 border-l-emerald-500"
            data-testid="admin-dashboard-total-revenue">
-            <h3 class="text-emerald-700 text-xs lg:text-sm font-semibold">Total Revenue</h3>
-            <p class="text-xl lg:text-3xl font-bold text-gray-900">Rs. {{ number_format($stats['total_revenue'], 2) }}</p>
-            <p class="text-[11px] text-gray-400 mt-1">
-                {{ $analytics['range']['from_label'] ?? '' }} → {{ $analytics['range']['to_label'] ?? '' }}
-            </p>
+            <p class="text-sm font-medium text-emerald-600">Revenue (selected range)</p>
+            <p class="mt-1 text-xl font-semibold text-emerald-700 tabular-nums truncate" title="Rs. {{ number_format($stats['total_revenue'], 0) }}">Rs. {{ number_format($stats['total_revenue'], 0) }}</p>
         </a>
-
         <a href="{{ route('admin.courses.index', ['status' => 'draft']) }}"
-           class="rounded-lg border border-amber-200 bg-amber-50/70 p-4 lg:p-6 block hover:shadow-md hover:bg-amber-50 transition"
+           class="bg-white border border-gray-200 rounded-lg p-5 block hover:border-amber-200 hover:shadow-sm transition-all duration-150 border-l-4 border-l-amber-500"
            data-testid="admin-dashboard-pending-courses">
-            <h3 class="text-amber-700 text-xs lg:text-sm font-semibold">Pending Courses</h3>
-            <p class="text-xl lg:text-3xl font-bold text-amber-700">{{ $stats['pending_courses'] }}</p>
-            <p class="text-[11px] text-gray-400 mt-1">All-time</p>
+            <p class="text-sm font-medium text-amber-600">Pending course approvals</p>
+            <p class="mt-1 text-xl font-semibold text-gray-900 tabular-nums">{{ $stats['pending_courses'] }}</p>
         </a>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6" data-testid="admin-dashboard-panels">
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6" data-testid="admin-dashboard-recent-payments">
-            <div class="flex items-start justify-between gap-3 mb-4">
-                <h2 class="text-lg lg:text-xl font-bold">Recent Payments</h2>
-                <a href="{{ route('admin.payments.index') }}"
-                   class="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline whitespace-nowrap">
-                    View All Payments →
-                </a>
-            </div>
-            <div class="space-y-4">
-                @forelse($recentPayments as $payment)
-                <div class="border-b pb-2">
-                    <p class="font-medium">{{ $payment->user->name ?? 'N/A' }}</p>
-                    <p class="text-sm text-gray-600">{{ $payment->book->title ?? 'N/A' }}</p>
-                    <p class="text-sm font-semibold">Rs. {{ number_format($payment->amount ?? 0, 2) }}</p>
+    <!-- Activity panels -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" data-testid="admin-dashboard-panels">
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden" data-testid="admin-dashboard-recent-payments">
+            <div class="px-5 py-4 border-b border-emerald-100 bg-emerald-50/70">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-gray-900">Recent payments</h2>
+                    <a href="{{ route('admin.payments.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">View all</a>
                 </div>
-                @empty
-                <p class="text-gray-500">No recent payments</p>
-                @endforelse
+            </div>
+            <div class="p-5">
+                <ul class="divide-y divide-gray-200">
+                    @forelse($recentPayments as $payment)
+                    <li class="py-3 first:pt-0 last:pb-0">
+                        <div class="flex justify-between items-baseline gap-3">
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">{{ $payment->user->name ?? 'N/A' }}</p>
+                                <p class="text-xs text-gray-500 truncate">{{ $payment->book->title ?? 'N/A' }}</p>
+                            </div>
+                            <span class="text-sm font-medium text-emerald-700 tabular-nums shrink-0">Rs. {{ number_format($payment->amount ?? 0, 0) }}</span>
+                        </div>
+                    </li>
+                    @empty
+                    <li class="py-8 text-center">
+                        <p class="text-sm text-gray-500">No recent payments</p>
+                        <a href="{{ route('admin.payments.index') }}" class="mt-2 text-sm font-medium text-blue-600 hover:text-blue-700">View payments</a>
+                    </li>
+                    @endforelse
+                </ul>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6" data-testid="admin-dashboard-pending-course-approvals">
-            <div class="flex items-start justify-between gap-3 mb-4">
-                <h2 class="text-lg lg:text-xl font-bold">Pending Course Approvals</h2>
-                <a href="{{ route('admin.courses.index', ['status' => 'draft']) }}"
-                   class="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline whitespace-nowrap">
-                    View All Pending Courses →
-                </a>
-            </div>
-            <div class="space-y-4">
-                @forelse($pendingCourses as $course)
-                <div class="border-b pb-2">
-                    <p class="font-medium">{{ $course->title }}</p>
-                    <p class="text-sm text-gray-600">By: {{ $course->teacher->name ?? 'N/A' }}</p>
-                    <p class="text-sm text-gray-600">Subject: {{ $course->subject->name ?? 'N/A' }}</p>
-                    <a href="{{ route('admin.courses.show', $course->id) }}" class="text-blue-600 text-sm hover:underline">View Course</a>
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden" data-testid="admin-dashboard-pending-course-approvals">
+            <div class="px-5 py-4 border-b border-amber-100 bg-amber-50/70">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-gray-900">Pending course approvals</h2>
+                    <a href="{{ route('admin.courses.index', ['status' => 'draft']) }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">View all</a>
                 </div>
-                @empty
-                <p class="text-gray-500">No pending courses</p>
-                @endforelse
+            </div>
+            <div class="p-5">
+                <ul class="divide-y divide-gray-200">
+                    @forelse($pendingCourses as $course)
+                    <li class="py-3 first:pt-0 last:pb-0">
+                        <p class="text-sm font-medium text-gray-900 line-clamp-2">{{ $course->title }}</p>
+                        <p class="text-xs text-gray-500 mt-1">Teacher: {{ $course->teacher->name ?? 'N/A' }} · {{ $course->subject->name ?? 'N/A' }}</p>
+                        <a href="{{ route('admin.courses.show', $course->id) }}" class="mt-2 inline-block text-sm font-medium text-blue-600 hover:text-blue-700">Review</a>
+                    </li>
+                    @empty
+                    <li class="py-8 text-center">
+                        <p class="text-sm text-gray-500">No pending courses</p>
+                        <a href="{{ route('admin.courses.index', ['status' => 'draft']) }}" class="mt-2 text-sm font-medium text-blue-600 hover:text-blue-700">View courses</a>
+                    </li>
+                    @endforelse
+                </ul>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6" data-testid="admin-dashboard-pending-device-resets">
-            <div class="flex items-start justify-between gap-3 mb-4">
-                <h2 class="text-lg lg:text-xl font-bold">Pending Device Resets</h2>
-                <a href="{{ route('admin.devices.index', ['status' => 'pending_reset']) }}"
-                   class="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline whitespace-nowrap">
-                    View All Reset Requests →
-                </a>
-            </div>
-            <div class="space-y-4">
-                @forelse($pendingDeviceResets as $device)
-                <div class="border-b pb-2">
-                    <p class="font-medium">{{ $device->user->name }}</p>
-                    <p class="text-sm text-gray-600">{{ $device->device_name ?? 'Unknown Device' }}</p>
-                    <p class="text-xs text-gray-500">{{ Str::limit($device->reset_request_reason, 50) }}</p>
-                    <a href="{{ route('admin.devices.index') }}?status=pending_reset" class="text-blue-600 text-sm hover:underline">View Request</a>
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden" data-testid="admin-dashboard-pending-device-resets">
+            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50/70">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-gray-900">Pending device resets</h2>
+                    <a href="{{ route('admin.devices.index', ['status' => 'pending_reset']) }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">View all</a>
                 </div>
-                @empty
-                <p class="text-gray-500">No pending reset requests</p>
-                @endforelse
+            </div>
+            <div class="p-5">
+                <ul class="divide-y divide-gray-200">
+                    @forelse($pendingDeviceResets as $device)
+                    <li class="py-3 first:pt-0 last:pb-0">
+                        <p class="text-sm font-medium text-gray-900">{{ $device->user->name }}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Device: {{ $device->device_name ?? 'Unknown' }}</p>
+                        @if($device->reset_request_reason)
+                        <p class="text-xs text-gray-500 mt-0.5 line-clamp-2" title="{{ $device->reset_request_reason }}">{{ Str::limit($device->reset_request_reason, 60) }}</p>
+                        @endif
+                        <a href="{{ route('admin.devices.index') }}?status=pending_reset" class="mt-2 inline-block text-sm font-medium text-blue-600 hover:text-blue-700">Manage</a>
+                    </li>
+                    @empty
+                    <li class="py-8 text-center">
+                        <p class="text-sm text-gray-500">No pending reset requests</p>
+                        <a href="{{ route('admin.devices.index', ['status' => 'pending_reset']) }}" class="mt-2 text-sm font-medium text-blue-600 hover:text-blue-700">View requests</a>
+                    </li>
+                    @endforelse
+                </ul>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8 mt-6" data-testid="admin-dashboard-analytics">
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6 lg:col-span-3" data-testid="admin-dashboard-chart-revenue">
-            <div class="flex items-start justify-between gap-3 mb-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 mt-8" data-testid="admin-dashboard-analytics">
+        <div class="bg-white border border-gray-200 rounded-lg p-5 lg:col-span-3" data-testid="admin-dashboard-chart-revenue">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                 <div>
-                    <h2 class="text-lg lg:text-xl font-bold">Revenue</h2>
-                    <p class="text-xs text-gray-500 mt-1">
-                        {{ $analytics['range']['from_label'] ?? '' }}
-                        @if(!empty($analytics['range']['to_label']))
-                            → {{ $analytics['range']['to_label'] }}
+                    <h2 class="text-sm font-semibold text-gray-900">Revenue</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                        @if(!empty($analytics['range']['all_time']))
+                            All time · Completed payments only
+                        @else
+                            {{ $analytics['range']['from_label'] ?? '' }}
+                            @if(!empty($analytics['range']['to_label']))
+                                – {{ $analytics['range']['to_label'] }}
+                            @endif
+                            · Completed payments only
                         @endif
-                        · Completed payments only
                     </p>
                 </div>
-                <form method="GET" action="{{ route('admin.dashboard') }}" class="flex items-end gap-2 flex-wrap">
+                <form method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-wrap items-end gap-3">
                     <div>
-                        <label class="block text-[11px] text-gray-500 mb-1">From</label>
-                        <input type="date" name="from"
-                               value="{{ $analytics['range']['from'] ?? '' }}"
-                               class="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <label class="block text-xs text-gray-500 mb-1">From</label>
+                        <input type="date" name="from" value="{{ !empty($analytics['range']['all_time']) ? '' : ($analytics['range']['from'] ?? '') }}"
+                               class="block w-full rounded border border-gray-300 px-2.5 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
                     </div>
                     <div>
-                        <label class="block text-[11px] text-gray-500 mb-1">To</label>
-                        <input type="date" name="to"
-                               value="{{ $analytics['range']['to'] ?? '' }}"
-                               class="border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <label class="block text-xs text-gray-500 mb-1">To</label>
+                        <input type="date" name="to" value="{{ !empty($analytics['range']['all_time']) ? '' : ($analytics['range']['to'] ?? '') }}"
+                               class="block w-full rounded border border-gray-300 px-2.5 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
                     </div>
-                    <div class="flex gap-2">
-                        <button type="submit"
-                                class="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
-                            Apply
-                        </button>
-                        <a href="{{ route('admin.dashboard') }}"
-                           class="inline-flex items-center px-3 py-1.5 rounded-md border border-gray-300 text-gray-700 text-sm font-semibold hover:bg-gray-50">
-                            Reset
-                        </a>
+                    <div class="flex items-center gap-2">
+                        <button type="submit" class="inline-flex items-center rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700">Apply</button>
+                        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Reset</a>
                     </div>
                 </form>
             </div>
@@ -152,51 +162,60 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6" data-testid="admin-dashboard-chart-payments-status">
-            <div class="mb-4">
-                <h2 class="text-lg lg:text-xl font-bold">Payments by Status</h2>
-                <p class="text-xs text-gray-500 mt-1">
-                    {{ $analytics['range']['from_label'] ?? '' }} → {{ $analytics['range']['to_label'] ?? '' }}
-                </p>
-            </div>
-            <div class="relative w-full" style="height: 280px;">
+        <div class="bg-white border border-gray-200 rounded-lg p-5" data-testid="admin-dashboard-chart-payments-status">
+            <h2 class="text-sm font-semibold text-gray-900">Payments by status</h2>
+            <p class="text-xs text-gray-500 mt-0.5">{{ $analytics['range']['from_label'] ?? '' }} – {{ $analytics['range']['to_label'] ?? '' }}</p>
+            <div class="relative mt-4 w-full" style="height: 280px;">
                 <canvas id="adminPaymentStatusChart" aria-label="Payments by status chart" role="img"></canvas>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6" data-testid="admin-dashboard-chart-students-activity">
-            <div class="mb-4">
-                <h2 class="text-lg lg:text-xl font-bold">Students Activity</h2>
-                <p class="text-xs text-gray-500 mt-1">
-                    {{ $analytics['range']['from_label'] ?? '' }} → {{ $analytics['range']['to_label'] ?? '' }}
-                </p>
-            </div>
-            <div class="relative w-full" style="height: 280px;">
+        <div class="bg-white border border-gray-200 rounded-lg p-5" data-testid="admin-dashboard-chart-students-activity">
+            <h2 class="text-sm font-semibold text-gray-900">Students activity</h2>
+            <p class="text-xs text-gray-500 mt-0.5">{{ $analytics['range']['from_label'] ?? '' }} – {{ $analytics['range']['to_label'] ?? '' }}</p>
+            <div class="relative mt-4 w-full" style="height: 280px;">
                 <canvas id="adminStudentsActivityChart" aria-label="Students activity chart" role="img"></canvas>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6" data-testid="admin-dashboard-chart-device-bindings">
-            <div class="mb-4">
-                <h2 class="text-lg lg:text-xl font-bold">Student Devices (Device Binding)</h2>
-                <p class="text-xs text-gray-500 mt-1">
-                    {{ $analytics['range']['from_label'] ?? '' }} → {{ $analytics['range']['to_label'] ?? '' }}
-                </p>
-            </div>
-            <div class="relative w-full" style="height: 280px;">
+        <div class="bg-white border border-gray-200 rounded-lg p-5" data-testid="admin-dashboard-chart-device-bindings">
+            <h2 class="text-sm font-semibold text-gray-900">Student devices</h2>
+            <p class="text-xs text-gray-500 mt-0.5">{{ $analytics['range']['from_label'] ?? '' }} – {{ $analytics['range']['to_label'] ?? '' }}</p>
+            <div class="relative mt-4 w-full" style="height: 280px;">
                 <canvas id="adminDeviceBindingsChart" aria-label="Device bindings chart" role="img"></canvas>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-4 lg:p-6 lg:col-span-3" data-testid="admin-dashboard-chart-courses-status">
-            <div class="mb-4">
-                <h2 class="text-lg lg:text-xl font-bold">Courses by Status</h2>
-                <p class="text-xs text-gray-500 mt-1">
-                    {{ $analytics['range']['from_label'] ?? '' }} → {{ $analytics['range']['to_label'] ?? '' }}
-                </p>
-            </div>
-            <div class="relative w-full" style="height: 260px;">
+        <div class="bg-white border border-gray-200 rounded-lg p-5 lg:col-span-3" data-testid="admin-dashboard-chart-courses-status">
+            <h2 class="text-sm font-semibold text-gray-900">Courses by status</h2>
+            <p class="text-xs text-gray-500 mt-0.5">{{ $analytics['range']['from_label'] ?? '' }} – {{ $analytics['range']['to_label'] ?? '' }}</p>
+            <div class="relative mt-4 w-full" style="height: 260px;">
                 <canvas id="adminCourseStatusChart" aria-label="Courses by status chart" role="img"></canvas>
+            </div>
+        </div>
+
+        <!-- Student login locations -->
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden lg:col-span-3 mt-6" data-testid="admin-dashboard-student-map">
+            <div class="px-5 py-4 border-b border-blue-100 bg-blue-50/70">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-semibold text-gray-900">Student login locations</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Approximate location by device IP at sign-in</p>
+                    </div>
+                    <a href="{{ route('admin.students.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">View students</a>
+                </div>
+            </div>
+            <div class="p-5">
+                <div class="rounded-md border border-gray-200 overflow-hidden bg-gray-50" style="min-height: 360px;">
+                    <div id="adminStudentMap" class="w-full" style="height: 360px;"></div>
+                </div>
+                @if(empty($studentLoginLocations ?? []))
+                <div class="mt-4 rounded-md border border-gray-200 bg-gray-50 px-4 py-3">
+                    <p class="text-sm text-gray-600">No location data yet. Data appears when students log in from a non-local IP.</p>
+                </div>
+                @else
+                <p class="mt-3 text-xs text-gray-500">OpenStreetMap. Locations are approximate.</p>
+                @endif
             </div>
         </div>
     </div>
@@ -205,6 +224,7 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (!window.Chart) return;
@@ -421,6 +441,30 @@
                         cutout: '65%',
                     },
                 });
+            }
+
+            // Student login locations map (Leaflet)
+            const mapEl = document.getElementById('adminStudentMap');
+            const locations = @json($studentLoginLocations ?? []);
+            if (mapEl && typeof L !== 'undefined') {
+                const map = L.map('adminStudentMap').setView([20, 0], 2);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                }).addTo(map);
+                if (locations.length > 0) {
+                    const bounds = [];
+                    locations.forEach(function (loc) {
+                        const m = L.marker([loc.lat, loc.lng]).addTo(map);
+                        const label = [loc.name, loc.city, loc.country].filter(Boolean).join(', ') || loc.ip;
+                        m.bindPopup('<strong>' + (loc.name || 'Student') + '</strong><br>' + (loc.city ? loc.city + ', ' : '') + (loc.country || '') + (loc.ip ? '<br><small>IP: ' + loc.ip + '</small>' : ''));
+                        bounds.push([loc.lat, loc.lng]);
+                    });
+                    if (bounds.length > 1) {
+                        map.fitBounds(bounds, { padding: [30, 30] });
+                    } else if (bounds.length === 1) {
+                        map.setView(bounds[0], 8);
+                    }
+                }
             }
         });
     </script>

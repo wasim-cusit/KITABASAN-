@@ -5,7 +5,7 @@
     $metaTitle = $course->meta_title ?? $course->title . ' - KITAB ASAN';
     $metaDescription = $course->meta_description ?? Str::limit($course->description ?? $course->short_description ?? 'Learn ' . $course->title . ' online with expert instructors.', 160);
     $metaKeywords = $course->meta_keywords ? implode(', ', $course->meta_keywords) : ($course->tags ? implode(', ', $course->tags) : 'online course, ' . $course->title . ', ' . ($course->subject->name ?? '') . ', ' . ($course->subject->grade->name ?? ''));
-    $ogImage = $course->cover_image ? Storage::url($course->cover_image) : asset('logo.jpeg');
+    $ogImage = $course->cover_image ? route('storage.serve', ['path' => ltrim(str_replace('\\', '/', $course->cover_image), '/')]) : asset('logo.jpeg');
 
     $seo = \App\Services\SEOService::generateMetaTags([
         'title' => $metaTitle,
@@ -55,15 +55,7 @@
 
                     @if($course->teacher)
                     <div class="flex items-center mb-6">
-                        @if($course->teacher->profile_image)
-                            <img src="{{ \Storage::url($course->teacher->profile_image) }}" 
-                                 alt="{{ $course->teacher->name }}" 
-                                 class="w-12 h-12 rounded-full object-cover mr-4 border-2 border-blue-100">
-                        @else
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-4 border-2 border-blue-100">
-                                <span class="text-white font-semibold text-sm">{{ substr($course->teacher->name, 0, 1) }}</span>
-                            </div>
-                        @endif
+                        <x-user-avatar :user="$course->teacher" size="lg" class="mr-4 border-2 border-blue-100" />
                         <div>
                             <div class="font-semibold text-gray-900">Instructor</div>
                             <div class="text-gray-600">{{ $course->teacher->name }}</div>
@@ -84,13 +76,22 @@
                 </div>
                 <div class="lg:w-1/3">
                     <div class="bg-white border-2 border-gray-200 rounded-xl p-6 sticky top-24">
-                        @if($course->cover_image)
-                            <img src="{{ Storage::url($course->cover_image) }}"
-                                 alt="{{ $course->title }} - Course Cover Image"
-                                 class="w-full h-48 object-cover rounded-lg mb-6"
-                                 loading="lazy"
-                                 onload="this.classList.add('loaded')">
-                        @endif
+                        <div class="w-full h-48 rounded-lg mb-6 overflow-hidden flex items-center justify-center">
+                            @if($course->hasValidCoverImage())
+                                <img src="{{ $course->getCoverImageUrl() }}"
+                                     alt="{{ $course->title }} - Course Cover Image"
+                                     class="w-full h-full object-cover"
+                                     loading="lazy"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="hidden w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-5xl font-bold">
+                                    {{ $course->getTitleInitial() }}
+                                </div>
+                            @else
+                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-5xl font-bold">
+                                    {{ $course->getTitleInitial() }}
+                                </div>
+                            @endif
+                        </div>
                         <div class="text-center mb-6">
                             @if($course->is_free)
                                 <div class="text-3xl font-bold text-green-600 mb-2">Free</div>
@@ -163,13 +164,16 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 @foreach($relatedCourses as $relatedCourse)
                 <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                    <div class="h-40 bg-gradient-to-br from-blue-400 to-indigo-600">
-                            @if($relatedCourse->cover_image)
-                                <img src="{{ \Storage::url($relatedCourse->cover_image) }}"
+                    <div class="h-40 bg-gradient-to-br from-blue-400 to-indigo-600 relative overflow-hidden">
+                            @if($relatedCourse->hasValidCoverImage())
+                                <img src="{{ $relatedCourse->getCoverImageUrl() }}"
                                      alt="{{ $relatedCourse->title }} - Related Course Image"
                                      class="w-full h-full object-cover"
                                      loading="lazy"
-                                     onload="this.classList.add('loaded')">
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="hidden w-full h-full absolute inset-0 flex items-center justify-center text-white text-4xl font-bold">{{ $relatedCourse->getTitleInitial() }}</div>
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-white text-4xl font-bold">{{ $relatedCourse->getTitleInitial() }}</div>
                             @endif
                     </div>
                     <div class="p-4">

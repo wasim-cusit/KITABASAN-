@@ -66,10 +66,11 @@ php artisan migrate
 php artisan db:seed
 ```
 
-6. **Create storage link**
+6. **Create storage link** (required for uploaded images to show for admin, teacher, and student)
 ```bash
 php artisan storage:link
 ```
+If the link already exists, that's fine. Without it, images are still served via a fallback route.
 
 7. **Start the development server**
 ```bash

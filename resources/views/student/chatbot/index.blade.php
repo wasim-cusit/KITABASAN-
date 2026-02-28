@@ -141,7 +141,7 @@
             <div :class="message.type === 'user' ? 'flex justify-end' : 'flex justify-start'">
                 <div :class="message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 shadow-sm'"
                     class="rounded-lg px-4 py-2 max-w-[80%]">
-                    <p class="text-sm" x-text="message.text"></p>
+                    <p style="margin-bottom: 0;" class="text-sm" x-text="message.text"></p>
                     <span class="text-xs opacity-70 mt-1 block" x-text="message.time"></span>
                 </div>
             </div>

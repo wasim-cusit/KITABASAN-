@@ -133,7 +133,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-xl shadow-md p-8">
+                    {{-- <div class="bg-white rounded-xl shadow-md p-8">
                         <h3 class="text-xl font-bold mb-4">Business Hours</h3>
                         <div class="space-y-2 text-gray-600">
                             <div class="flex justify-between">
@@ -149,7 +149,7 @@
                                 <span class="font-medium">Closed</span>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl shadow-md p-8 text-white">
                         <h3 class="text-xl font-bold mb-4">Need Immediate Help?</h3>

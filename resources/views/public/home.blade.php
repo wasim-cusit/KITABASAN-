@@ -77,13 +77,16 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @forelse($featuredCourses ?? [] as $course)
                 <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                    <div class="h-48 bg-gradient-to-br from-blue-400 to-indigo-600 relative">
-                        @if($course->cover_image)
-                            <img src="{{ \Storage::url($course->cover_image) }}"
+                    <div class="h-48 bg-gradient-to-br from-blue-400 to-indigo-600 relative overflow-hidden">
+                        @if($course->hasValidCoverImage())
+                            <img src="{{ $course->getCoverImageUrl() }}"
                                  alt="{{ $course->title }} - Featured Course Image"
                                  class="w-full h-full object-cover"
                                  loading="lazy"
-                                 onload="this.classList.add('loaded')">
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="hidden w-full h-full absolute inset-0 flex items-center justify-center text-white text-5xl font-bold">{{ $course->getTitleInitial() }}</div>
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-white text-5xl font-bold">{{ $course->getTitleInitial() }}</div>
                         @endif
                         @if($course->is_free)
                             <span class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">FREE</span>
@@ -137,13 +140,16 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @forelse($freeCourses ?? [] as $course)
                 <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow border-2 border-green-200">
-                    <div class="h-48 bg-gradient-to-br from-green-400 to-emerald-600 relative">
-                        @if($course->cover_image)
-                            <img src="{{ \Storage::url($course->cover_image) }}"
+                    <div class="h-48 bg-gradient-to-br from-green-400 to-emerald-600 relative overflow-hidden">
+                        @if($course->hasValidCoverImage())
+                            <img src="{{ $course->getCoverImageUrl() }}"
                                  alt="{{ $course->title }} - Free Course Image"
                                  class="w-full h-full object-cover"
                                  loading="lazy"
-                                 onload="this.classList.add('loaded')">
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="hidden w-full h-full absolute inset-0 flex items-center justify-center text-white text-5xl font-bold">{{ $course->getTitleInitial() }}</div>
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-white text-5xl font-bold">{{ $course->getTitleInitial() }}</div>
                         @endif
                         <span class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">FREE</span>
                     </div>

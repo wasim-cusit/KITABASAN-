@@ -35,7 +35,7 @@
                             <tr>
                                 <th>Student</th>
                                 <th class="hide-sm">Email</th>
-                                <th class="hide-md">Mobile</th>
+                                {{-- <th class="hide-md">Mobile</th> --}}
                                 <th>Courses</th>
                                 <th>Actions</th>
                             </tr>
@@ -46,7 +46,7 @@
                                     <td>
                                         <div class="teacher-students-cell-student">
                                             <div class="teacher-students-avatar">
-                                                <img src="{{ $student->profile_image ? Storage::url($student->profile_image) : 'https://ui-avatars.com/api/?name=' . urlencode($student->name) }}" alt="">
+                                                <x-user-avatar :user="$student" size="sm" />
                                             </div>
                                             <div class="teacher-students-name-wrap">
                                                 <div class="teacher-students-name">{{ $student->name }}</div>
@@ -55,7 +55,7 @@
                                         </div>
                                     </td>
                                     <td class="whitespace-nowrap hide-sm teacher-students-cell-muted">{{ $student->email }}</td>
-                                    <td class="whitespace-nowrap hide-md teacher-students-cell-muted">{{ $student->mobile ?? 'N/A' }}</td>
+                                    {{-- <td class="whitespace-nowrap hide-md teacher-students-cell-muted">{{ $student->mobile ?? 'N/A' }}</td> --}}
                                     <td>
                                         <span class="teacher-students-badge">
                                             {{ $student->enrollments_count }} {{ Str::plural('course', $student->enrollments_count) }}

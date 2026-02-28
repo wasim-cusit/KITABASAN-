@@ -28,11 +28,14 @@
         <!-- Course Details -->
         <div class="lg:col-span-2 space-y-4 sm:space-y-6">
             <!-- Cover Image -->
-            @if($course->cover_image)
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <img src="{{ \Storage::url($course->cover_image) }}" alt="{{ $course->title }}" class="w-full h-48 sm:h-64 lg:h-80 object-cover">
-                </div>
-            @endif
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                @if($course->hasValidCoverImage())
+                    <img src="{{ $course->getCoverImageUrl() }}" alt="{{ $course->title }}" class="w-full h-48 sm:h-64 lg:h-80 object-cover" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="hidden w-full h-48 sm:h-64 lg:h-80 flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-5xl font-bold">{{ $course->getTitleInitial() }}</div>
+                @else
+                    <div class="w-full h-48 sm:h-64 lg:h-80 flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-5xl font-bold">{{ $course->getTitleInitial() }}</div>
+                @endif
+            </div>
 
             <!-- Course Overview Card -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">

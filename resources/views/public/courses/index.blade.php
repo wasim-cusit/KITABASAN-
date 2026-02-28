@@ -90,13 +90,20 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach($courses as $course)
                     <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                        <div class="h-48 bg-gradient-to-br from-blue-400 to-indigo-600 relative">
-                            @if($course->cover_image)
-                                <img src="{{ \Storage::url($course->cover_image) }}"
+                        <div class="h-48 bg-gradient-to-br from-blue-400 to-indigo-600 relative overflow-hidden">
+                            @if($course->hasValidCoverImage())
+                                <img src="{{ $course->getCoverImageUrl() }}"
                                      alt="{{ $course->title }} - Course Image"
                                      class="w-full h-full object-cover"
                                      loading="lazy"
-                                     onload="this.classList.add('loaded')">
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="hidden w-full h-full absolute inset-0 flex items-center justify-center text-white text-5xl font-bold">
+                                    {{ $course->getTitleInitial() }}
+                                </div>
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-white text-5xl font-bold">
+                                    {{ $course->getTitleInitial() }}
+                                </div>
                             @endif
                             @if($course->is_free)
                                 <span class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">FREE</span>
@@ -115,15 +122,7 @@
                             <div class="flex items-center justify-between mb-4">
                                 @if($course->teacher)
                                     <div class="flex items-center">
-                                        @if($course->teacher->profile_image)
-                                            <img src="{{ \Storage::url($course->teacher->profile_image) }}" 
-                                                 alt="{{ $course->teacher->name }}" 
-                                                 class="w-8 h-8 rounded-full object-cover mr-2 border border-blue-100">
-                                        @else
-                                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-2 border border-blue-100">
-                                                <span class="text-white font-semibold text-xs">{{ substr($course->teacher->name, 0, 1) }}</span>
-                                            </div>
-                                        @endif
+                                        <x-user-avatar :user="$course->teacher" size="sm" class="mr-2 border border-blue-100" />
                                         <span class="text-sm text-gray-600">{{ $course->teacher->name }}</span>
                                     </div>
                                 @endif

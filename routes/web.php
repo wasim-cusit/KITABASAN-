@@ -9,6 +9,11 @@ use App\Http\Controllers\Public\PublicChatbotController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\StorageController;
+
+// Serve uploaded files from storage. Use /files/... so the request always hits Laravel
+// (no public/files folder), fixing broken images on admin when public/storage junction fails.
+Route::get('files/{path}', [StorageController::class, 'show'])->where('path', '.*')->name('storage.serve');
 
 // Public Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');

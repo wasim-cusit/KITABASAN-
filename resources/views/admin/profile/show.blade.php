@@ -8,15 +8,7 @@
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 gap-4">
         <div class="flex items-center space-x-4">
             <!-- Profile Picture with Initials Fallback -->
-            @if($user->profile_image)
-                <img src="{{ \Storage::url($user->profile_image) }}"
-                     alt="{{ $user->name }}"
-                     class="h-24 w-24 rounded-full object-cover border-4 border-blue-100">
-            @else
-                <div class="h-24 w-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-blue-100">
-                    {{ $user->getInitials() }}
-                </div>
-            @endif
+            <x-user-avatar :user="$user" size="xl" class="border-4 border-blue-100" />
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">
                     {{ trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: $user->name }}
